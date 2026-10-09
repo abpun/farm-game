@@ -58,6 +58,8 @@ export class Panel extends Phaser.GameObjects.Container {
       icon: iconKey('close'),
       iconSize: UI_PX * 8,
       align: 'center',
+      // Whatever closes plays its own close sound.
+      sound: null,
       onClick: onClose,
     });
     this.add(close);

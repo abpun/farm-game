@@ -1,4 +1,6 @@
 import * as Phaser from 'phaser';
+import { playCue } from '../../audio/playCue';
+import { reducedMotion } from '../../fx/prefs';
 import { GAME_HEIGHT, GAME_WIDTH } from '../../layout';
 import { FONT_SIZE, UI_COLORS, UI_PX, UI_TEXT, uiText } from '../uiTheme';
 import { Button, type ButtonSkin } from './Button';
@@ -8,6 +10,8 @@ export interface ModalAction {
   label: string;
   icon?: string;
   skin?: ButtonSkin;
+  /** Click cue; defaults to the confirmation sound. */
+  sound?: string | null;
   /** Return false to keep the modal open. */
   onClick: () => void | boolean | Promise<void>;
 }
@@ -25,6 +29,7 @@ const ACTION_GAP = UI_PX * 3;
 const MODAL_DEPTH = 1000;
 const BACKDROP_ALPHA = 0.55;
 const FADE_MS = 120;
+const POP_SCALE = 0.96;
 
 export class Modal extends Phaser.GameObjects.Container {
   static open(scene: Phaser.Scene, options: ModalOptions): Modal {
@@ -70,9 +75,10 @@ export class Modal extends Phaser.GameObjects.Container {
         iconSize: UI_PX * 9,
         skin: action.skin ?? 'wood',
         align: 'center',
+        sound: action.sound === undefined ? 'confirm' : action.sound,
         onClick: async () => {
           const keepOpen = (await action.onClick()) === false;
-          if (!keepOpen) this.close();
+          if (!keepOpen) this.close(true);
         },
       });
       panel.content.add(button);
@@ -80,12 +86,16 @@ export class Modal extends Phaser.GameObjects.Container {
 
     this.setDepth(MODAL_DEPTH).setAlpha(0);
     scene.add.existing(this);
+    playCue(scene, 'open');
     scene.tweens.add({ targets: this, alpha: 1, duration: FADE_MS });
+    if (!reducedMotion(scene)) popIn(scene, panel);
   }
 
-  close(): void {
+  /** `silent` when an action button already gave its own feedback. */
+  close(silent = false): void {
     if (!this.active) return;
     this.setActive(false);
+    if (!silent) playCue(this.scene, 'close');
     this.scene.tweens.add({
       targets: this,
       alpha: 0,
@@ -93,4 +103,12 @@ export class Modal extends Phaser.GameObjects.Container {
       onComplete: () => this.destroy(),
     });
   }
+}
+
+// A short grow from just under full size, around the panel's centre.
+export function popIn(scene: Phaser.Scene, panel: Panel): void {
+  const { x, y, panelWidth, panelHeight } = panel;
+  const offset = (1 - POP_SCALE) / 2;
+  panel.setScale(POP_SCALE).setPosition(x + panelWidth * offset, y + panelHeight * offset);
+  scene.tweens.add({ targets: panel, scale: 1, x, y, duration: FADE_MS, ease: 'Back.easeOut' });
 }

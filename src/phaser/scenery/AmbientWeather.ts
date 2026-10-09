@@ -36,6 +36,7 @@ export class AmbientWeather {
   private motion: Motion | null = null;
   private active = 0;
   private elapsed = 0;
+  private hidden = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -61,9 +62,18 @@ export class AmbientWeather {
     });
   }
 
+  /** Hides the drifting particles (reduced motion) without forgetting the season. */
+  setHidden(hidden: boolean): void {
+    if (hidden === this.hidden) return;
+    this.hidden = hidden;
+    this.particles.forEach((particle, i) =>
+      particle.image.setVisible(!hidden && this.motion !== null && i < this.active),
+    );
+  }
+
   update(deltaSec: number): void {
     const motion = this.motion;
-    if (!motion) return;
+    if (!motion || this.hidden) return;
     this.elapsed += deltaSec;
     for (let i = 0; i < this.active; i++) {
       const particle = this.particles[i] as Particle;

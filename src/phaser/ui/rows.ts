@@ -149,6 +149,7 @@ export function chipRow(
       iconSize: UI_PX * 9,
       fontSize: FONT_SIZE.small,
       align: 'center',
+      sound: 'tab',
       onClick: () => onPick(chip.id),
     });
     container.add(button);

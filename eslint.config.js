@@ -24,4 +24,13 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ['src/audio/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['phaser', 'three', '@game/*', '**/phaser/**', '**/three/**'] },
+      ],
+    },
+  },
 );

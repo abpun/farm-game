@@ -58,6 +58,8 @@ export class Docks {
         icon: iconKey(entry.icon),
         iconSize: UI_PX * 12,
         align: 'center',
+        // Drawers play their own open/close sound.
+        sound: entry.onOpen ? null : 'error',
         onClick: () => (entry.onOpen ? entry.onOpen() : onComingSoon(entry)),
       }).setDepth(DOCK_DEPTH);
       const label = scene.add

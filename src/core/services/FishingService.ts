@@ -15,6 +15,9 @@ const COMMON: Rarity = 'common';
 // Cast → wait for a bite → reel within the window. The fish is rolled at cast time and
 // the cast is cleared as soon as it resolves, so a catch can only be paid once.
 export class FishingService {
+  /** castAt of the cast whose bite was already announced. */
+  private announcedBite: number | null = null;
+
   constructor(private readonly ctx: GameContext) {}
 
   private get data(): FishingData {
@@ -121,10 +124,16 @@ export class FishingService {
     return this.land(cast.fishId);
   }
 
-  /** Lets a fish that was never reeled in get away, including after a reload. */
+  /** Announces a bite once, and lets a fish that was never reeled in get away. */
   update(): void {
     const cast = this.fishing.cast;
-    if (!cast || this.ctx.time.now() <= cast.biteAt + cast.reactionSec) return;
+    if (!cast) return;
+    const now = this.ctx.time.now();
+    if (now >= cast.biteAt && this.announcedBite !== cast.castAt) {
+      this.announcedBite = cast.castAt;
+      this.ctx.bus.emit('FishBite', { spotId: cast.spotId });
+    }
+    if (now <= cast.biteAt + cast.reactionSec) return;
     this.fishing.cast = null;
     this.ctx.bus.emit('FishEscaped', { reason: 'late' });
   }

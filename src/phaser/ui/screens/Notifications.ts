@@ -39,7 +39,7 @@ export class Notifications {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly session: GameSession,
+    session: GameSession,
     private readonly toasts: ToastManager,
   ) {
     const { bus, content, catalog } = session;
@@ -70,6 +70,7 @@ export class Notifications {
       this.push(`${order.customer}'s order expired`, {
         icon: iconKey('orders'),
         color: UI_TEXT.danger,
+        sound: null,
       }),
     );
   }

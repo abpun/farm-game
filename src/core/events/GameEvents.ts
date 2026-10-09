@@ -15,6 +15,7 @@ export interface GameEvents {
   ObjectPlaced: { object: PlacedObject };
   ObjectRemoved: { object: PlacedObject };
   SeasonChanged: { seasonId: string };
+  DayChanged: { day: number };
   GameSaved: { savedAt: number };
   XpGained: { amount: number; xp: number };
   LevelUp: { level: number; coins: number };
@@ -23,11 +24,13 @@ export interface GameEvents {
   BuildingCompleted: { objectId: number };
   BuildingUpgraded: { objectId: number; level: number };
   ProductionStarted: { objectId: number; recipeId: string };
+  ProductionReady: { objectId: number; recipeId: string };
   ProductionCollected: { objectId: number; items: Quantities; batches: number };
   AnimalBought: { objectId: number; animalId: string };
   AnimalsFed: { objectId: number; count: number };
   AnimalProductsCollected: { objectId: number; itemId: string; amount: number };
   FishingCast: { spotId: string };
+  FishBite: { spotId: string };
   FishCaught: { fishId: string; firstCatch: boolean };
   FishEscaped: { reason: 'early' | 'late' };
   RodUpgraded: { rodId: string };

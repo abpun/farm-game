@@ -1,0 +1,126 @@
+{
+  "defaultTrack": "farm",
+  "fishingTrack": "fishing",
+  "seasonTracks": { "winter": "winter" },
+  "fadeSec": 1.6,
+  "tracks": [
+    {
+      "id": "farm",
+      "bpm": 100,
+      "stepsPerBeat": 2,
+      "beatsPerBar": 4,
+      "gain": 0.5,
+      "chords": [
+        "F",
+        "Am",
+        "Bb",
+        "C",
+        "F",
+        "Dm",
+        "Gm",
+        "C",
+        "Bb",
+        "C",
+        "Am",
+        "Dm",
+        "Gm",
+        "C",
+        "F",
+        "F"
+      ],
+      "parts": [
+        {
+          "style": "melody",
+          "wave": "square",
+          "gain": 0.5,
+          "filter": 2000,
+          "attack": 0.01,
+          "vibrato": { "rate": 5, "depth": 3 },
+          "notes": "C5 - A4 - F4 G4 A4 -  C5 - E5 - D5 C5 A4 -  D5 - - C5 Bb4 - A4 -  G4 - - - . . C5 -  A4 - C5 - F5 - E5 D5  D5 - A4 - F4 - A4 -  Bb4 - D5 - G5 - F5 E5  E5 - - - . . . .  D5 - F5 - D5 - Bb4 -  C5 - E5 - G5 - E5 -  C5 - - A4 E5 - C5 -  F5 - D5 - A4 - D5 -  G4 - Bb4 - D5 - C5 Bb4  A4 - G4 - E4 - G4 -  F4 - - - A4 - C5 -  F5 - - - - - . ."
+        },
+        {
+          "style": "arp",
+          "wave": "triangle",
+          "octave": 4,
+          "gain": 0.32,
+          "decay": 0.35,
+          "pattern": "1.5.8.5."
+        },
+        { "style": "bass", "wave": "triangle", "octave": 2, "gain": 0.9, "pattern": "1---5---" },
+        { "style": "drums", "wave": "noise", "gain": 0.22, "pattern": "o..xs.x." }
+      ]
+    },
+    {
+      "id": "winter",
+      "bpm": 132,
+      "stepsPerBeat": 2,
+      "beatsPerBar": 3,
+      "gain": 0.45,
+      "chords": [
+        "Am",
+        "F",
+        "C",
+        "G",
+        "Am",
+        "F",
+        "E",
+        "E",
+        "F",
+        "G",
+        "C",
+        "Am",
+        "Dm",
+        "E",
+        "Am",
+        "Am"
+      ],
+      "parts": [
+        {
+          "style": "melody",
+          "wave": "sine",
+          "gain": 0.6,
+          "decay": 1.1,
+          "attack": 0.003,
+          "notes": "A5 - E5 - C5 -  A5 - F5 - C5 -  G5 - E5 - C5 E5  D5 - - - B4 -  C5 - E5 - A5 -  C6 - A5 - F5 -  G#5 - B5 - E5 -  E5 - - - . .  F5 - A5 - C6 -  B5 - G5 - D5 -  E5 - G5 - C6 -  A5 - - - E5 -  F5 - D5 - A5 -  G#5 - E5 - B4 -  A4 - C5 - E5 -  A5 - - - . ."
+        },
+        {
+          "style": "arp",
+          "wave": "triangle",
+          "octave": 4,
+          "gain": 0.28,
+          "decay": 0.45,
+          "pattern": "..3.5."
+        },
+        { "style": "bass", "wave": "triangle", "octave": 2, "gain": 0.8, "pattern": "1-----" }
+      ]
+    },
+    {
+      "id": "fishing",
+      "bpm": 84,
+      "stepsPerBeat": 2,
+      "beatsPerBar": 4,
+      "gain": 0.45,
+      "chords": ["G", "Em", "C", "D", "G", "Em", "Am", "D"],
+      "parts": [
+        {
+          "style": "melody",
+          "wave": "triangle",
+          "gain": 0.75,
+          "decay": 0.7,
+          "attack": 0.004,
+          "notes": "D5 - - B4 . . G4 -  B4 - - - . . E5 -  E5 - D5 - C5 - - -  A4 - - - . . . .  B4 - D5 - G5 - - -  E5 - - D5 B4 - - -  C5 - E5 - A4 - - -  D5 - - - . . . ."
+        },
+        {
+          "style": "arp",
+          "wave": "sine",
+          "octave": 5,
+          "gain": 0.3,
+          "decay": 0.5,
+          "pattern": "..5...3."
+        },
+        { "style": "bass", "wave": "triangle", "octave": 2, "gain": 0.8, "pattern": "1---5---" },
+        { "style": "drums", "wave": "noise", "gain": 0.14, "pattern": "..s...s." }
+      ]
+    }
+  ]
+}

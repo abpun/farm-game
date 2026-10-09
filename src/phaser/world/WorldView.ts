@@ -51,6 +51,10 @@ export class WorldView {
     this.buildingViews.forEach((view) => view.refresh());
   }
 
+  sprite(objectId: number): Phaser.GameObjects.Image | undefined {
+    return this.sprites.get(objectId);
+  }
+
   plotView(plotId: number): PlotView | undefined {
     return this.plotViews.get(plotId);
   }

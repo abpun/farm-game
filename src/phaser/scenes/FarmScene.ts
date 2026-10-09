@@ -1,5 +1,7 @@
 import * as Phaser from 'phaser';
+import { playCue } from '../audio/playCue';
 import { floatText } from '../components/floatingText';
+import { WorldFx } from '../fx/WorldFx';
 import { createFarmGrid } from '../iso/createFarmGrid';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { AutosaveManager } from '../managers/AutosaveManager';
@@ -25,6 +27,7 @@ export class FarmScene extends Phaser.Scene {
   private cursor!: BuildCursor;
   private cameraControl!: CameraManager;
   private fishingSpots!: FishingSpots;
+  private fx!: WorldFx;
   private hoveredCell: Cell | null = null;
   /** A planted plot the remove tool was tapped on once; a second tap digs it up. */
   private pendingDig: { plotId: number; until: number } | null = null;
@@ -46,6 +49,7 @@ export class FarmScene extends Phaser.Scene {
     this.fishingSpots = new FishingSpots(this, session, this.grid, shape);
     this.world = new WorldView(this, session, this.grid);
     this.cursor = new BuildCursor(this, session, this.grid, this.world);
+    this.fx = new WorldFx(this, session, this.grid, this.world, this.fishingSpots);
     this.cameraControl = new CameraManager(this, island, sceneryFocus(this.grid));
     new AutosaveManager(this, session);
 
@@ -72,6 +76,7 @@ export class FarmScene extends Phaser.Scene {
     this.world.update();
     this.fishingSpots.update();
     this.scenery.update(deltaMs / MS_PER_SEC);
+    this.fx.update(deltaMs);
   }
 
   private cellAt(pointer: Phaser.Input.Pointer): Cell {
@@ -100,6 +105,9 @@ export class FarmScene extends Phaser.Scene {
     const say: Say = (message, color) => {
       const { x, y } = this.grid.tileCenter(cell.col, cell.row);
       floatText(this, x, y, message, color);
+      if (color !== TEXT.error) return;
+      playCue(this, 'error');
+      getUiBus(this).emit('Denied', { reason: message });
     };
 
     if (!session.world.inBounds(cell.col, cell.row)) {

@@ -1,10 +1,11 @@
-import * as Phaser from 'phaser';
+import type * as Phaser from 'phaser';
 import type { CatalogItem, PlacedObject } from '@core/entities/types';
 import type { GameSession } from '@core/GameSession';
 import { finishedJobs } from '@core/systems/productionQueue';
 import { frontFenceKey, isHousingArt, YARD } from '../art/BuildingArtist';
 import { animalTextureKey, EXTRA_TEXTURES } from '../art/ExtraArtist';
 import { addArt, seededRandom } from '../art/paint';
+import { reducedMotion } from '../fx/prefs';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { PIXEL_SCALE } from '../layout';
 import { textStyle, TEXT } from '../theme';
@@ -18,6 +19,7 @@ const BUBBLE_RISE = 1.5;
 const BOB_MS = 700;
 const WANDER = { ms: 2600, jitter: 1800, distance: 0.18 } as const;
 const STATUS_DEPTH = 9000;
+const POP = { from: 0.4, ms: 220 } as const;
 
 interface Critter {
   image: Phaser.GameObjects.Image;
@@ -41,7 +43,7 @@ export class BuildingView {
     private readonly session: GameSession,
     private readonly grid: IsoGrid,
     private readonly object: PlacedObject,
-    private readonly item: CatalogItem,
+    item: CatalogItem,
     private readonly sprite: Phaser.GameObjects.Image,
   ) {
     const depth = sprite.depth;
@@ -123,15 +125,29 @@ export class BuildingView {
   private showBubble(icon: string, timer: string): void {
     this.timer.setText(timer);
     if (icon === this.shownIcon) return;
+    const appearing = this.shownIcon === '' && icon !== '';
     this.shownIcon = icon;
     this.bubble.setVisible(icon !== '');
     if (!icon) return;
+    if (appearing) this.popBubble();
     this.bubbleIcon.setTexture(icon);
     const scale = Math.max(
       1,
       Math.floor((10 * PIXEL_SCALE) / Math.max(this.bubbleIcon.width, this.bubbleIcon.height)),
     );
     this.bubbleIcon.setScale(Math.min(PIXEL_SCALE, scale));
+  }
+
+  // The bubble springs in when something becomes ready, so a finished batch is noticed.
+  private popBubble(): void {
+    if (reducedMotion(this.scene)) return;
+    this.bubble.setScale(POP.from);
+    this.scene.tweens.add({
+      targets: this.bubble,
+      scale: 1,
+      duration: POP.ms,
+      ease: 'Back.easeOut',
+    });
   }
 
   private syncStars(level: number): void {

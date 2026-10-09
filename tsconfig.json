@@ -18,7 +18,8 @@
     "paths": {
       "@core/*": ["./src/core/*"],
       "@game/*": ["./src/phaser/*"],
-      "@data/*": ["./src/data/*"]
+      "@data/*": ["./src/data/*"],
+      "@audio/*": ["./src/audio/*"]
     }
   },
   "include": ["src", "tests", "vite.config.ts"]

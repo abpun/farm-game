@@ -1,10 +1,12 @@
 import type * as Phaser from 'phaser';
 import type { GameSession } from '@core/GameSession';
 import { downloadText, pickTextFile } from '../../../platform/fileTransfer';
+import { getSettings } from '../../session';
 import { iconKey } from '../uiTextures';
 import { UI_TEXT } from '../uiTheme';
 import { Modal } from '../widgets/Modal';
 import type { ToastManager } from '../widgets/ToastManager';
+import { openSettingsScreen } from './SettingsScreen';
 
 const reload = () => window.location.reload();
 
@@ -16,6 +18,12 @@ export function openSettingsMenu(
   Modal.open(scene, {
     title: 'Menu',
     actions: [
+      {
+        label: 'Settings',
+        icon: iconKey('gear'),
+        sound: null,
+        onClick: () => openSettingsScreen(scene, getSettings(scene)),
+      },
       {
         label: 'Save now',
         icon: iconKey('save'),

@@ -1,10 +1,14 @@
 import type * as Phaser from 'phaser';
+import { playCue } from '../../audio/playCue';
+import { getUiBus } from '../../session';
 import { FONT_SIZE, UI_PX, UI_TEXT, uiTextOnWood } from '../uiTheme';
 import { createFrame } from './Frame';
 
 export interface ToastOptions {
   icon?: string;
   color?: string;
+  /** Cue to play with the toast; danger-coloured toasts default to the error sound. */
+  sound?: string | null;
 }
 
 const HEIGHT = UI_PX * 15;
@@ -26,6 +30,9 @@ export class ToastManager {
 
   show(message: string, options: ToastOptions = {}): void {
     const scene = this.scene;
+    const sound = options.sound === undefined ? this.defaultSound(options) : options.sound;
+    if (sound) playCue(scene, sound);
+    if (sound === 'error') getUiBus(scene).emit('Denied', { reason: message });
     const toast = scene.add.container(0, 0).setDepth(TOAST_DEPTH).setAlpha(0);
     const text = scene.add.text(
       0,
@@ -52,6 +59,10 @@ export class ToastManager {
     this.layout();
     scene.tweens.add({ targets: toast, alpha: 1, duration: SLIDE_MS });
     scene.time.delayedCall(SHOW_MS, () => this.dismiss(toast));
+  }
+
+  private defaultSound(options: ToastOptions): string | null {
+    return options.color === UI_TEXT.danger ? 'error' : null;
   }
 
   private dismiss(toast: Phaser.GameObjects.Container): void {

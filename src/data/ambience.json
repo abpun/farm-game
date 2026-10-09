@@ -1,0 +1,31 @@
+{
+  "bed": "sea-bed",
+  "bedLoopSec": 6.8,
+  "maxStepSec": 1,
+  "sources": [
+    { "id": "waves", "cues": ["wave"], "intervalSec": [9, 18] },
+    { "id": "wind", "cues": ["wind"], "intervalSec": [16, 34] },
+    {
+      "id": "birds",
+      "cues": ["bird-a", "bird-b"],
+      "intervalSec": [7, 16],
+      "seasons": ["spring", "summer", "autumn"]
+    },
+    { "id": "gulls", "cues": ["gull"], "intervalSec": [25, 50], "seasons": ["summer"] },
+    {
+      "id": "chickens",
+      "cues": ["animal-chicken"],
+      "intervalSec": [14, 30],
+      "requires": "animal:chicken"
+    },
+    { "id": "cows", "cues": ["animal-cow"], "intervalSec": [22, 45], "requires": "animal:cow" },
+    {
+      "id": "sheep",
+      "cues": ["animal-sheep"],
+      "intervalSec": [20, 40],
+      "requires": "animal:sheep"
+    },
+    { "id": "goats", "cues": ["animal-goat"], "intervalSec": [20, 40], "requires": "animal:goat" },
+    { "id": "pigs", "cues": ["animal-pig"], "intervalSec": [20, 40], "requires": "animal:pig" }
+  ]
+}

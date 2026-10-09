@@ -1,4 +1,6 @@
 import * as Phaser from 'phaser';
+import { AudioDirector } from '../audio/AudioDirector';
+import { UiFx } from '../fx/UiFx';
 import { DOCK, DRAWER, TOAST_ANCHOR } from '../layout';
 import { getSession, getTools, getUiBus } from '../session';
 import { formatDuration } from '../ui/format';
@@ -26,6 +28,7 @@ const BADGE_REFRESH_MS = 500;
 
 export class UIScene extends Phaser.Scene {
   private hud!: Hud;
+  private audio!: AudioDirector;
   private drawers = new Map<string, Drawer>();
 
   constructor() {
@@ -37,6 +40,7 @@ export class UIScene extends Phaser.Scene {
     const tools = getTools(this);
     const uiBus = getUiBus(this);
     const toasts = new ToastManager(this, TOAST_ANCHOR);
+    this.audio = new AudioDirector(this, session);
     this.hud = new Hud(this, session, () => openSettingsMenu(this, session, toasts));
     const openBuilding = (objectId: number) => {
       this.closeDrawers();
@@ -71,6 +75,8 @@ export class UIScene extends Phaser.Scene {
       drawer.on(DRAWER_EVENTS.opened, () => docks.setActive(id));
       drawer.on(DRAWER_EVENTS.closed, () => docks.setActive(null));
     });
+    fishing.drawer.on(DRAWER_EVENTS.opened, () => this.audio.setFishing(true));
+    fishing.drawer.on(DRAWER_EVENTS.closed, () => this.audio.setFishing(false));
     const updateBadges = () => {
       docks.setBadge('achievements', session.achievements.unclaimedCount());
       docks.setBadge('orders', orders.deliverableCount());
@@ -78,6 +84,7 @@ export class UIScene extends Phaser.Scene {
     };
     this.time.addEvent({ delay: BADGE_REFRESH_MS, loop: true, callback: updateBadges });
     updateBadges();
+    new UiFx(this, session, this.hud, docks);
 
     uiBus.on('OpenBuilding', ({ objectId }) => openBuilding(objectId));
     uiBus.on('OpenFishing', ({ spotId }) => {
@@ -109,8 +116,9 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
-  override update(): void {
+  override update(_time: number, deltaMs: number): void {
     this.hud.update();
+    this.audio.update(deltaMs);
   }
 
   /** Buildings with something to collect, for the Crafting badge. */

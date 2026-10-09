@@ -1,0 +1,1967 @@
+{
+  "maxVoices": 12,
+  "cues": {
+    "click": {
+      "gain": 0.32,
+      "cooldownMs": 30,
+      "maxVoices": 2,
+      "pitchJitter": 0.04,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": 1200,
+          "dur": 0.045,
+          "gain": 0.5,
+          "to": 880
+        },
+        {
+          "wave": "noise",
+          "dur": 0.015,
+          "gain": 0.25,
+          "filter": {
+            "type": "highpass",
+            "freq": 4000
+          }
+        }
+      ]
+    },
+    "tab": {
+      "gain": 0.3,
+      "cooldownMs": 40,
+      "maxVoices": 2,
+      "pitchJitter": 0.03,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": 880,
+          "dur": 0.05,
+          "gain": 0.5,
+          "to": 1180
+        },
+        {
+          "wave": "triangle",
+          "freq": 1760,
+          "dur": 0.04,
+          "gain": 0.2,
+          "delay": 0.03
+        }
+      ]
+    },
+    "open": {
+      "gain": 0.3,
+      "cooldownMs": 80,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.16,
+          "gain": 0.35,
+          "filter": {
+            "type": "bandpass",
+            "freq": 700,
+            "to": 2600,
+            "q": 1
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 520,
+          "dur": 0.12,
+          "gain": 0.5,
+          "to": 780
+        },
+        {
+          "wave": "triangle",
+          "freq": 1040,
+          "dur": 0.1,
+          "gain": 0.25,
+          "delay": 0.06
+        }
+      ]
+    },
+    "close": {
+      "gain": 0.28,
+      "cooldownMs": 80,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.15,
+          "gain": 0.35,
+          "filter": {
+            "type": "bandpass",
+            "freq": 2600,
+            "to": 700,
+            "q": 1
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 760,
+          "dur": 0.12,
+          "gain": 0.5,
+          "to": 480
+        }
+      ]
+    },
+    "confirm": {
+      "gain": 0.35,
+      "cooldownMs": 60,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "E5",
+          "dur": 0.08,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          }
+        },
+        {
+          "wave": "square",
+          "freq": "A5",
+          "dur": 0.16,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.07
+        }
+      ]
+    },
+    "error": {
+      "gain": 0.34,
+      "cooldownMs": 150,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "A3",
+          "dur": 0.09,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1200
+          }
+        },
+        {
+          "wave": "square",
+          "freq": "F3",
+          "dur": 0.16,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1000
+          },
+          "delay": 0.09
+        }
+      ]
+    },
+    "toggle": {
+      "gain": 0.3,
+      "cooldownMs": 40,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": 700,
+          "dur": 0.035,
+          "gain": 0.5
+        },
+        {
+          "wave": "triangle",
+          "freq": 1050,
+          "dur": 0.04,
+          "gain": 0.5,
+          "delay": 0.035
+        }
+      ]
+    },
+    "tick": {
+      "gain": 0.18,
+      "cooldownMs": 45,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 1500,
+          "dur": 0.025,
+          "gain": 0.5,
+          "attack": 0.001
+        }
+      ]
+    },
+    "plant": {
+      "gain": 0.42,
+      "cooldownMs": 50,
+      "maxVoices": 3,
+      "pitchJitter": 0.07,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.13,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 900
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 220,
+          "dur": 0.09,
+          "gain": 0.6,
+          "to": 150
+        },
+        {
+          "wave": "triangle",
+          "freq": "G5",
+          "dur": 0.09,
+          "gain": 0.15,
+          "delay": 0.07
+        }
+      ]
+    },
+    "water": {
+      "gain": 0.4,
+      "cooldownMs": 60,
+      "maxVoices": 3,
+      "pitchJitter": 0.06,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.36,
+          "gain": 0.35,
+          "filter": {
+            "type": "bandpass",
+            "freq": 2600,
+            "to": 1200,
+            "q": 0.8
+          },
+          "attack": 0.03
+        },
+        {
+          "wave": "sine",
+          "freq": 1400,
+          "dur": 0.05,
+          "gain": 0.3,
+          "to": 2000,
+          "delay": 0.05
+        },
+        {
+          "wave": "sine",
+          "freq": 1100,
+          "dur": 0.05,
+          "gain": 0.3,
+          "to": 1700,
+          "delay": 0.15
+        },
+        {
+          "wave": "sine",
+          "freq": 1600,
+          "dur": 0.05,
+          "gain": 0.25,
+          "to": 2300,
+          "delay": 0.25
+        }
+      ]
+    },
+    "harvest": {
+      "gain": 0.45,
+      "cooldownMs": 50,
+      "maxVoices": 3,
+      "pitchJitter": 0.05,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.07,
+          "gain": 0.3,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1600
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 300,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 640
+        },
+        {
+          "wave": "triangle",
+          "freq": "C6",
+          "dur": 0.12,
+          "gain": 0.22,
+          "delay": 0.05
+        },
+        {
+          "wave": "triangle",
+          "freq": "E6",
+          "dur": 0.15,
+          "gain": 0.18,
+          "delay": 0.1
+        }
+      ]
+    },
+    "fruit": {
+      "gain": 0.45,
+      "cooldownMs": 50,
+      "maxVoices": 3,
+      "pitchJitter": 0.05,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.1,
+          "gain": 0.3,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1400
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 500,
+          "dur": 0.06,
+          "gain": 0.55,
+          "to": 900
+        },
+        {
+          "wave": "triangle",
+          "freq": "G5",
+          "dur": 0.14,
+          "gain": 0.2,
+          "delay": 0.04
+        },
+        {
+          "wave": "triangle",
+          "freq": "B5",
+          "dur": 0.14,
+          "gain": 0.2,
+          "delay": 0.09
+        },
+        {
+          "wave": "triangle",
+          "freq": "D6",
+          "dur": 0.14,
+          "gain": 0.2,
+          "delay": 0.14
+        }
+      ]
+    },
+    "unlock-plot": {
+      "gain": 0.45,
+      "cooldownMs": 120,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.2,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 700
+          }
+        },
+        {
+          "wave": "triangle",
+          "freq": "C5",
+          "dur": 0.16,
+          "gain": 0.22,
+          "delay": 0.08
+        },
+        {
+          "wave": "triangle",
+          "freq": "E5",
+          "dur": 0.16,
+          "gain": 0.22,
+          "delay": 0.13
+        },
+        {
+          "wave": "triangle",
+          "freq": "G5",
+          "dur": 0.16,
+          "gain": 0.22,
+          "delay": 0.18
+        },
+        {
+          "wave": "triangle",
+          "freq": "C6",
+          "dur": 0.16,
+          "gain": 0.22,
+          "delay": 0.23000000000000004
+        }
+      ]
+    },
+    "unlock": {
+      "gain": 0.55,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "duck": 0.45,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "C5",
+          "dur": 0.2,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": "E5",
+          "dur": 0.2,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.07
+        },
+        {
+          "wave": "square",
+          "freq": "G5",
+          "dur": 0.2,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.14
+        },
+        {
+          "wave": "square",
+          "freq": "C6",
+          "dur": 0.2,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.21000000000000002
+        },
+        {
+          "wave": "square",
+          "freq": "E6",
+          "dur": 0.2,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.28
+        },
+        {
+          "wave": "triangle",
+          "freq": "C4",
+          "dur": 0.8,
+          "gain": 0.35,
+          "delay": 0.3,
+          "release": 0.4
+        },
+        {
+          "wave": "sine",
+          "freq": "G5",
+          "dur": 0.8,
+          "gain": 0.2,
+          "delay": 0.3,
+          "release": 0.4
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.8,
+          "gain": 0.12,
+          "delay": 0.3,
+          "release": 0.4
+        }
+      ]
+    },
+    "place": {
+      "gain": 0.42,
+      "cooldownMs": 60,
+      "maxVoices": 2,
+      "pitchJitter": 0.06,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 190,
+          "dur": 0.11,
+          "gain": 0.7,
+          "to": 110
+        },
+        {
+          "wave": "noise",
+          "dur": 0.06,
+          "gain": 0.35,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1300
+          }
+        }
+      ]
+    },
+    "build": {
+      "gain": 0.45,
+      "cooldownMs": 200,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 1800,
+            "q": 1.5
+          },
+          "delay": 0
+        },
+        {
+          "wave": "sine",
+          "freq": 420,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 240,
+          "delay": 0
+        },
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 1800,
+            "q": 1.5
+          },
+          "delay": 0.15
+        },
+        {
+          "wave": "sine",
+          "freq": 420,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 240,
+          "delay": 0.15
+        },
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 1800,
+            "q": 1.5
+          },
+          "delay": 0.3
+        },
+        {
+          "wave": "sine",
+          "freq": 420,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 240,
+          "delay": 0.3
+        }
+      ]
+    },
+    "remove": {
+      "gain": 0.38,
+      "cooldownMs": 80,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.2,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 800
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 300,
+          "dur": 0.16,
+          "gain": 0.45,
+          "to": 120
+        }
+      ]
+    },
+    "purchase": {
+      "gain": 0.38,
+      "cooldownMs": 70,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.06,
+          "gain": 0.35,
+          "filter": {
+            "type": "bandpass",
+            "freq": 3200,
+            "q": 2
+          }
+        },
+        {
+          "wave": "triangle",
+          "freq": "A5",
+          "dur": 0.07,
+          "gain": 0.35
+        },
+        {
+          "wave": "triangle",
+          "freq": "E6",
+          "dur": 0.12,
+          "gain": 0.3,
+          "delay": 0.05
+        }
+      ]
+    },
+    "coin": {
+      "gain": 0.3,
+      "cooldownMs": 70,
+      "maxVoices": 2,
+      "pitchJitter": 0.02,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "B5",
+          "dur": 0.07,
+          "gain": 0.45,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": "E6",
+          "dur": 0.26,
+          "gain": 0.45,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0.07
+        }
+      ]
+    },
+    "xp": {
+      "gain": 0.16,
+      "cooldownMs": 160,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 1800,
+          "dur": 0.08,
+          "gain": 0.5,
+          "to": 2400
+        },
+        {
+          "wave": "sine",
+          "freq": 2400,
+          "dur": 0.09,
+          "gain": 0.35,
+          "to": 3000,
+          "delay": 0.05
+        }
+      ]
+    },
+    "level-up": {
+      "gain": 0.6,
+      "cooldownMs": 600,
+      "maxVoices": 1,
+      "duck": 0.3,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "C5",
+          "dur": 0.12,
+          "gain": 0.32,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": "E5",
+          "dur": 0.12,
+          "gain": 0.32,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.11
+        },
+        {
+          "wave": "square",
+          "freq": "G5",
+          "dur": 0.12,
+          "gain": 0.32,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.22
+        },
+        {
+          "wave": "square",
+          "freq": "C6",
+          "dur": 0.7,
+          "gain": 0.32,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.33,
+          "release": 0.35
+        },
+        {
+          "wave": "triangle",
+          "freq": "C4",
+          "dur": 0.7,
+          "gain": 0.4,
+          "delay": 0.33,
+          "release": 0.35
+        },
+        {
+          "wave": "triangle",
+          "freq": "G4",
+          "dur": 0.7,
+          "gain": 0.25,
+          "delay": 0.33,
+          "release": 0.35
+        },
+        {
+          "wave": "sine",
+          "freq": "G6",
+          "dur": 0.5,
+          "gain": 0.1,
+          "delay": 0.4
+        },
+        {
+          "wave": "sine",
+          "freq": "E7",
+          "dur": 0.4,
+          "gain": 0.08,
+          "delay": 0.5
+        }
+      ]
+    },
+    "achievement": {
+      "gain": 0.55,
+      "cooldownMs": 500,
+      "maxVoices": 1,
+      "duck": 0.4,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": "E5",
+          "dur": 0.12,
+          "gain": 0.35,
+          "delay": 0
+        },
+        {
+          "wave": "triangle",
+          "freq": "G5",
+          "dur": 0.12,
+          "gain": 0.35,
+          "delay": 0.09
+        },
+        {
+          "wave": "triangle",
+          "freq": "B5",
+          "dur": 0.12,
+          "gain": 0.35,
+          "delay": 0.18
+        },
+        {
+          "wave": "triangle",
+          "freq": "E6",
+          "dur": 0.6,
+          "gain": 0.35,
+          "delay": 0.27,
+          "release": 0.3
+        },
+        {
+          "wave": "sine",
+          "freq": 2600,
+          "dur": 0.25,
+          "gain": 0.08,
+          "to": 3400,
+          "delay": 0.3
+        },
+        {
+          "wave": "sine",
+          "freq": 3000,
+          "dur": 0.25,
+          "gain": 0.06,
+          "to": 3800,
+          "delay": 0.45
+        }
+      ]
+    },
+    "reward": {
+      "gain": 0.45,
+      "cooldownMs": 200,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "B5",
+          "dur": 0.07,
+          "gain": 0.45,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": "E6",
+          "dur": 0.26,
+          "gain": 0.45,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0.07
+        },
+        {
+          "wave": "triangle",
+          "freq": "C6",
+          "dur": 0.12,
+          "gain": 0.3,
+          "delay": 0.2
+        },
+        {
+          "wave": "triangle",
+          "freq": "G6",
+          "dur": 0.3,
+          "gain": 0.25,
+          "delay": 0.28
+        }
+      ]
+    },
+    "delivery": {
+      "gain": 0.5,
+      "cooldownMs": 300,
+      "maxVoices": 1,
+      "duck": 0.5,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.45,
+          "gain": 0.5,
+          "delay": 0,
+          "attack": 0.002
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.27,
+          "gain": 0.15,
+          "delay": 0,
+          "attack": 0.002,
+          "to": "E6"
+        },
+        {
+          "wave": "sine",
+          "freq": "C6",
+          "dur": 0.6,
+          "gain": 0.5,
+          "delay": 0.18,
+          "attack": 0.002
+        },
+        {
+          "wave": "sine",
+          "freq": "C6",
+          "dur": 0.36,
+          "gain": 0.15,
+          "delay": 0.18,
+          "attack": 0.002,
+          "to": "C6"
+        },
+        {
+          "wave": "square",
+          "freq": "B5",
+          "dur": 0.07,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0.35
+        },
+        {
+          "wave": "square",
+          "freq": "E6",
+          "dur": 0.26,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 4200
+          },
+          "delay": 0.42
+        }
+      ]
+    },
+    "order-expired": {
+      "gain": 0.3,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": "E4",
+          "dur": 0.16,
+          "gain": 0.4
+        },
+        {
+          "wave": "triangle",
+          "freq": "C4",
+          "dur": 0.32,
+          "gain": 0.4,
+          "delay": 0.16
+        }
+      ]
+    },
+    "building-complete": {
+      "gain": 0.5,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "duck": 0.5,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 1800,
+            "q": 1.5
+          },
+          "delay": 0
+        },
+        {
+          "wave": "sine",
+          "freq": 420,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 240,
+          "delay": 0
+        },
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 1800,
+            "q": 1.5
+          },
+          "delay": 0.14
+        },
+        {
+          "wave": "sine",
+          "freq": 420,
+          "dur": 0.07,
+          "gain": 0.6,
+          "to": 240,
+          "delay": 0.14
+        },
+        {
+          "wave": "sine",
+          "freq": "C5",
+          "dur": 0.7,
+          "gain": 0.3,
+          "delay": 0.3,
+          "release": 0.4
+        },
+        {
+          "wave": "sine",
+          "freq": "E5",
+          "dur": 0.7,
+          "gain": 0.25,
+          "delay": 0.35,
+          "release": 0.4
+        },
+        {
+          "wave": "sine",
+          "freq": "G5",
+          "dur": 0.7,
+          "gain": 0.25,
+          "delay": 0.4,
+          "release": 0.4
+        }
+      ]
+    },
+    "upgrade": {
+      "gain": 0.45,
+      "cooldownMs": 300,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "C5",
+          "dur": 0.26,
+          "gain": 0.25,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "to": "C6"
+        },
+        {
+          "wave": "triangle",
+          "freq": "G6",
+          "dur": 0.3,
+          "gain": 0.25,
+          "delay": 0.25
+        },
+        {
+          "wave": "sine",
+          "freq": 2800,
+          "dur": 0.2,
+          "gain": 0.07,
+          "to": 3600,
+          "delay": 0.3
+        }
+      ]
+    },
+    "production-start": {
+      "gain": 0.42,
+      "cooldownMs": 120,
+      "maxVoices": 2,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 170,
+          "dur": 0.13,
+          "gain": 0.7,
+          "to": 90
+        },
+        {
+          "wave": "noise",
+          "dur": 0.3,
+          "gain": 0.25,
+          "filter": {
+            "type": "bandpass",
+            "freq": 900,
+            "q": 1
+          },
+          "attack": 0.05
+        },
+        {
+          "wave": "sawtooth",
+          "freq": 90,
+          "to": 140,
+          "dur": 0.5,
+          "attack": 0.08,
+          "gain": 0.18,
+          "filter": {
+            "type": "lowpass",
+            "freq": 500
+          },
+          "vibrato": {
+            "rate": 14,
+            "depth": 6
+          }
+        }
+      ]
+    },
+    "production-ready": {
+      "gain": 0.32,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": "A5",
+          "dur": 0.5,
+          "gain": 0.5,
+          "delay": 0,
+          "attack": 0.002
+        },
+        {
+          "wave": "sine",
+          "freq": "A5",
+          "dur": 0.3,
+          "gain": 0.15,
+          "delay": 0,
+          "attack": 0.002,
+          "to": "A5"
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.4,
+          "gain": 0.3,
+          "delay": 0.1,
+          "attack": 0.002
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.24,
+          "gain": 0.09,
+          "delay": 0.1,
+          "attack": 0.002,
+          "to": "E6"
+        }
+      ]
+    },
+    "collect": {
+      "gain": 0.42,
+      "cooldownMs": 70,
+      "maxVoices": 2,
+      "pitchJitter": 0.03,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 400,
+          "dur": 0.06,
+          "gain": 0.6,
+          "to": 800
+        },
+        {
+          "wave": "triangle",
+          "freq": "A5",
+          "dur": 0.1,
+          "gain": 0.25,
+          "delay": 0.04
+        },
+        {
+          "wave": "triangle",
+          "freq": "E6",
+          "dur": 0.14,
+          "gain": 0.22,
+          "delay": 0.09
+        }
+      ]
+    },
+    "feed": {
+      "gain": 0.38,
+      "cooldownMs": 100,
+      "maxVoices": 2,
+      "pitchJitter": 0.08,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 3500,
+            "q": 1.5
+          },
+          "delay": 0
+        },
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 3500,
+            "q": 1.5
+          },
+          "delay": 0.06
+        },
+        {
+          "wave": "noise",
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 3500,
+            "q": 1.5
+          },
+          "delay": 0.13
+        }
+      ]
+    },
+    "animal-chicken": {
+      "gain": 0.32,
+      "cooldownMs": 300,
+      "maxVoices": 1,
+      "pitchJitter": 0.08,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": 700,
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1800
+          },
+          "to": 900
+        },
+        {
+          "wave": "square",
+          "freq": 650,
+          "dur": 0.05,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1800
+          },
+          "to": 820,
+          "delay": 0.08
+        },
+        {
+          "wave": "square",
+          "freq": 900,
+          "dur": 0.13,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1800
+          },
+          "to": 600,
+          "delay": 0.18
+        }
+      ]
+    },
+    "animal-cow": {
+      "gain": 0.36,
+      "cooldownMs": 600,
+      "maxVoices": 1,
+      "pitchJitter": 0.05,
+      "layers": [
+        {
+          "wave": "sawtooth",
+          "freq": 150,
+          "to": 118,
+          "dur": 0.95,
+          "attack": 0.12,
+          "release": 0.35,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 500,
+            "to": 900
+          },
+          "vibrato": {
+            "rate": 5,
+            "depth": 3
+          }
+        }
+      ]
+    },
+    "animal-sheep": {
+      "gain": 0.32,
+      "cooldownMs": 500,
+      "maxVoices": 1,
+      "pitchJitter": 0.06,
+      "layers": [
+        {
+          "wave": "sawtooth",
+          "freq": 330,
+          "to": 300,
+          "dur": 0.6,
+          "attack": 0.03,
+          "release": 0.2,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1400
+          },
+          "vibrato": {
+            "rate": 9,
+            "depth": 18
+          }
+        }
+      ]
+    },
+    "animal-goat": {
+      "gain": 0.3,
+      "cooldownMs": 500,
+      "maxVoices": 1,
+      "pitchJitter": 0.06,
+      "layers": [
+        {
+          "wave": "sawtooth",
+          "freq": 430,
+          "to": 380,
+          "dur": 0.45,
+          "attack": 0.02,
+          "release": 0.15,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1700
+          },
+          "vibrato": {
+            "rate": 12,
+            "depth": 28
+          }
+        }
+      ]
+    },
+    "animal-pig": {
+      "gain": 0.34,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "pitchJitter": 0.06,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": 220,
+          "dur": 0.12,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 900
+          },
+          "to": 180,
+          "vibrato": {
+            "rate": 30,
+            "depth": 15
+          }
+        },
+        {
+          "wave": "square",
+          "freq": 240,
+          "dur": 0.14,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 900
+          },
+          "to": 170,
+          "delay": 0.15,
+          "vibrato": {
+            "rate": 30,
+            "depth": 15
+          }
+        }
+      ]
+    },
+    "cast": {
+      "gain": 0.38,
+      "cooldownMs": 200,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.3,
+          "gain": 0.5,
+          "filter": {
+            "type": "bandpass",
+            "freq": 600,
+            "to": 2800,
+            "q": 1
+          },
+          "attack": 0.04
+        },
+        {
+          "wave": "square",
+          "freq": 2200,
+          "dur": 0.012,
+          "gain": 0.12,
+          "filter": {
+            "type": "lowpass",
+            "freq": 5000
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": 2200,
+          "dur": 0.012,
+          "gain": 0.12,
+          "filter": {
+            "type": "lowpass",
+            "freq": 5000
+          },
+          "delay": 0.03
+        },
+        {
+          "wave": "square",
+          "freq": 2200,
+          "dur": 0.012,
+          "gain": 0.12,
+          "filter": {
+            "type": "lowpass",
+            "freq": 5000
+          },
+          "delay": 0.06
+        },
+        {
+          "wave": "square",
+          "freq": 2200,
+          "dur": 0.012,
+          "gain": 0.12,
+          "filter": {
+            "type": "lowpass",
+            "freq": 5000
+          },
+          "delay": 0.09
+        }
+      ]
+    },
+    "splash": {
+      "gain": 0.42,
+      "cooldownMs": 120,
+      "maxVoices": 2,
+      "pitchJitter": 0.08,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.38,
+          "gain": 0.55,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400,
+            "to": 500
+          },
+          "attack": 0.004
+        },
+        {
+          "wave": "sine",
+          "freq": 620,
+          "dur": 0.12,
+          "gain": 0.3,
+          "to": 200
+        }
+      ]
+    },
+    "bite": {
+      "gain": 0.42,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 300,
+          "dur": 0.1,
+          "gain": 0.5,
+          "to": 720
+        },
+        {
+          "wave": "sine",
+          "freq": "A6",
+          "dur": 0.18,
+          "gain": 0.25,
+          "delay": 0.05
+        },
+        {
+          "wave": "sine",
+          "freq": 320,
+          "dur": 0.1,
+          "gain": 0.45,
+          "to": 760,
+          "delay": 0.2
+        },
+        {
+          "wave": "noise",
+          "dur": 0.12,
+          "gain": 0.2,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1500
+          },
+          "delay": 0.2
+        }
+      ]
+    },
+    "catch": {
+      "gain": 0.45,
+      "cooldownMs": 200,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 0.32,
+          "gain": 0.45,
+          "filter": {
+            "type": "lowpass",
+            "freq": 3200,
+            "to": 800
+          }
+        },
+        {
+          "wave": "triangle",
+          "freq": "G5",
+          "dur": 0.09,
+          "gain": 0.3,
+          "delay": 0.08
+        },
+        {
+          "wave": "triangle",
+          "freq": "C6",
+          "dur": 0.22,
+          "gain": 0.3,
+          "delay": 0.16
+        }
+      ]
+    },
+    "fish-escape": {
+      "gain": 0.32,
+      "cooldownMs": 300,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": "C5",
+          "dur": 0.28,
+          "gain": 0.4,
+          "to": "F4"
+        },
+        {
+          "wave": "sine",
+          "freq": 500,
+          "dur": 0.1,
+          "gain": 0.35,
+          "to": 240,
+          "delay": 0.24
+        }
+      ]
+    },
+    "discovery": {
+      "gain": 0.38,
+      "cooldownMs": 400,
+      "maxVoices": 1,
+      "duck": 0.6,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.2,
+          "gain": 0.4,
+          "delay": 0
+        },
+        {
+          "wave": "sine",
+          "freq": "G6",
+          "dur": 0.2,
+          "gain": 0.4,
+          "delay": 0.1
+        },
+        {
+          "wave": "sine",
+          "freq": "C7",
+          "dur": 0.2,
+          "gain": 0.4,
+          "delay": 0.2
+        }
+      ]
+    },
+    "rare-fish": {
+      "gain": 0.5,
+      "cooldownMs": 500,
+      "maxVoices": 1,
+      "duck": 0.45,
+      "layers": [
+        {
+          "wave": "triangle",
+          "freq": "C6",
+          "dur": 0.24,
+          "gain": 0.3,
+          "delay": 0
+        },
+        {
+          "wave": "triangle",
+          "freq": "E6",
+          "dur": 0.24,
+          "gain": 0.3,
+          "delay": 0.06
+        },
+        {
+          "wave": "triangle",
+          "freq": "G6",
+          "dur": 0.24,
+          "gain": 0.3,
+          "delay": 0.12
+        },
+        {
+          "wave": "triangle",
+          "freq": "C7",
+          "dur": 0.24,
+          "gain": 0.3,
+          "delay": 0.18
+        },
+        {
+          "wave": "triangle",
+          "freq": "E7",
+          "dur": 0.24,
+          "gain": 0.3,
+          "delay": 0.24
+        },
+        {
+          "wave": "sine",
+          "freq": 2400,
+          "dur": 0.4,
+          "gain": 0.08,
+          "to": 3600,
+          "delay": 0.25,
+          "vibrato": {
+            "rate": 18,
+            "depth": 60
+          }
+        }
+      ]
+    },
+    "legendary-fish": {
+      "gain": 0.6,
+      "cooldownMs": 800,
+      "maxVoices": 1,
+      "duck": 0.25,
+      "layers": [
+        {
+          "wave": "square",
+          "freq": "G5",
+          "dur": 0.24,
+          "gain": 0.22,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0
+        },
+        {
+          "wave": "square",
+          "freq": "C6",
+          "dur": 0.24,
+          "gain": 0.22,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.07
+        },
+        {
+          "wave": "square",
+          "freq": "E6",
+          "dur": 0.24,
+          "gain": 0.22,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.14
+        },
+        {
+          "wave": "square",
+          "freq": "G6",
+          "dur": 0.24,
+          "gain": 0.22,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.21000000000000002
+        },
+        {
+          "wave": "square",
+          "freq": "C7",
+          "dur": 0.24,
+          "gain": 0.22,
+          "filter": {
+            "type": "lowpass",
+            "freq": 2400
+          },
+          "delay": 0.28
+        },
+        {
+          "wave": "triangle",
+          "freq": "C4",
+          "dur": 1.1,
+          "gain": 0.4,
+          "delay": 0.35,
+          "release": 0.6
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 1.1,
+          "gain": 0.2,
+          "delay": 0.35,
+          "release": 0.6
+        },
+        {
+          "wave": "sine",
+          "freq": "G6",
+          "dur": 1.1,
+          "gain": 0.15,
+          "delay": 0.35,
+          "release": 0.6
+        },
+        {
+          "wave": "sine",
+          "freq": 2800,
+          "dur": 0.6,
+          "gain": 0.07,
+          "to": 4200,
+          "delay": 0.4,
+          "vibrato": {
+            "rate": 18,
+            "depth": 80
+          }
+        }
+      ]
+    },
+    "day": {
+      "gain": 0.24,
+      "cooldownMs": 2000,
+      "maxVoices": 1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": "G5",
+          "dur": 0.7,
+          "gain": 0.5,
+          "release": 0.45
+        },
+        {
+          "wave": "sine",
+          "freq": "D6",
+          "dur": 0.7,
+          "gain": 0.35,
+          "delay": 0.14,
+          "release": 0.45
+        }
+      ]
+    },
+    "season": {
+      "gain": 0.3,
+      "cooldownMs": 2000,
+      "maxVoices": 1,
+      "duck": 0.6,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": "C6",
+          "dur": 0.8,
+          "gain": 0.3,
+          "delay": 0,
+          "release": 0.5
+        },
+        {
+          "wave": "sine",
+          "freq": "E6",
+          "dur": 0.8,
+          "gain": 0.3,
+          "delay": 0.11,
+          "release": 0.5
+        },
+        {
+          "wave": "sine",
+          "freq": "G6",
+          "dur": 0.8,
+          "gain": 0.3,
+          "delay": 0.22,
+          "release": 0.5
+        },
+        {
+          "wave": "sine",
+          "freq": "B6",
+          "dur": 0.8,
+          "gain": 0.3,
+          "delay": 0.33,
+          "release": 0.5
+        },
+        {
+          "wave": "sine",
+          "freq": "D7",
+          "dur": 0.8,
+          "gain": 0.3,
+          "delay": 0.44,
+          "release": 0.5
+        }
+      ]
+    },
+    "bird-a": {
+      "channel": "ambient",
+      "gain": 0.18,
+      "cooldownMs": 800,
+      "maxVoices": 1,
+      "pitchJitter": 0.1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 3200,
+          "dur": 0.06,
+          "gain": 0.5,
+          "to": 4200
+        },
+        {
+          "wave": "sine",
+          "freq": 3400,
+          "dur": 0.06,
+          "gain": 0.45,
+          "to": 4400,
+          "delay": 0.1
+        },
+        {
+          "wave": "sine",
+          "freq": 3000,
+          "dur": 0.08,
+          "gain": 0.4,
+          "to": 3800,
+          "delay": 0.21
+        }
+      ]
+    },
+    "bird-b": {
+      "channel": "ambient",
+      "gain": 0.15,
+      "cooldownMs": 800,
+      "maxVoices": 1,
+      "pitchJitter": 0.1,
+      "layers": [
+        {
+          "wave": "sine",
+          "freq": 2800,
+          "dur": 0.35,
+          "gain": 0.5,
+          "attack": 0.02,
+          "release": 0.08,
+          "vibrato": {
+            "rate": 28,
+            "depth": 380
+          }
+        },
+        {
+          "wave": "sine",
+          "freq": 3500,
+          "dur": 0.16,
+          "gain": 0.4,
+          "to": 2600,
+          "delay": 0.42
+        }
+      ]
+    },
+    "gull": {
+      "channel": "ambient",
+      "gain": 0.12,
+      "cooldownMs": 2000,
+      "maxVoices": 1,
+      "pitchJitter": 0.08,
+      "layers": [
+        {
+          "wave": "sawtooth",
+          "freq": 1300,
+          "to": 900,
+          "dur": 0.32,
+          "attack": 0.04,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1800
+          },
+          "vibrato": {
+            "rate": 6,
+            "depth": 40
+          }
+        },
+        {
+          "wave": "sawtooth",
+          "freq": 1250,
+          "to": 850,
+          "dur": 0.28,
+          "delay": 0.4,
+          "attack": 0.04,
+          "gain": 0.4,
+          "filter": {
+            "type": "lowpass",
+            "freq": 1800
+          },
+          "vibrato": {
+            "rate": 6,
+            "depth": 40
+          }
+        }
+      ]
+    },
+    "wave": {
+      "channel": "ambient",
+      "gain": 0.22,
+      "cooldownMs": 3000,
+      "maxVoices": 1,
+      "pitchJitter": 0.1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 2.4,
+          "gain": 0.6,
+          "filter": {
+            "type": "lowpass",
+            "freq": 900,
+            "to": 450
+          },
+          "attack": 0.9,
+          "release": 1.2
+        }
+      ]
+    },
+    "wind": {
+      "channel": "ambient",
+      "gain": 0.16,
+      "cooldownMs": 4000,
+      "maxVoices": 1,
+      "pitchJitter": 0.1,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 3,
+          "gain": 0.6,
+          "filter": {
+            "type": "bandpass",
+            "freq": 450,
+            "to": 900,
+            "q": 0.7
+          },
+          "attack": 1.2,
+          "release": 1.4
+        }
+      ]
+    },
+    "sea-bed": {
+      "channel": "ambient",
+      "gain": 0.12,
+      "layers": [
+        {
+          "wave": "noise",
+          "dur": 4.6,
+          "gain": 0.6,
+          "filter": {
+            "type": "lowpass",
+            "freq": 520,
+            "to": 380
+          },
+          "attack": 2,
+          "release": 2.4
+        },
+        {
+          "wave": "noise",
+          "dur": 4.6,
+          "gain": 0.5,
+          "filter": {
+            "type": "lowpass",
+            "freq": 460,
+            "to": 340
+          },
+          "delay": 3.4,
+          "attack": 2,
+          "release": 2.4
+        }
+      ]
+    }
+  }
+}
