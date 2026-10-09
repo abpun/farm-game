@@ -19,7 +19,16 @@ export const WILD_TEXTURES = {
   driftwood: 'wild-driftwood',
   hay: 'wild-hay',
   sparkle: 'wild-sparkle',
+  hedge: 'wild-hedge',
 } as const;
+
+// Box-hedge greens by season: [dark, base, light]; winter keeps them under snow.
+const HEDGE: Record<string, [number, number, number]> = {
+  spring: [0x4f8f34, 0x6faa3e, 0x9ccc5a],
+  summer: [0x356f2c, 0x4f8f34, 0x79bf4c],
+  autumn: [0x6e6a2a, 0x8a8a34, 0xb8a848],
+  winter: [0x4a6a44, 0x5e7a52, 0xf4f8fc],
+};
 
 const BRASS = 0xf6c544;
 const REEDS: Record<string, [number, number, number]> = {
@@ -62,6 +71,8 @@ export function generateWildTextures(scene: Phaser.Scene): void {
   for (const seasonId of Object.keys(SEASON_LOOKS)) {
     const reeds = REEDS[seasonId] ?? REEDS.autumn ?? [0, 0, 0];
     bake(scene, seasonalKey(WILD_TEXTURES.reeds, seasonId), 10, 14, (g) => drawReeds(g, reeds));
+    const hedge = HEDGE[seasonId] ?? HEDGE.summer ?? [0, 0, 0];
+    bake(scene, seasonalKey(WILD_TEXTURES.hedge, seasonId), 18, 12, (g) => drawHedge(g, hedge));
     bake(scene, seasonalKey(WILD_TEXTURES.lily, seasonId), 10, 5, (g) =>
       drawLily(g, seasonId === 'spring' || seasonId === 'summer', seasonId === 'winter'),
     );
@@ -162,6 +173,16 @@ function drawReeds(
     g.fillStyle(light).fillRect(x, 14 - h, 1, Math.floor(h / 2));
   }
   g.fillStyle(head).fillRect(3, 1, 1, 3).fillRect(7, 2, 1, 3);
+}
+
+function drawHedge(
+  g: Phaser.GameObjects.Graphics,
+  [dark, base, light]: [number, number, number],
+): void {
+  g.fillStyle(SHADOW.color, SHADOW.alpha).fillEllipse(9, 11, 18, 3);
+  g.fillStyle(dark).fillEllipse(9, 7, 17, 9);
+  g.fillStyle(base).fillEllipse(8, 6, 14, 7);
+  g.fillStyle(light).fillEllipse(6, 4, 7, 3);
 }
 
 function drawLily(g: Phaser.GameObjects.Graphics, bloom: boolean, frozen: boolean): void {

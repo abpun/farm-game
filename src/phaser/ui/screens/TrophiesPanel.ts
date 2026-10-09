@@ -30,7 +30,8 @@ const CATEGORY_ICONS: Record<string, IconName> = {
   production: 'crafting',
   deliveries: 'orders',
   economy: 'coin',
-  collections: 'achievements',
+  collections: 'compass',
+  mining: 'pickaxe',
 };
 
 export function describeReward(session: GameSession, reward: Reward): string {
