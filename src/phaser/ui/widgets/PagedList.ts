@@ -18,8 +18,8 @@ export class PagedList<T> extends Phaser.GameObjects.Container {
   private readonly nav: Phaser.GameObjects.Container;
   private readonly pageLabel: Phaser.GameObjects.Text;
   private readonly empty: Phaser.GameObjects.Text;
-  private readonly prev: Button;
-  private readonly next: Button;
+  private readonly prevButton: Button;
+  private readonly nextButton: Button;
   private items: T[] = [];
   private page = 0;
 
@@ -44,15 +44,15 @@ export class PagedList<T> extends Phaser.GameObjects.Container {
         align: 'center',
         onClick: () => this.turn(step),
       });
-    this.prev = navButton(0, 'left', -1);
-    this.next = navButton(listWidth - NAV_HEIGHT, 'right', 1);
+    this.prevButton = navButton(0, 'left', -1);
+    this.nextButton = navButton(listWidth - NAV_HEIGHT, 'right', 1);
     this.pageLabel = scene.add
       .text(listWidth / 2, NAV_HEIGHT / 2, '', uiText(FONT_SIZE.small, UI_TEXT.muted))
       .setOrigin(0.5);
     this.nav = scene.add.container(0, listHeight - NAV_HEIGHT, [
-      this.prev,
+      this.prevButton,
       this.pageLabel,
-      this.next,
+      this.nextButton,
     ]);
     this.empty = scene.add
       .text(listWidth / 2, UI_PX * 20, '', {
@@ -105,7 +105,7 @@ export class PagedList<T> extends Phaser.GameObjects.Container {
     const pages = this.pageCount();
     this.nav.setVisible(pages > 1);
     this.pageLabel.setText(`${this.page + 1} / ${pages}`);
-    this.prev.setEnabled(this.page > 0);
-    this.next.setEnabled(this.page < pages - 1);
+    this.prevButton.setEnabled(this.page > 0);
+    this.nextButton.setEnabled(this.page < pages - 1);
   }
 }

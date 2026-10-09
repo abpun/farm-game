@@ -1,4 +1,4 @@
-import * as Phaser from 'phaser';
+import type * as Phaser from 'phaser';
 import type { CatalogItem, PlacedObject } from '@core/entities/types';
 import type { GameSession } from '@core/GameSession';
 import { finishedJobs } from '@core/systems/productionQueue';
@@ -41,7 +41,7 @@ export class BuildingView {
     private readonly session: GameSession,
     private readonly grid: IsoGrid,
     private readonly object: PlacedObject,
-    private readonly item: CatalogItem,
+    item: CatalogItem,
     private readonly sprite: Phaser.GameObjects.Image,
   ) {
     const depth = sprite.depth;

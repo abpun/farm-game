@@ -39,7 +39,7 @@ export class Notifications {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly session: GameSession,
+    session: GameSession,
     private readonly toasts: ToastManager,
   ) {
     const { bus, content, catalog } = session;
