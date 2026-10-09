@@ -388,6 +388,36 @@ const ICONS = {
   ribbon: ['.ooooo.', 'oRRRRRo', 'oRYYYRo', 'oRRRRRo', '.ooooo.', '.oRoRo.', '.oo.oo.'],
   land: ['o......', 'oRRRo..', 'oRRRRo.', 'oRRRo..', 'o......', 'o......', 'ooo....'],
   basket: ['.ooooo.', 'o.....o', 'ooooooo', 'oBbBbBo', 'obBbBbo', '.ooooo.'],
+  sound: [
+    '....o....',
+    '...oo..o.',
+    'oooWo...o',
+    'oWWWo.o.o',
+    'oWWWo.o.o',
+    'oooWo...o',
+    '...oo..o.',
+    '....o....',
+  ],
+  mute: [
+    '....o....',
+    '...oo....',
+    'oooWo....',
+    'oWWWo.R.R',
+    'oWWWo..R.',
+    'oooWo.R.R',
+    '...oo....',
+    '....o....',
+  ],
+  gear: [
+    '...oo...',
+    '.o.gg.o.',
+    'ooggggoo',
+    '.ggoogg.',
+    '.ggoogg.',
+    'ooggggoo',
+    '.o.gg.o.',
+    '...oo...',
+  ],
 } as const;
 
 export type IconName = keyof typeof ICONS;

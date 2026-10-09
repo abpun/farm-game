@@ -13,7 +13,9 @@ import { lookFor, seasonalTexture } from '../art/seasonLooks';
 import { IslandShape } from '../art/terrain/IslandShape';
 import type { IsoGrid, Point } from '../iso/IsoGrid';
 import { ISLAND } from '../layout';
+import { reducedMotion } from '../fx/prefs';
 import { AmbientWeather } from './AmbientWeather';
+import { TreeSway } from './TreeSway';
 
 const WILD = {
   attempts: 500,
@@ -31,6 +33,11 @@ const WILD = {
   ] as Array<[string, number]>,
 };
 const PROP_ORIGIN = { x: 0.5, y: 0.95 };
+const TREE_TEXTURES: ReadonlySet<string> = new Set([
+  PROP_TEXTURES.treeOrange,
+  PROP_TEXTURES.treeAmber,
+  PROP_TEXTURES.treeRed,
+]);
 const PROP_LAYER = 5;
 const OPEN_WATER = 0.8;
 const STARTER_FOCUS = { col: 4.2, row: 4.2 };
@@ -54,6 +61,7 @@ export class FarmScenery {
   private readonly island: Phaser.GameObjects.Image;
   private readonly props: WildProp[];
   private readonly weather: AmbientWeather;
+  private readonly sway: TreeSway;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -76,6 +84,10 @@ export class FarmScenery {
       y: extent.y - sky,
       height: extent.height + sky,
     });
+    this.sway = new TreeSway(
+      scene,
+      this.props.filter((prop) => TREE_TEXTURES.has(prop.baseKey)).map((prop) => prop.image),
+    );
     this.setSeason(seasonId);
   }
 
@@ -88,7 +100,9 @@ export class FarmScenery {
   }
 
   update(deltaSec: number): void {
+    this.weather.setHidden(reducedMotion(this.scene));
     this.weather.update(deltaSec);
+    this.sway.update(deltaSec);
   }
 }
 

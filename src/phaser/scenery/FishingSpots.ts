@@ -81,6 +81,14 @@ export class FishingSpots {
     return null;
   }
 
+  /** Where the bobber sits for a spot, and the depth just above the water there. */
+  bobberPoint(spotId: string): { x: number; y: number; depth: number } | null {
+    const pier = this.piers.find((p) => p.spotId === spotId);
+    if (!pier) return null;
+    const depth = this.grid.depthOf(pier.start.col, pier.start.row) + 2;
+    return { ...pier.bobberAt, depth };
+  }
+
   update(): void {
     const cast = this.session.fishing.cast();
     const phase = cast ? `${cast.spotId}:${this.session.fishing.phase()}` : 'idle';

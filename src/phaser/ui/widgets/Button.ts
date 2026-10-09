@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import type { FrameName } from '../uiTextures';
+import { playCue } from '../../audio/playCue';
 import { FONT_SIZE, UI_PX, UI_TEXT, uiText, uiTextOnWood } from '../uiTheme';
 import { createFrame, setFrame } from './Frame';
 
@@ -42,6 +43,8 @@ export interface ButtonOptions {
   skin?: ButtonSkin;
   align?: 'left' | 'center';
   fontSize?: number;
+  /** Cue played on click; null when the action makes its own sound (opening a drawer). */
+  sound?: string | null;
   onClick: () => void;
 }
 
@@ -59,11 +62,13 @@ export class Button extends Phaser.GameObjects.Container {
   private readonly background: Phaser.GameObjects.NineSlice;
   private readonly content: Phaser.GameObjects.Container;
   private readonly label?: Phaser.GameObjects.Text;
+  private readonly icon?: Phaser.GameObjects.Image;
   private readonly sublabel?: Phaser.GameObjects.Text;
   private readonly skin: ButtonSkin;
   private readonly centered: boolean;
   private readonly buttonWidth: number;
   private flags: ButtonFlags = { enabled: true, selected: false, hovered: false, pressed: false };
+  private readonly options: ButtonOptions;
 
   constructor(scene: Phaser.Scene, x: number, y: number, options: ButtonOptions) {
     super(scene, x, y);
@@ -82,6 +87,7 @@ export class Button extends Phaser.GameObjects.Container {
     let cursor = PADDING;
     if (options.icon) {
       const icon = scene.add.image(cursor, options.height / 2, options.icon).setOrigin(0, 0.5);
+      this.icon = icon;
       icon.setScale(
         Math.max(1, Math.floor((options.iconSize ?? options.height * 0.6) / icon.height)),
       );
@@ -115,17 +121,40 @@ export class Button extends Phaser.GameObjects.Container {
       .on('pointerout', () => this.setFlags({ hovered: false, pressed: false }))
       .on('pointerdown', () => this.setFlags({ pressed: true }))
       .on('pointerup', () => {
-        const { pressed, enabled } = this.flags;
+        const { pressed } = this.flags;
         this.setFlags({ pressed: false });
-        if (pressed && enabled) options.onClick();
+        if (pressed) this.press();
       });
+    this.options = options;
     scene.add.existing(this);
+  }
+
+  /** Clicks the button (pointer or keyboard): sound plus action, or the refusal cue if disabled. */
+  press(): void {
+    if (!this.flags.enabled) {
+      playCue(this.scene, 'error');
+      return;
+    }
+    const { sound, onClick } = this.options;
+    const cue = sound === undefined ? this.defaultSound() : sound;
+    if (cue) playCue(this.scene, cue);
+    onClick();
+  }
+
+  private defaultSound(): string {
+    return this.skin === 'tab' ? 'tab' : 'click';
   }
 
   setLabel(text: string): this {
     if (!this.label || this.label.text === text) return this;
     this.label.setText(text);
     if (this.centered) this.centerContent(this.buttonWidth);
+    return this;
+  }
+
+  /** Swaps the icon for one of the same size (e.g. sound on / muted). */
+  setIcon(key: string): this {
+    if (this.icon?.texture.key !== key) this.icon?.setTexture(key);
     return this;
   }
 

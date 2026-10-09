@@ -1,6 +1,9 @@
 import * as Phaser from 'phaser';
+import { playCue } from '../../audio/playCue';
+import { reducedMotion } from '../../fx/prefs';
 import { GAME_HEIGHT, GAME_WIDTH } from '../../layout';
 import { UI_COLORS, UI_PX } from '../uiTheme';
+import { popIn } from './Modal';
 import { Panel } from './Panel';
 
 const DIALOG_DEPTH = 950;
@@ -57,6 +60,8 @@ export class Dialog extends Phaser.GameObjects.Container {
     this.setDepth(DIALOG_DEPTH).setAlpha(0);
     scene.add.existing(this);
     scene.tweens.add({ targets: this, alpha: 1, duration: FADE_MS });
+    playCue(scene, 'open');
+    if (!reducedMotion(scene)) popIn(scene, this.panel);
     this.timer = scene.time.addEvent({
       delay: REFRESH_MS,
       loop: true,
@@ -97,6 +102,7 @@ export class Dialog extends Phaser.GameObjects.Container {
     if (!this.active) return;
     if (openDialog === this) openDialog = null;
     this.setActive(false);
+    playCue(this.scene, 'close');
     this.timer.remove();
     this.cleanups.splice(0).forEach((cleanup) => cleanup());
     this.scene.tweens.add({

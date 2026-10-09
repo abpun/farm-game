@@ -6,7 +6,12 @@ const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta
 export default defineConfig({
   base: './',
   resolve: {
-    alias: { '@core': src('core'), '@game': src('phaser'), '@data': src('data') },
+    alias: {
+      '@core': src('core'),
+      '@game': src('phaser'),
+      '@data': src('data'),
+      '@audio': src('audio'),
+    },
   },
   build: {
     chunkSizeWarningLimit: 2000,

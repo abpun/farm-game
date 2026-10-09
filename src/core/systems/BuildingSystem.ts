@@ -8,6 +8,7 @@ import type { WorldSystem } from './WorldSystem';
 // State shared by production buildings and animal housing: level, construction, queue, animals.
 export class BuildingSystem {
   private readonly underConstruction = new Set<number>();
+  private lastUpdate: number;
 
   constructor(
     private readonly state: FarmState,
@@ -19,6 +20,7 @@ export class BuildingSystem {
     for (const id of this.ids()) {
       if (!this.isOperational(id)) this.underConstruction.add(id);
     }
+    this.lastUpdate = time.now();
   }
 
   ids(): number[] {
@@ -91,8 +93,26 @@ export class BuildingSystem {
     this.bus.emit('BuildingUpgraded', { objectId, level: record.level });
   }
 
-  /** Announces buildings whose construction finished since the last call. */
+  /** Announces finished construction and production jobs since the last call. */
   update(): void {
+    this.announceConstruction();
+    this.announceProduction();
+  }
+
+  private announceProduction(): void {
+    const now = this.time.now();
+    const since = this.lastUpdate;
+    this.lastUpdate = now;
+    for (const id of this.ids()) {
+      for (const job of this.record(id).queue) {
+        if (job.endsAt > since && job.endsAt <= now) {
+          this.bus.emit('ProductionReady', { objectId: id, recipeId: job.recipeId });
+        }
+      }
+    }
+  }
+
+  private announceConstruction(): void {
     for (const id of this.underConstruction) {
       if (!this.isBuilding(id)) {
         this.underConstruction.delete(id);

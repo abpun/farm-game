@@ -13,6 +13,8 @@ export const BAR_COLORS = {
 export class ProgressBar extends Phaser.GameObjects.Container {
   private readonly fill: Phaser.GameObjects.Rectangle;
   private readonly trackWidth: number;
+  private target = 0;
+  private easing: Phaser.Tweens.Tween | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -34,8 +36,32 @@ export class ProgressBar extends Phaser.GameObjects.Container {
   }
 
   setProgress(fraction: number): this {
-    const clamped = Math.max(0, Math.min(1, Number.isFinite(fraction) ? fraction : 0));
-    const width = Math.round((this.trackWidth * clamped) / UI_PX) * UI_PX;
+    this.easing?.stop();
+    this.easing = null;
+    this.target = clamp(fraction);
+    return this.draw(this.target);
+  }
+
+  /** Glides toward a new value when it grows; drops (e.g. a new level) snap at once. */
+  easeTo(fraction: number, durationMs: number): this {
+    const next = clamp(fraction);
+    if (next === this.target) return this;
+    if (next < this.target || durationMs <= 0) return this.setProgress(next);
+    const from = this.target;
+    this.target = next;
+    this.easing?.stop();
+    this.easing = this.scene.tweens.addCounter({
+      from,
+      to: next,
+      duration: durationMs,
+      ease: 'Quad.easeOut',
+      onUpdate: (tween) => this.draw(tween.getValue() ?? next),
+    });
+    return this;
+  }
+
+  private draw(fraction: number): this {
+    const width = Math.round((this.trackWidth * fraction) / UI_PX) * UI_PX;
     this.fill.width = width;
     this.fill.setVisible(width > 0);
     return this;
@@ -46,3 +72,6 @@ export class ProgressBar extends Phaser.GameObjects.Container {
     return this;
   }
 }
+
+const clamp = (fraction: number) =>
+  Math.max(0, Math.min(1, Number.isFinite(fraction) ? fraction : 0));

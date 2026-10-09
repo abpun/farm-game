@@ -70,6 +70,7 @@ export class Notifications {
       this.push(`${order.customer}'s order expired`, {
         icon: iconKey('orders'),
         color: UI_TEXT.danger,
+        sound: null,
       }),
     );
   }

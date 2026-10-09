@@ -1,4 +1,6 @@
 import type * as Phaser from 'phaser';
+import { playCue } from '../../audio/playCue';
+import { reducedMotion } from '../../fx/prefs';
 import { Panel } from './Panel';
 
 export type DrawerSide = 'left' | 'right';
@@ -34,7 +36,8 @@ export class Drawer extends Panel {
   open(): void {
     if (this.isOpen) return;
     this.emit(DRAWER_EVENTS.opened);
-    const offset = this.side === 'right' ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
+    playCue(this.scene, 'open');
+    const offset = this.slideOffset();
     this.setVisible(true)
       .setAlpha(0)
       .setX(this.restX + offset);
@@ -50,7 +53,8 @@ export class Drawer extends Panel {
   close(): void {
     if (!this.isOpen) return;
     this.emit(DRAWER_EVENTS.closed);
-    const offset = this.side === 'right' ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
+    playCue(this.scene, 'close');
+    const offset = this.slideOffset();
     this.scene.tweens.add({
       targets: this,
       x: this.restX + offset,
@@ -59,6 +63,12 @@ export class Drawer extends Panel {
       ease: 'Quad.easeIn',
       onComplete: () => this.setVisible(false),
     });
+  }
+
+  // With reduced motion the drawer only fades.
+  private slideOffset(): number {
+    if (reducedMotion(this.scene)) return 0;
+    return this.side === 'right' ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
   }
 
   toggle(): void {

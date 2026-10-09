@@ -7,6 +7,7 @@ export class SeasonSystem {
   private readonly seasonLengthSec: number;
   private readonly offsetSec: number;
   private lastIndex: number;
+  private lastDay: number;
 
   constructor(
     private readonly time: TimeSystem,
@@ -20,6 +21,7 @@ export class SeasonSystem {
     this.seasonLengthSec = config.daysPerSeason * dayLengthSec;
     this.offsetSec = start * this.seasonLengthSec;
     this.lastIndex = this.index();
+    this.lastDay = this.absoluteDay();
   }
 
   all(): readonly SeasonDef[] {
@@ -44,12 +46,21 @@ export class SeasonSystem {
     return this.seasonLengthSec - this.elapsedInSeason();
   }
 
-  /** Emits SeasonChanged once when the calendar has moved into a new season. */
+  /** Emits DayChanged and SeasonChanged once each when the calendar moves on. */
   checkForChange(): void {
+    const day = this.absoluteDay();
+    if (day !== this.lastDay) {
+      this.lastDay = day;
+      this.bus.emit('DayChanged', { day: this.dayOfSeason() });
+    }
     const index = this.index();
     if (index === this.lastIndex) return;
     this.lastIndex = index;
     this.bus.emit('SeasonChanged', { seasonId: this.current().id });
+  }
+
+  private absoluteDay(): number {
+    return Math.floor(this.time.now() / this.dayLengthSec);
   }
 
   private index(): number {
