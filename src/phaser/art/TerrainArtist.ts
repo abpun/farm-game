@@ -337,6 +337,9 @@ function stampDetails(
   const isOn = (px: number, py: number, wanted: number, wild: boolean) => {
     if (surfaces.at(px, py) !== wanted) return false;
     const at = raster.toGrid(px, py);
+    if (wanted === SURFACE_CODE.rock && shape.mountainDepth(at.col, at.row) > HIDDEN_DEPTH) {
+      return false;
+    }
     if (shape.isPath(at.col, at.row)) return false;
     return !wild || shape.gridDistance(at.col, at.row) > 0.3;
   };

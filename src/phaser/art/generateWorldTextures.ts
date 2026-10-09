@@ -11,6 +11,7 @@ import { generateFenceTextures } from './FenceArtist';
 import { generateHarborTextures } from './HarborArtist';
 import { generateHouseTexture } from './HouseArtist';
 import { generatePropTextures } from './PropArtist';
+import { generateSkyLifeTextures } from './SkyLifeArtist';
 import { generateWaterfallTextures } from './WaterfallArtist';
 import { generateWildTextures } from './WildArtist';
 
@@ -26,4 +27,5 @@ export function generateWorldTextures(scene: Phaser.Scene, grid: IsoGrid, crops:
   generateWaterfallTextures(scene);
   generateHarborTextures(scene);
   generateWildTextures(scene);
+  generateSkyLifeTextures(scene);
 }

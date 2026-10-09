@@ -6,7 +6,9 @@ import { bindGameSounds } from '@audio/gameSounds';
 import { pickTrack } from '@audio/musicDirector';
 import type { AmbienceData, MusicData } from '@audio/types';
 import type { GameSession } from '@core/GameSession';
+import type { MapPoint } from '../map/WorldMap';
 import { getAudio } from '../session';
+import { bedLevel, surroundings } from './surroundings';
 
 const MS_PER_SEC = 1000;
 const FEATURE_REFRESH_SEC = 2;
@@ -47,17 +49,20 @@ export class AudioDirector {
   setPlace(place: string | null): void {
     if (this.place === place) return;
     this.place = place;
+    this.sinceFeatures = FEATURE_REFRESH_SEC;
     this.chooseMusic();
   }
 
-  update(deltaMs: number): void {
+  /** `listener` is the map point at the centre of the view; null while underground. */
+  update(deltaMs: number, listener: MapPoint | null): void {
     const audio = getAudio(this.scene);
     if (!audio) return;
     const dt = deltaMs / MS_PER_SEC;
     this.sinceFeatures += dt;
     if (this.sinceFeatures >= FEATURE_REFRESH_SEC) {
       this.sinceFeatures = 0;
-      this.features = this.farmFeatures();
+      this.features = surroundings(this.place === 'mine' ? null : listener, this.farmFeatures());
+      audio.setBedLevel(bedLevel(this.features));
     }
     const seasonId = this.session.seasons.current().id;
     const cue = this.ambience.update(dt, { seasonId, features: this.features });
@@ -71,11 +76,11 @@ export class AudioDirector {
     );
   }
 
-  private farmFeatures(): Set<string> {
+  private farmFeatures(): string[] {
     const features = new Set<string>();
     for (const building of Object.values(this.session.state.buildings)) {
       for (const animal of building.animals) features.add(`animal:${animal.animalId}`);
     }
-    return features;
+    return [...features];
   }
 }

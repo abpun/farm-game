@@ -3,6 +3,7 @@ import type { GameSession } from '@core/GameSession';
 import { CAVE_TEXTURES } from '../art/CaveArtist';
 import { boatKey, HARBOR_TEXTURES, isletKey } from '../art/HarborArtist';
 import { addArt } from '../art/paint';
+import { PROP_TEXTURES } from '../art/PropArtist';
 import { seasonalTexture } from '../art/seasonLooks';
 import { TERRAIN_DEPTH } from '../art/TerrainArtist';
 import { WATERFALL_FRAMES, waterfallFoamKey, waterfallKey } from '../art/WaterfallArtist';
@@ -44,8 +45,9 @@ const DRESSING_TEXTURES: Record<string, string> = {
   shell: WILD_TEXTURES.shell,
   driftwood: WILD_TEXTURES.driftwood,
   signpost: WILD_TEXTURES.signpost,
+  hedge: PROP_TEXTURES.bush,
 };
-const SEASONAL_DRESSING = new Set(['reeds', 'lily']);
+const SEASONAL_DRESSING = new Set(['reeds', 'lily', 'hedge']);
 
 // The valley's hand-placed landmarks: cave, waterfall, harbor and boat, lighthouse, bridges,
 // islands, hidden chests and the high trail, plus riverbank and beach dressing.

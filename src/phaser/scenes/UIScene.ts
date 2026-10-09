@@ -1,7 +1,8 @@
 import * as Phaser from 'phaser';
 import { AudioDirector } from '../audio/AudioDirector';
 import { UiFx } from '../fx/UiFx';
-import { DOCK, DRAWER, TOAST_ANCHOR } from '../layout';
+import { DOCK, DRAWER, ISO, TOAST_ANCHOR } from '../layout';
+import type { MapPoint } from '../map/WorldMap';
 import { getSession, getTools, getUiBus } from '../session';
 import { formatDuration } from '../ui/format';
 import { BarnPanel } from '../ui/screens/BarnPanel';
@@ -151,7 +152,14 @@ export class UIScene extends Phaser.Scene {
   override update(_time: number, deltaMs: number): void {
     getSession(this).update(deltaMs / MS_PER_SEC);
     this.hud.update();
-    this.audio.update(deltaMs);
+    this.audio.update(deltaMs, this.listener());
+  }
+
+  /** Map point at the centre of the farm view, where ambience is heard from. */
+  private listener(): MapPoint | null {
+    if (this.scene.isActive('Mine')) return null;
+    const view = this.scene.get('Farm').cameras.main.worldView;
+    return { u: view.centerX / (ISO.tileWidth / 2), v: view.centerY / (ISO.tileWidth / 4) };
   }
 
   // The farm sleeps (no rendering or input) while the mine scene runs between it and the HUD.

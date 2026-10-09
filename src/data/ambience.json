@@ -3,29 +3,79 @@
   "bedLoopSec": 6.8,
   "maxStepSec": 1,
   "sources": [
-    { "id": "waves", "cues": ["wave"], "intervalSec": [9, 18] },
-    { "id": "wind", "cues": ["wind"], "intervalSec": [16, 34] },
+    {
+      "id": "waves",
+      "cues": ["wave"],
+      "intervalSec": [9, 18],
+      "requires": "near:coast"
+    },
+    {
+      "id": "wind",
+      "cues": ["wind"],
+      "intervalSec": [16, 34],
+      "requires": "outdoors"
+    },
     {
       "id": "birds",
       "cues": ["bird-a", "bird-b"],
       "intervalSec": [7, 16],
-      "seasons": ["spring", "summer", "autumn"]
+      "seasons": ["spring", "summer", "autumn"],
+      "requires": "outdoors"
     },
-    { "id": "gulls", "cues": ["gull"], "intervalSec": [25, 50], "seasons": ["summer"] },
+    {
+      "id": "gulls",
+      "cues": ["gull"],
+      "intervalSec": [25, 50],
+      "seasons": ["summer"],
+      "requires": "near:coast"
+    },
     {
       "id": "chickens",
       "cues": ["animal-chicken"],
       "intervalSec": [14, 30],
       "requires": "animal:chicken"
     },
-    { "id": "cows", "cues": ["animal-cow"], "intervalSec": [22, 45], "requires": "animal:cow" },
+    {
+      "id": "cows",
+      "cues": ["animal-cow"],
+      "intervalSec": [22, 45],
+      "requires": "animal:cow"
+    },
     {
       "id": "sheep",
       "cues": ["animal-sheep"],
       "intervalSec": [20, 40],
       "requires": "animal:sheep"
     },
-    { "id": "goats", "cues": ["animal-goat"], "intervalSec": [20, 40], "requires": "animal:goat" },
-    { "id": "pigs", "cues": ["animal-pig"], "intervalSec": [20, 40], "requires": "animal:pig" }
+    {
+      "id": "goats",
+      "cues": ["animal-goat"],
+      "intervalSec": [20, 40],
+      "requires": "animal:goat"
+    },
+    {
+      "id": "pigs",
+      "cues": ["animal-pig"],
+      "intervalSec": [20, 40],
+      "requires": "animal:pig"
+    },
+    {
+      "id": "stream",
+      "cues": ["stream"],
+      "intervalSec": [5, 11],
+      "requires": "near:river"
+    },
+    {
+      "id": "falls",
+      "cues": ["falls"],
+      "intervalSec": [3, 6],
+      "requires": "near:falls"
+    },
+    {
+      "id": "drips",
+      "cues": ["drip-a", "drip-b"],
+      "intervalSec": [2.5, 7],
+      "requires": "place:mine"
+    }
   ]
 }

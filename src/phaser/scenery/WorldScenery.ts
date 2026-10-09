@@ -18,6 +18,8 @@ import type { PathConfig } from '@core/entities/types';
 import { AmbientWeather } from './AmbientWeather';
 import { Highlands } from './Highlands';
 import { placeGlints } from './SeaGlints';
+import { SkyLife } from './SkyLife';
+import { WaterMotion } from './WaterMotion';
 import { TreeSway } from './TreeSway';
 
 const SEA_GLINTS = 60;
@@ -59,6 +61,8 @@ export class WorldScenery {
   private readonly sway: TreeSway;
   private readonly raster: TerrainRaster;
   private readonly highlands: Highlands;
+  private readonly skyLife: SkyLife;
+  private readonly water: WaterMotion;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -81,6 +85,8 @@ export class WorldScenery {
     placeGlints(scene, sea, SEA_GLINTS, onWater('water'));
     placeGlints(scene, area, RIVER_GLINTS, onWater('fresh'), RIVER_GLINT_DEPTH);
     this.plant();
+    this.skyLife = new SkyLife(scene, grid);
+    this.water = new WaterMotion(scene, grid);
     this.weather = new AmbientWeather(scene, () => scene.cameras.main.worldView);
     this.sway = new TreeSway(
       scene,
@@ -98,10 +104,12 @@ export class WorldScenery {
     this.highlands.setSeason(seasonId);
   }
 
-  update(deltaSec: number, reducedMotion: boolean): void {
+  update(deltaSec: number, reducedMotion: boolean, effects: boolean): void {
     this.weather.setHidden(reducedMotion);
     this.weather.update(deltaSec);
     this.sway.update(deltaSec);
+    this.skyLife.update(deltaSec, reducedMotion, effects);
+    this.water.update(deltaSec, reducedMotion, effects);
   }
 
   private plant(): void {

@@ -2,7 +2,7 @@ import { toGrid, toMap, type GridPoint } from './WorldMap';
 import type { WorldShape } from './WorldShape';
 
 export interface Dressing extends GridPoint {
-  kind: 'reeds' | 'lily' | 'shell' | 'driftwood' | 'signpost';
+  kind: 'reeds' | 'lily' | 'shell' | 'driftwood' | 'signpost' | 'hedge';
 }
 
 const REED_STEP = 1.4;
@@ -12,11 +12,41 @@ const POND_LILIES = 7;
 const SHELL_STEP = 3.3;
 const DRIFTWOOD_EVERY = 4;
 const BRIDGE_CLEARANCE = 1.6;
+const HEDGE = { offset: 0.9, step: 1.15, gapNearPath: 1.2 };
 
 // Small details that follow the geography: reeds on the banks, lilies on the pond,
 // shells and driftwood along the tide line, signposts at trail junctions.
 export function dressWorld(shape: WorldShape): Dressing[] {
-  return [...riverbank(shape), ...pond(shape), ...beach(shape), ...junctions(shape)];
+  return [
+    ...riverbank(shape),
+    ...pond(shape),
+    ...beach(shape),
+    ...junctions(shape),
+    ...hedgerow(shape),
+  ];
+}
+
+// A hedge just outside the build grid frames the farm estate, open where paths cross.
+function hedgerow(shape: WorldShape): Dressing[] {
+  const { columns, rows } = shape;
+  const result: Dressing[] = [];
+  const edges: Array<(t: number) => GridPoint> = [
+    (t) => ({ col: t, row: -HEDGE.offset }),
+    (t) => ({ col: columns + HEDGE.offset, row: t }),
+    (t) => ({ col: t, row: rows + HEDGE.offset }),
+    (t) => ({ col: -HEDGE.offset, row: t }),
+  ];
+  for (const edge of edges) {
+    for (let t = -HEDGE.offset; t <= columns + HEDGE.offset; t += HEDGE.step) {
+      const { col, row } = edge(t);
+      const open = [0, HEDGE.gapNearPath, -HEDGE.gapNearPath].some(
+        (d) => shape.isPath(col + d, row) || shape.isPath(col, row + d),
+      );
+      if (open || shape.isWater(col, row)) continue;
+      result.push({ kind: 'hedge', col, row });
+    }
+  }
+  return result;
 }
 
 function riverbank(shape: WorldShape): Dressing[] {

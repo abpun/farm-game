@@ -6,7 +6,7 @@ import { createFarmGrid } from '../iso/createFarmGrid';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { AutosaveManager } from '../managers/AutosaveManager';
 import { CameraManager } from '../managers/CameraManager';
-import { reducedMotion } from '../fx/prefs';
+import { effectsEnabled, reducedMotion } from '../fx/prefs';
 import { createWorldShape, farmFocus, worldArea, WorldScenery } from '../scenery/WorldScenery';
 import { FishingSpots } from '../scenery/FishingSpots';
 import { Landmarks } from '../scenery/Landmarks';
@@ -55,7 +55,9 @@ export class FarmScene extends Phaser.Scene {
     this.fishingSpots = new FishingSpots(this, session, this.grid);
     this.world = new WorldView(this, session, this.grid);
     this.cursor = new BuildCursor(this, session, this.grid, this.world);
-    this.fx = new WorldFx(this, session, this.grid, this.world, this.fishingSpots);
+    this.fx = new WorldFx(this, session, this.grid, this.world, this.fishingSpots, (id) =>
+      this.landmarks.pointOf(id),
+    );
     this.cameraControl = new CameraManager(this, worldArea(this.grid), farmFocus(this.grid));
     new AutosaveManager(this, session);
 
@@ -86,7 +88,7 @@ export class FarmScene extends Phaser.Scene {
     this.world.update();
     this.fishingSpots.update();
     this.landmarks.update();
-    this.scenery.update(deltaMs / MS_PER_SEC, reducedMotion(this));
+    this.scenery.update(deltaMs / MS_PER_SEC, reducedMotion(this), effectsEnabled(this));
     this.fx.update(deltaMs);
   }
 

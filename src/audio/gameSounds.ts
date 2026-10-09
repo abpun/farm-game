@@ -9,6 +9,11 @@ export interface CueRequest {
 export type PlayCue = (request: CueRequest) => void;
 
 const RARE = new Set(['rare', 'legendary']);
+const DISCOVERY_CUES: Record<string, string> = {
+  chest: 'chest-open',
+  viewpoint: 'viewpoint',
+  obstacle: 'rockfall',
+};
 const FOLLOW_UP_SEC = 0.3;
 const PLACE_CUES: Record<string, string> = {
   plot: 'unlock-plot',
@@ -72,6 +77,14 @@ export function bindGameSounds(session: GameSession, play: PlayCue): () => void 
     bus.on('AchievementCompleted', () => say('achievement')),
     bus.on('AchievementClaimed', () => say('reward')),
     bus.on('XpGained', () => say('xp')),
+    bus.on('DepositStruck', () => say('mine-hit')),
+    bus.on('DepositMined', () => {
+      say('mine-hit');
+      say('mine-break', FOLLOW_UP_SEC / 3);
+    }),
+    bus.on('PickaxeUpgraded', () => say('upgrade')),
+    bus.on('BoatUpgraded', () => say('boat-horn')),
+    bus.on('DiscoveryFound', ({ kind }) => say(DISCOVERY_CUES[kind] ?? 'reward')),
     bus.on('LevelUp', () => say('level-up')),
     bus.on('DayChanged', () => say('day')),
     bus.on('SeasonChanged', () => say('season')),

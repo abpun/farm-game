@@ -38,6 +38,7 @@ export class WorldFx {
     private readonly grid: IsoGrid,
     private readonly world: WorldView,
     private readonly spots: FishingSpots,
+    private readonly landmarkAt: (featureId: string) => { x: number; y: number } | null,
   ) {
     this.particles = new ParticlePool(scene, MAX_PARTICLES, PIXEL_SCALE, FX_DEPTH);
     this.ripples = new Ripples(scene, MAX_RIPPLES, PIXEL_SCALE);
@@ -66,6 +67,12 @@ export class WorldFx {
       }),
       bus.on('FishBite', ({ spotId }) => this.splash(spotId, FX.biteSplash, 3)),
       bus.on('FishCaught', ({ fishId }) => this.caught(fishId)),
+      bus.on('DiscoveryFound', ({ id, kind }) => {
+        const point = this.landmarkAt(id);
+        if (!point) return;
+        this.burst(point.x, point.y - this.grid.tileH / 2, FX.sparkle);
+        if (kind === 'obstacle') this.burst(point.x, point.y, FX.dust);
+      }),
     ];
     scene.events.once('shutdown', () => offs.forEach((off) => off()));
   }
