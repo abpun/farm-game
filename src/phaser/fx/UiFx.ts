@@ -78,8 +78,11 @@ export class UiFx {
   }
 
   private showMoney(total: number): void {
-    const { x, y } = this.hud.coinAnchor;
+    const anchor = this.hud.coinAnchor;
     const gain = total > 0;
+    // Spending floats off to the right so it never sits on top of a gain.
+    const x = gain ? anchor.x : anchor.x + SPEND_OFFSET;
+    const y = anchor.y;
     this.float(
       x,
       y,
@@ -248,3 +251,4 @@ export class UiFx {
 }
 
 const HUD_COIN_OFFSET = UI_PX * 22;
+const SPEND_OFFSET = UI_PX * 30;

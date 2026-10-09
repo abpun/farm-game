@@ -8,6 +8,8 @@ import type { ToastManager, ToastOptions } from '../widgets/ToastManager';
 const GAP_MS = 900;
 const MAX_QUEUED = 6;
 const MAX_UNLOCK_NAMES = 3;
+/** Autosave retries often; warn about a failing save at most this often. */
+const SAVE_WARNING_GAP_MS = 60_000;
 
 /** Names of everything that opens up at exactly this player level. */
 export function unlocksAt(session: GameSession, level: number): string[] {
@@ -36,6 +38,7 @@ export function unlocksAt(session: GameSession, level: number): string[] {
 export class Notifications {
   private readonly queue: Array<{ message: string; options: ToastOptions }> = [];
   private busy = false;
+  private lastSaveWarning = -Infinity;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -65,6 +68,15 @@ export class Notifications {
       const object = session.world.get(objectId);
       if (!object) return;
       this.push(`${catalog.get(object.itemId).name} is ready to use!`, { icon: iconKey('hammer') });
+    });
+    bus.on('SaveFailed', () => {
+      const now = scene.time.now;
+      if (now - this.lastSaveWarning < SAVE_WARNING_GAP_MS) return;
+      this.lastSaveWarning = now;
+      this.push('Could not save. Browser storage may be full or blocked', {
+        icon: iconKey('save'),
+        color: UI_TEXT.danger,
+      });
     });
     bus.on('OrderExpired', ({ order }) =>
       this.push(`${order.customer}'s order expired`, {

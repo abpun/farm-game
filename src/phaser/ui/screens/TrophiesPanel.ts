@@ -113,6 +113,7 @@ export class TrophiesPanel {
       `Level ${progression.level()} · ${needed ? `${earned}/${needed} xp` : 'max level'}` +
         (unclaimed ? ` · ${unclaimed} to claim!` : ''),
     );
+    fitText(this.levelText, this.drawer.innerWidth);
     this.xpBar.setProgress(needed ? earned / needed : 1);
     this.chips.forEach((chip, id) => chip.setSelected(id === this.category));
     this.list.setItems(achievements.all().filter((a) => a.category === this.category));

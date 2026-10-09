@@ -18,9 +18,10 @@ type Tab = 'board' | 'active' | 'history';
 
 const TAB_HEIGHT = UI_PX * 14;
 const HEADER_HEIGHT = UI_PX * 11;
-const CARD_HEIGHT = UI_PX * 36;
+const CARD_HEIGHT = UI_PX * 42;
 const CARD_GAP = UI_PX * 2;
 const ITEM_ICON = UI_PX * 9;
+const SMALL_ITEM_ICON = UI_PX * 7;
 const ITEM_SLOT = UI_PX * 26;
 const ACTION_WIDTH = UI_PX * 30;
 const ACTION_HEIGHT = UI_PX * 12;
@@ -105,9 +106,10 @@ export class OrdersPanel {
     const active = orders.active();
     this.tabs.get('active')?.setLabel(`Active ${active.length}`);
     this.header.setText(
-      `Reputation ${orders.reputation()} · ${orders.slots()} board slots · ` +
+      `Reputation ${orders.reputation()} · ${orders.slots()} slots · ` +
         `${active.length}/${this.session.config.orders.maxActive} active`,
     );
+    fitText(this.header, this.drawer.innerWidth);
     if (this.tab === 'board') {
       const daily = orders.daily();
       const refill = orders.nextRefill();
@@ -137,62 +139,60 @@ export class OrdersPanel {
     const title = order.daily
       ? `Daily contract · ${order.customer}`
       : `${order.customer} · ${category}`;
-    objects.push(
-      fitText(
-        scene.add.text(PAD, PAD, title, uiText(FONT_SIZE.body)),
-        width - ACTION_WIDTH - PAD * 3,
-      ),
-    );
+    // Title and timing share the top line; the title gives way.
+    const timing = this.timing(order);
+    const timingText = timing
+      ? scene.add
+          .text(width - PAD, PAD + UI_PX, timing.text, uiText(FONT_SIZE.small, timing.color))
+          .setOrigin(1, 0)
+      : null;
+    const titleRoom = width - PAD * 3 - (timingText?.width ?? 0);
+    objects.push(fitText(scene.add.text(PAD, PAD, title, uiText(FONT_SIZE.body)), titleRoom));
+    if (timingText) objects.push(timingText);
 
     let x = PAD;
     const itemsY = PAD + UI_PX * 12;
-    for (const [id, need] of Object.entries(order.items)) {
+    const entries = Object.entries(order.items);
+    // Items share the space left of the buttons; big contracts get tighter slots.
+    const room = width - ACTION_WIDTH - PAD * 3;
+    const slot = Math.min(ITEM_SLOT, Math.floor(room / Math.max(1, entries.length)));
+    const icon = slot < ITEM_SLOT ? SMALL_ITEM_ICON : ITEM_ICON;
+    for (const [id, need] of entries) {
       const have = inventory.count(id);
       objects.push(
-        iconImage(
-          scene,
-          itemIconKey(content, id),
-          x + ITEM_ICON / 2,
-          itemsY + ITEM_ICON / 2,
-          ITEM_ICON,
-        ),
+        iconImage(scene, itemIconKey(content, id), x + icon / 2, itemsY + ITEM_ICON / 2, icon),
       );
+      // have/need, red only once the order is running and still short.
       const enough = order.status !== 'active' || have >= need;
-      const label =
-        order.status === 'active' ? `${Math.min(have, need)}/${need}` : `${need} (${have})`;
+      const label = `${Math.min(have, need)}/${need}`;
       objects.push(
         scene.add
           .text(
-            x + ITEM_ICON + UI_PX,
+            x + icon + UI_PX,
             itemsY + ITEM_ICON / 2,
             label,
             uiText(FONT_SIZE.small, enough ? UI_TEXT.dark : UI_TEXT.danger),
           )
           .setOrigin(0, 0.5),
       );
-      x += ITEM_SLOT;
+      x += slot;
     }
 
     const bonus = order.bonusCoins > 0 ? ` (+$${order.bonusCoins} fast)` : '';
-    const reward = `$${formatMoney(order.coins)}${bonus} · ${order.xp}xp · +${order.reputation} rep · ${difficulty}`;
-    const rewardY = height - PAD - UI_PX * 4;
-    objects.push(
-      fitText(
-        scene.add
-          .text(PAD, rewardY, reward, uiText(FONT_SIZE.small, UI_TEXT.muted))
-          .setOrigin(0, 0.5),
-        width - ACTION_WIDTH - PAD * 3,
-      ),
-    );
-    objects.push(...this.actions(order, width));
-    const timing = this.timing(order);
-    if (timing) {
+    const rewardLines = [
+      `$${formatMoney(order.coins)}${bonus} · ${order.xp}xp`,
+      `+${order.reputation} reputation · ${difficulty}`,
+    ];
+    rewardLines.forEach((line, index) => {
+      const y = height - PAD - UI_PX * (12 - index * 8);
       objects.push(
-        scene.add
-          .text(width - PAD, PAD, timing.text, uiText(FONT_SIZE.small, timing.color))
-          .setOrigin(1, 0),
+        fitText(
+          scene.add.text(PAD, y, line, uiText(FONT_SIZE.small, UI_TEXT.muted)).setOrigin(0, 0.5),
+          width - ACTION_WIDTH - PAD * 3,
+        ),
       );
-    }
+    });
+    objects.push(...this.actions(order, width));
     return objects;
   }
 

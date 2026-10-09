@@ -144,7 +144,11 @@ export class GameSession {
   }
 
   save(): boolean {
-    if (this.savesLocked || !this.saves.save(this.state)) return false;
+    if (this.savesLocked) return false;
+    if (!this.saves.save(this.state)) {
+      this.bus.emit('SaveFailed', {});
+      return false;
+    }
     this.bus.emit('GameSaved', { savedAt: this.clock.now() });
     return true;
   }

@@ -17,6 +17,7 @@ export interface GameEvents {
   SeasonChanged: { seasonId: string };
   DayChanged: { day: number };
   GameSaved: { savedAt: number };
+  SaveFailed: Record<string, never>;
   XpGained: { amount: number; xp: number };
   LevelUp: { level: number; coins: number };
   LandExpanded: { size: number };

@@ -37,7 +37,7 @@ const CATEGORY_ICONS: Record<string, IconName> = {
 const CATEGORY_HINTS: Record<string, string> = {
   orchard: 'Build orchard plots, then plant trees',
   animals: 'Build housing, then buy animals',
-  supplies: 'Feed and bait, delivered to the barn',
+  supplies: 'Rods, feed and bait',
   production: 'Workshops that turn crops into goods',
   buildings: 'Pick a piece, then tap tiles',
   plants: 'Trees and shrubs for your farm',
@@ -51,6 +51,7 @@ type MarketEntry =
   | { kind: 'build'; item: CatalogItem }
   | { kind: 'animal'; animal: AnimalDef }
   | { kind: 'supply'; itemId: string }
+  | { kind: 'rod' }
   | { kind: 'land' };
 
 // Market drawer: seeds, saplings, buildings, animals and supplies. Picking something to
@@ -117,6 +118,8 @@ export class MarketPanel {
       'LandExpanded',
       'AchievementClaimed',
       'InventoryChanged',
+      'RodUpgraded',
+      'FishCaught',
     ] as const) {
       session.bus.on(event, refresh);
     }
@@ -172,7 +175,12 @@ export class MarketPanel {
           ...builds,
         ];
       case 'supplies':
-        return content.items.buyable().map((item) => ({ kind: 'supply', itemId: item.id }));
+        return [
+          { kind: 'rod' },
+          ...content.items
+            .buyable()
+            .map((item): MarketEntry => ({ kind: 'supply', itemId: item.id })),
+        ];
       case 'buildings':
         return [...builds, { kind: 'land' }];
       default:
@@ -190,6 +198,8 @@ export class MarketPanel {
         return this.animalRow(entry.animal, width, height);
       case 'supply':
         return this.supplyRow(entry.itemId, width, height);
+      case 'rod':
+        return this.rodRow(width, height);
       case 'land':
         return this.landRow(width, height);
     }
@@ -276,6 +286,32 @@ export class MarketPanel {
       subtitleColor: locked ? UI_TEXT.danger : undefined,
       enabled: !locked,
       onClick: () => openTradeDialog(this.scene, this.session, this.toasts, 'buy', itemId),
+    });
+  }
+
+  // The same upgrade the Fishing drawer offers, so gear can be bought from either place.
+  private rodRow(width: number, height: number) {
+    const { fishing, economy } = this.session;
+    const next = fishing.nextRod();
+    const levelShort = next ? fishing.level() < next.fishingLevel : false;
+    const subtitle = !next
+      ? `${fishing.rod().name} · the best rod there is`
+      : levelShort
+        ? `Needs fishing level ${next.fishingLevel} · you have the ${fishing.rod().name}`
+        : `Replaces the ${fishing.rod().name} · better luck and timing`;
+    return slotRow(this.scene, width, height, {
+      icon: iconKey('fishing'),
+      title: next ? `${next.name}  $${formatMoney(next.price)}` : fishing.rod().name,
+      subtitle,
+      subtitleColor: levelShort ? UI_TEXT.danger : undefined,
+      enabled: Boolean(next) && !levelShort && economy.canAfford(next?.price ?? 0),
+      onClick: () => {
+        const result = fishing.upgradeRod();
+        this.toasts.show(result.ok ? `Upgraded to the ${next?.name}!` : result.reason, {
+          icon: iconKey('fishing'),
+          color: result.ok ? UI_TEXT.gold : UI_TEXT.danger,
+        });
+      },
     });
   }
 

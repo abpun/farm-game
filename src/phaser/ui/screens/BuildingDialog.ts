@@ -149,6 +149,7 @@ function buildProduction(ctx: Ctx, body: Phaser.GameObjects.Container): void {
     label: '',
     icon: iconKey('basket'),
     iconSize: UI_PX * 8,
+    fontSize: FONT_SIZE.small,
     align: 'center',
     onClick: () =>
       report(ctx, session.production.collect(objectId), 'Collected!', iconKey('basket')),
@@ -211,7 +212,7 @@ function buildProduction(ctx: Ctx, body: Phaser.GameObjects.Container): void {
       slot.time.setColor(done ? UI_TEXT.good : UI_TEXT.muted);
     });
     const ready = session.production.readyCount(objectId);
-    collect.setLabel(ready > 0 ? `Collect ${ready}` : 'Nothing ready').setEnabled(ready > 0);
+    collect.setLabel(ready > 0 ? `Collect ${ready}` : 'None ready').setEnabled(ready > 0);
   });
 }
 
