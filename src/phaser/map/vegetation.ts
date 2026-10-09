@@ -1,4 +1,4 @@
-import { seededRandom } from '../art/paint';
+import { seededRandom } from '../art/terrain/noise';
 import { insidePolygon, toGrid, toMap, type Forest } from './WorldMap';
 import type { WorldShape } from './WorldShape';
 

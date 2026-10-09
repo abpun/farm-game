@@ -78,11 +78,4 @@ export function addArt(
   return scene.add.image(x, y, key).setOrigin(originX, originY).setScale(PIXEL_SCALE);
 }
 
-// Deterministic pseudo-random so decorations stay put between reloads.
-export function seededRandom(seed: number): () => number {
-  let state = seed;
-  return () => {
-    state = (state * 1664525 + 1013904223) % 4294967296;
-    return state / 4294967296;
-  };
-}
+export { seededRandom } from './terrain/noise';

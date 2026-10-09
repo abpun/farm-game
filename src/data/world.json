@@ -292,8 +292,8 @@
       "v": 22
     },
     {
-      "u": 31,
-      "v": 46.8
+      "u": 32.7,
+      "v": 45.3
     }
   ],
   "forests": [
@@ -430,8 +430,8 @@
     {
       "id": "falls-chest",
       "kind": "chest",
-      "u": 27.2,
-      "v": -2.3,
+      "u": 29.3,
+      "v": -4.6,
       "discovery": "falls-chest"
     },
     {
@@ -474,7 +474,7 @@
     {
       "id": "spot-river",
       "kind": "spot",
-      "u": 29.6,
+      "u": 27.5,
       "v": 16.4,
       "spot": "river"
     },
