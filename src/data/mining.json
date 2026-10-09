@@ -1,0 +1,208 @@
+{
+  "unlockLevel": 3,
+  "pickaxes": [
+    {
+      "id": "old-pickaxe",
+      "name": "Old Pickaxe",
+      "tier": 1,
+      "price": 0,
+      "unlockLevel": 1,
+      "materials": {}
+    },
+    {
+      "id": "copper-pickaxe",
+      "name": "Copper Pickaxe",
+      "tier": 2,
+      "price": 450,
+      "unlockLevel": 5,
+      "materials": {
+        "stone": 20,
+        "coal": 5
+      }
+    },
+    {
+      "id": "iron-pickaxe",
+      "name": "Iron Pickaxe",
+      "tier": 3,
+      "price": 1600,
+      "unlockLevel": 8,
+      "materials": {
+        "copper-bar": 4
+      }
+    }
+  ],
+  "deposits": [
+    {
+      "id": "stone",
+      "name": "Stone",
+      "tier": 1,
+      "hp": 2,
+      "respawnSec": 90,
+      "xp": 1,
+      "drops": [
+        {
+          "item": "stone",
+          "min": 2,
+          "max": 3,
+          "weight": 9
+        },
+        {
+          "item": "coal",
+          "min": 1,
+          "max": 1,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "coal",
+      "name": "Coal seam",
+      "tier": 1,
+      "hp": 3,
+      "respawnSec": 150,
+      "xp": 2,
+      "drops": [
+        {
+          "item": "coal",
+          "min": 1,
+          "max": 2,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "copper",
+      "name": "Copper vein",
+      "tier": 2,
+      "hp": 4,
+      "respawnSec": 240,
+      "xp": 3,
+      "drops": [
+        {
+          "item": "copper-ore",
+          "min": 1,
+          "max": 2,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "iron",
+      "name": "Iron vein",
+      "tier": 3,
+      "hp": 5,
+      "respawnSec": 360,
+      "xp": 5,
+      "drops": [
+        {
+          "item": "iron-ore",
+          "min": 1,
+          "max": 2,
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "gem",
+      "name": "Crystal cluster",
+      "tier": 3,
+      "hp": 6,
+      "respawnSec": 900,
+      "xp": 12,
+      "drops": [
+        {
+          "item": "amethyst",
+          "min": 1,
+          "max": 1,
+          "weight": 14
+        },
+        {
+          "item": "emerald",
+          "min": 1,
+          "max": 1,
+          "weight": 5
+        },
+        {
+          "item": "star-crystal",
+          "min": 1,
+          "max": 1,
+          "weight": 1
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "stone-a",
+      "deposit": "stone",
+      "col": 2.2,
+      "row": 6.4
+    },
+    {
+      "id": "stone-b",
+      "deposit": "stone",
+      "col": 5.6,
+      "row": 6.8
+    },
+    {
+      "id": "stone-c",
+      "deposit": "stone",
+      "col": 3.9,
+      "row": 5.1
+    },
+    {
+      "id": "stone-d",
+      "deposit": "stone",
+      "col": 6.8,
+      "row": 4.6
+    },
+    {
+      "id": "coal-a",
+      "deposit": "coal",
+      "col": 0.9,
+      "row": 4.2
+    },
+    {
+      "id": "coal-b",
+      "deposit": "coal",
+      "col": 1.2,
+      "row": 2.4
+    },
+    {
+      "id": "coal-c",
+      "deposit": "coal",
+      "col": 6.9,
+      "row": 2.2
+    },
+    {
+      "id": "copper-a",
+      "deposit": "copper",
+      "col": 3.2,
+      "row": 3.1
+    },
+    {
+      "id": "copper-b",
+      "deposit": "copper",
+      "col": 5.2,
+      "row": 2.8
+    },
+    {
+      "id": "iron-a",
+      "deposit": "iron",
+      "col": 2.6,
+      "row": 1
+    },
+    {
+      "id": "iron-b",
+      "deposit": "iron",
+      "col": 4.6,
+      "row": 0.9
+    },
+    {
+      "id": "gem-a",
+      "deposit": "gem",
+      "col": 6.8,
+      "row": 0.6
+    }
+  ]
+}

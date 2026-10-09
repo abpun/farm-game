@@ -1,5 +1,15 @@
-import type { Reward } from '../entities/content';
+import { fail, ok, type ActionResult } from '../actions';
+import type { Quantities, Reward } from '../entities/content';
 import type { GameContext } from './GameContext';
+
+/** Takes coins and materials together, or nothing at all if either is short. */
+export function payCost(ctx: GameContext, coins: number, materials: Quantities = {}): ActionResult {
+  const { economy, inventory } = ctx;
+  if (!inventory.has(materials)) return fail(`Needs ${describeQuantities(ctx, materials)}`);
+  if (!economy.canAfford(coins)) return fail('Not enough money');
+  if (!inventory.removeAll(materials) || !economy.spend(coins)) return fail('Payment failed');
+  return ok;
+}
 
 /** Pays out a reward; reward items may overflow the barn so they are never lost. */
 export function grantReward(ctx: GameContext, reward: Reward): void {

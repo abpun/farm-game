@@ -36,16 +36,84 @@
   ],
   "spots": [
     {
+      "id": "river",
+      "name": "Home River",
+      "unlockLevel": 1,
+      "description": "Clear water winding past the farm",
+      "access": "shore",
+      "boatTier": 0,
+      "difficulty": 1,
+      "biome": "river"
+    },
+    {
       "id": "pier",
       "name": "Old Pier",
       "unlockLevel": 1,
-      "description": "Calm shallows off the west shore"
+      "description": "Calm harbor shallows by the boats",
+      "access": "shore",
+      "boatTier": 0,
+      "difficulty": 1,
+      "biome": "harbor"
+    },
+    {
+      "id": "pond",
+      "name": "Waterfall Pond",
+      "unlockLevel": 3,
+      "description": "A deep pool under the falls",
+      "access": "shore",
+      "boatTier": 0,
+      "difficulty": 1.05,
+      "biome": "pond"
+    },
+    {
+      "id": "coastal",
+      "name": "Coastal Waters",
+      "unlockLevel": 4,
+      "description": "Open water just past the harbor",
+      "access": "boat",
+      "boatTier": 1,
+      "difficulty": 1.05,
+      "biome": "coast"
     },
     {
       "id": "rocks",
       "name": "Rocky Point",
       "unlockLevel": 6,
-      "description": "Deep water off the north rocks"
+      "description": "Deep water off the eastern cliffs",
+      "access": "shore",
+      "boatTier": 0,
+      "difficulty": 1.1,
+      "biome": "rocks"
+    },
+    {
+      "id": "reef",
+      "name": "Coral Reef",
+      "unlockLevel": 7,
+      "description": "Bright coral gardens, quick fish",
+      "access": "boat",
+      "boatTier": 2,
+      "difficulty": 1.15,
+      "biome": "reef"
+    },
+    {
+      "id": "deep",
+      "name": "Deep Ocean",
+      "unlockLevel": 10,
+      "description": "Dark water where giants hunt",
+      "access": "boat",
+      "boatTier": 3,
+      "difficulty": 1.3,
+      "biome": "deep"
+    },
+    {
+      "id": "isle",
+      "name": "Lantern Isle",
+      "unlockLevel": 13,
+      "description": "A lonely island at the edge of the map",
+      "access": "boat",
+      "boatTier": 3,
+      "difficulty": 1.25,
+      "biome": "isle"
     }
   ],
   "rods": [
@@ -103,7 +171,7 @@
       "rarity": "common",
       "sellPrice": 6,
       "fishingLevel": 1,
-      "spots": ["pier"],
+      "spots": ["pier", "river"],
       "icon": {
         "shape": "fish",
         "colors": ["#b8c4c8", "#7a8a90", "#e8f0f0"]
@@ -115,7 +183,7 @@
       "rarity": "common",
       "sellPrice": 8,
       "fishingLevel": 1,
-      "spots": ["pier", "rocks"],
+      "spots": ["pier", "rocks", "coastal"],
       "icon": {
         "shape": "fish",
         "colors": ["#9ab8d8", "#5a7aa0", "#e8f0ff"]
@@ -127,7 +195,7 @@
       "rarity": "common",
       "sellPrice": 12,
       "fishingLevel": 2,
-      "spots": ["pier"],
+      "spots": ["pier", "river", "pond"],
       "icon": {
         "shape": "fish",
         "colors": ["#c8a050", "#8a6a2a", "#f2d890"]
@@ -139,7 +207,7 @@
       "rarity": "uncommon",
       "sellPrice": 18,
       "fishingLevel": 1,
-      "spots": ["pier"],
+      "spots": ["pier", "river"],
       "icon": {
         "shape": "fish",
         "colors": ["#a8b84a", "#6a7a2a", "#e8822a"]
@@ -151,7 +219,7 @@
       "rarity": "uncommon",
       "sellPrice": 26,
       "fishingLevel": 3,
-      "spots": ["pier", "rocks"],
+      "spots": ["pier", "rocks", "river"],
       "icon": {
         "shape": "fish",
         "colors": ["#a8a0b8", "#6a607a", "#f4b6c8"]
@@ -163,7 +231,7 @@
       "rarity": "uncommon",
       "sellPrice": 34,
       "fishingLevel": 4,
-      "spots": ["pier"],
+      "spots": ["pier", "pond"],
       "icon": {
         "shape": "fish",
         "colors": ["#8a7a6a", "#5a4a3a", "#c8b8a0"]
@@ -175,7 +243,7 @@
       "rarity": "uncommon",
       "sellPrice": 40,
       "fishingLevel": 5,
-      "spots": ["rocks"],
+      "spots": ["rocks", "coastal"],
       "icon": {
         "shape": "fish",
         "colors": ["#6a9a5a", "#3f6a3a", "#d8e8b0"]
@@ -187,7 +255,7 @@
       "rarity": "rare",
       "sellPrice": 70,
       "fishingLevel": 4,
-      "spots": ["pier", "rocks"],
+      "spots": ["pier", "rocks", "coastal"],
       "icon": {
         "shape": "fish",
         "colors": ["#f0907a", "#b85a4a", "#f8d0c0"]
@@ -199,7 +267,7 @@
       "rarity": "rare",
       "sellPrice": 110,
       "fishingLevel": 6,
-      "spots": ["rocks"],
+      "spots": ["rocks", "reef", "deep"],
       "icon": {
         "shape": "fish",
         "colors": ["#4a6a9a", "#2a3a6a", "#c8d8e8"]
@@ -211,10 +279,172 @@
       "rarity": "legendary",
       "sellPrice": 500,
       "fishingLevel": 7,
-      "spots": ["pier", "rocks"],
+      "spots": ["pier", "rocks", "pond", "isle"],
       "icon": {
         "shape": "fish",
         "colors": ["#f6c544", "#d08a1e", "#fff3c0"]
+      }
+    },
+    {
+      "id": "pike",
+      "name": "Pike",
+      "rarity": "uncommon",
+      "sellPrice": 30,
+      "fishingLevel": 3,
+      "spots": ["river", "pond"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#8aa06a", "#566a3a", "#e8e0a0"]
+      }
+    },
+    {
+      "id": "koi",
+      "name": "Koi",
+      "rarity": "rare",
+      "sellPrice": 85,
+      "fishingLevel": 5,
+      "spots": ["pond"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#f4f0e6", "#e0603a", "#f6c544"]
+      }
+    },
+    {
+      "id": "mackerel",
+      "name": "Mackerel",
+      "rarity": "common",
+      "sellPrice": 14,
+      "fishingLevel": 2,
+      "spots": ["coastal"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#5a8ab8", "#2a4a7a", "#d8e8f0"]
+      }
+    },
+    {
+      "id": "clownfish",
+      "name": "Clownfish",
+      "rarity": "uncommon",
+      "sellPrice": 45,
+      "fishingLevel": 5,
+      "spots": ["reef"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#f08a2a", "#b8562a", "#ffffff"]
+      }
+    },
+    {
+      "id": "pufferfish",
+      "name": "Pufferfish",
+      "rarity": "uncommon",
+      "sellPrice": 55,
+      "fishingLevel": 6,
+      "spots": ["reef"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#e8d07a", "#a8903a", "#f8f0d0"]
+      }
+    },
+    {
+      "id": "parrotfish",
+      "name": "Parrotfish",
+      "rarity": "rare",
+      "sellPrice": 120,
+      "fishingLevel": 7,
+      "spots": ["reef"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#4ac8b8", "#2a7a9a", "#f4b6c8"]
+      }
+    },
+    {
+      "id": "swordfish",
+      "name": "Swordfish",
+      "rarity": "rare",
+      "sellPrice": 160,
+      "fishingLevel": 8,
+      "spots": ["deep"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#5a6a9a", "#2a3a5a", "#d8e0f0"]
+      }
+    },
+    {
+      "id": "anglerfish",
+      "name": "Anglerfish",
+      "rarity": "rare",
+      "sellPrice": 180,
+      "fishingLevel": 9,
+      "spots": ["deep"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#5a4a5a", "#2a2030", "#f6e27a"]
+      }
+    },
+    {
+      "id": "sunfish",
+      "name": "Sunfish",
+      "rarity": "uncommon",
+      "sellPrice": 70,
+      "fishingLevel": 8,
+      "spots": ["isle"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#d8d0b8", "#9a907a", "#f6c544"]
+      }
+    },
+    {
+      "id": "marlin",
+      "name": "Marlin",
+      "rarity": "rare",
+      "sellPrice": 200,
+      "fishingLevel": 9,
+      "spots": ["isle"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#3a6ab8", "#1a3a7a", "#c8e0f8"]
+      }
+    },
+    {
+      "id": "moonfish",
+      "name": "Moonfish",
+      "rarity": "legendary",
+      "sellPrice": 800,
+      "fishingLevel": 9,
+      "spots": ["deep", "isle"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#e0e8f8", "#9aa8c8", "#ffffff"]
+      }
+    }
+  ],
+  "boats": [
+    {
+      "id": "rowboat",
+      "name": "Rowboat",
+      "tier": 1,
+      "price": 400,
+      "unlockLevel": 4,
+      "materials": {}
+    },
+    {
+      "id": "sailboat",
+      "name": "Sailboat",
+      "tier": 2,
+      "price": 1800,
+      "unlockLevel": 7,
+      "materials": {
+        "copper-bar": 4
+      }
+    },
+    {
+      "id": "trawler",
+      "name": "Trawler",
+      "tier": 3,
+      "price": 6000,
+      "unlockLevel": 10,
+      "materials": {
+        "iron-bar": 6
       }
     }
   ]

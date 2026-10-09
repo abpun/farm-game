@@ -64,6 +64,12 @@
       "name": "Big Contract",
       "itemCategories": ["crop", "fruit", "fish", "animal", "goods"],
       "unlockLevel": 6
+    },
+    {
+      "id": "mine",
+      "name": "Mine Haul",
+      "itemCategories": ["mineral"],
+      "unlockLevel": 5
     }
   ],
   "difficulties": [

@@ -1,9 +1,18 @@
 import { fail, ok, type ActionResult } from '../actions';
-import type { BaitDef, FishDef, FishingData, Rarity, RodDef } from '../entities/content';
+import type {
+  BaitDef,
+  BoatDef,
+  FishDef,
+  FishingData,
+  Rarity,
+  RodDef,
+  SpotDef,
+} from '../entities/content';
 import type { FishingCast } from '../entities/types';
 import { BARN_FULL } from '../FarmService';
 import { pick, randomBetween, weightedPick } from '../random';
 import type { GameContext } from './GameContext';
+import { payCost } from './rewards';
 
 export type FishingPhase = 'idle' | 'waiting' | 'bite';
 
@@ -52,6 +61,37 @@ export class FishingService {
     return rods[rods.findIndex((rod) => rod.id === this.rod().id) + 1];
   }
 
+  boat(): BoatDef | null {
+    const id = this.fishing.boatId;
+    return id ? (this.ctx.content.boats.find(id) ?? null) : null;
+  }
+
+  boatTier(): number {
+    return this.boat()?.tier ?? 0;
+  }
+
+  nextBoat(): BoatDef | undefined {
+    return this.ctx.content.boats.all().find((boat) => boat.tier === this.boatTier() + 1);
+  }
+
+  spots(): SpotDef[] {
+    return this.ctx.content.spots.all();
+  }
+
+  /** Buys the next boat; boats open the far fishing spots. */
+  upgradeBoat(): ActionResult {
+    const next = this.nextBoat();
+    if (!next) return fail('Best boat already');
+    if (!this.ctx.progression.isUnlocked(next.unlockLevel)) {
+      return fail(`Unlocks at level ${next.unlockLevel}`);
+    }
+    const paid = payCost(this.ctx, next.price, next.materials);
+    if (!paid.ok) return paid;
+    this.fishing.boatId = next.id;
+    this.ctx.bus.emit('BoatUpgraded', { boatId: next.id });
+    return ok;
+  }
+
   baits(): BaitDef[] {
     return this.data.baits;
   }
@@ -80,6 +120,10 @@ export class FishingService {
     if (!this.ctx.progression.isUnlocked(spot.unlockLevel)) {
       return `Unlocks at level ${spot.unlockLevel}`;
     }
+    if (spot.boatTier > this.boatTier()) {
+      const boat = this.ctx.content.boats.all().find((b) => b.tier === spot.boatTier);
+      return `Needs a ${boat?.name ?? 'bigger boat'}`;
+    }
     return null;
   }
 
@@ -106,7 +150,9 @@ export class FishingService {
       fishId: fish.id,
       castAt: now,
       biteAt: now + delay * (bait?.biteSpeed ?? 1),
-      reactionSec: rarity.reactionSec + this.rod().reactionBonusSec,
+      reactionSec:
+        (rarity.reactionSec + this.rod().reactionBonusSec) /
+        this.ctx.content.spots.get(spotId).difficulty,
     };
     bus.emit('FishingCast', { spotId });
     return ok;
@@ -121,7 +167,7 @@ export class FishingService {
     if (now < cast.biteAt) return this.escape('early', 'Too early! It swam off');
     if (now > cast.biteAt + cast.reactionSec) return this.escape('late', 'It got away');
     if (!this.ctx.inventory.add(cast.fishId, 1)) return this.escape('late', BARN_FULL);
-    return this.land(cast.fishId);
+    return this.land(cast.fishId, cast.spotId);
   }
 
   /** Announces a bite once, and lets a fish that was never reeled in get away. */
@@ -148,7 +194,7 @@ export class FishingService {
     return ok;
   }
 
-  private land(fishId: string): ReelResult {
+  private land(fishId: string, spotId: string): ReelResult {
     const { progression, time, bus, content } = this.ctx;
     const record = this.fishing.journal[fishId];
     const firstCatch = !record;
@@ -159,7 +205,7 @@ export class FishingService {
     const xp = this.rarity(content.fish.get(fishId).rarity).xp;
     this.fishing.xp += xp;
     progression.addXp(xp);
-    bus.emit('FishCaught', { fishId, firstCatch });
+    bus.emit('FishCaught', { fishId, firstCatch, spotId });
     return { ok: true, fishId, firstCatch };
   }
 

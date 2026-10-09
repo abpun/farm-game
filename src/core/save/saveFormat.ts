@@ -1,6 +1,6 @@
 import type { FarmState, PlacedObject, PlotCrop } from '../entities/types';
 
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 export interface SaveFile {
   version: number;
@@ -69,6 +69,8 @@ const MIGRATIONS: Record<number, Migration> = {
   },
   // v5 adds progression, buildings, fishing, orders and achievements; normalizeState fills defaults.
   4: (file) => ({ ...file, version: 5 }),
+  // v6 adds mining, exploration and boats; normalizeState fills defaults.
+  5: (file) => ({ ...file, version: 6 }),
 };
 
 export function migrate(input: unknown): unknown {

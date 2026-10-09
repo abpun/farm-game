@@ -29,6 +29,8 @@ export class AchievementService {
     if (achievement.target >= 0) return achievement.target;
     if (achievement.stat === 'fishSpecies') return this.ctx.content.fish.all().length;
     if (achievement.stat === 'cropTypes') return this.ctx.content.crops.all().length;
+    if (achievement.stat === 'discoveries') return this.ctx.content.discoveries.all().length;
+    if (achievement.stat === 'spotsFished') return this.ctx.content.spots.all().length;
     throw new Error(`${achievement.id}: target -1 is not supported for ${achievement.stat}`);
   }
 
@@ -40,6 +42,8 @@ export class AchievementService {
         return this.ctx.state.orders.reputation;
       case 'cropTypes':
         return this.stats.cropTypes();
+      case 'spotsFished':
+        return this.stats.spotsFished();
       case 'fishSpecies':
         return this.gauges.fishSpecies();
       case 'productiveAnimals':

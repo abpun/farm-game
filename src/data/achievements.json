@@ -30,7 +30,11 @@
     },
     {
       "id": "collections",
-      "name": "Collections"
+      "name": "Explore & Collect"
+    },
+    {
+      "id": "mining",
+      "name": "Mining"
     }
   ],
   "achievements": [
@@ -387,6 +391,96 @@
         "coins": 2000,
         "xp": 400,
         "unlocks": ["fish-statue"]
+      }
+    },
+    {
+      "id": "first-ore",
+      "name": "Breaking Ground",
+      "description": "Mine your first deposit",
+      "category": "mining",
+      "stat": "depositsMined",
+      "target": 1,
+      "reward": {
+        "coins": 30,
+        "xp": 10
+      }
+    },
+    {
+      "id": "deep-digger",
+      "name": "Deep Digger",
+      "description": "Mine 150 deposits",
+      "category": "mining",
+      "stat": "depositsMined",
+      "target": 150,
+      "reward": {
+        "coins": 600,
+        "xp": 150,
+        "items": {
+          "coal": 10
+        }
+      }
+    },
+    {
+      "id": "gem-hunter",
+      "name": "Gem Hunter",
+      "description": "Find 5 gems in the mine",
+      "category": "mining",
+      "stat": "gemsFound",
+      "target": 5,
+      "reward": {
+        "coins": 500,
+        "xp": 120
+      }
+    },
+    {
+      "id": "smith",
+      "name": "Smith",
+      "description": "Smelt 25 metal bars",
+      "category": "mining",
+      "stat": "barsSmelted",
+      "target": 25,
+      "reward": {
+        "coins": 700,
+        "xp": 160
+      }
+    },
+    {
+      "id": "trailblazer",
+      "name": "Trailblazer",
+      "description": "Make 4 discoveries around the valley",
+      "category": "collections",
+      "stat": "discoveries",
+      "target": 4,
+      "reward": {
+        "coins": 400,
+        "xp": 100
+      }
+    },
+    {
+      "id": "cartographer",
+      "name": "Cartographer",
+      "description": "Find every hidden place",
+      "category": "collections",
+      "stat": "discoveries",
+      "target": -1,
+      "reward": {
+        "coins": 1500,
+        "xp": 300,
+        "items": {
+          "star-crystal": 1
+        }
+      }
+    },
+    {
+      "id": "voyager",
+      "name": "Voyager",
+      "description": "Catch a fish at every fishing spot",
+      "category": "fishing",
+      "stat": "spotsFished",
+      "target": -1,
+      "reward": {
+        "coins": 1200,
+        "xp": 250
       }
     }
   ]

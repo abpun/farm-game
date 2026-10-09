@@ -2,6 +2,7 @@ import { fail, ok, type ActionResult } from './actions';
 import type { ItemCategory } from './entities/content';
 import type { LandExpansion } from './entities/types';
 import type { GameContext } from './services/GameContext';
+import { payCost } from './services/rewards';
 
 export type { ActionResult } from './actions';
 
@@ -189,14 +190,15 @@ export class FarmService {
   }
 
   upgradeBuilding(objectId: number): ActionResult {
-    const { buildings, economy, progression } = this.ctx;
+    const { buildings, progression } = this.ctx;
     if (!buildings.isBuilding(objectId)) return fail('Nothing to upgrade');
     if (!buildings.isOperational(objectId)) return fail('Still under construction');
     const next = buildings.nextLevel(objectId);
     if (!next) return fail('Fully upgraded');
     if (!progression.isUnlocked(next.unlockLevel))
       return fail(`Unlocks at level ${next.unlockLevel}`);
-    if (!economy.spend(next.cost)) return fail('Not enough money');
+    const paid = payCost(this.ctx, next.cost, next.materials);
+    if (!paid.ok) return paid;
     buildings.upgrade(objectId);
     return ok;
   }

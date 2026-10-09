@@ -12,7 +12,9 @@ import type { KeyValueStore } from './save/KeyValueStore';
 import { createEmptyState } from './save/normalizeState';
 import { SaveSystem } from './save/SaveSystem';
 import { AchievementService } from './services/AchievementService';
+import { ExplorationService } from './services/ExplorationService';
 import { FishingService } from './services/FishingService';
+import { MiningService } from './services/MiningService';
 import type { GameContext } from './services/GameContext';
 import { OrderService } from './services/OrderService';
 import { ProductionService } from './services/ProductionService';
@@ -56,6 +58,8 @@ export class GameSession {
   readonly fishing: FishingService;
   readonly orders: OrderService;
   readonly achievements: AchievementService;
+  readonly mining: MiningService;
+  readonly exploration: ExplorationService;
   /** Game seconds simulated on load for the time the player was away. */
   readonly offlineSeconds: number;
   private readonly saves: SaveSystem;
@@ -117,6 +121,8 @@ export class GameSession {
     this.ranch = new RanchService(ctx, farm.dayLengthSec);
     this.fishing = new FishingService(ctx);
     this.orders = new OrderService(ctx, this.fishing, farm.dayLengthSec);
+    this.mining = new MiningService(ctx);
+    this.exploration = new ExplorationService(ctx, () => this.mining.pickaxe().tier);
     this.achievements = new AchievementService(ctx, this.stats, {
       productiveAnimals: () => this.ranch.productiveCount(),
       fishSpecies: () => Object.keys(this.state.fishing.journal).length,

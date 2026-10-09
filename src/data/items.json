@@ -399,6 +399,96 @@
         "shape": "plate",
         "colors": ["#f2e0a0", "#5a3a24"]
       }
+    },
+    {
+      "id": "stone",
+      "name": "Stone",
+      "category": "mineral",
+      "sellPrice": 3,
+      "icon": {
+        "shape": "lump",
+        "colors": ["#a8a49a", "#76716a", "#c8c4ba"]
+      }
+    },
+    {
+      "id": "coal",
+      "name": "Coal",
+      "category": "mineral",
+      "sellPrice": 8,
+      "icon": {
+        "shape": "lump",
+        "colors": ["#4a4448", "#2a2428", "#7a7478"]
+      }
+    },
+    {
+      "id": "copper-ore",
+      "name": "Copper Ore",
+      "category": "mineral",
+      "sellPrice": 14,
+      "icon": {
+        "shape": "ore",
+        "colors": ["#8a8278", "#5e574f", "#e08a4a"]
+      }
+    },
+    {
+      "id": "iron-ore",
+      "name": "Iron Ore",
+      "category": "mineral",
+      "sellPrice": 24,
+      "icon": {
+        "shape": "ore",
+        "colors": ["#8a8278", "#5e574f", "#c8d0d8"]
+      }
+    },
+    {
+      "id": "copper-bar",
+      "name": "Copper Bar",
+      "category": "mineral",
+      "sellPrice": 60,
+      "icon": {
+        "shape": "bar",
+        "colors": ["#e08a4a", "#a8562a", "#f8c08a"]
+      }
+    },
+    {
+      "id": "iron-bar",
+      "name": "Iron Bar",
+      "category": "mineral",
+      "sellPrice": 100,
+      "icon": {
+        "shape": "bar",
+        "colors": ["#b8c0c8", "#7a8290", "#eef2f6"]
+      }
+    },
+    {
+      "id": "amethyst",
+      "name": "Amethyst",
+      "category": "mineral",
+      "sellPrice": 90,
+      "icon": {
+        "shape": "gem",
+        "colors": ["#a078c8", "#6a4a9a", "#e0c8f8"]
+      }
+    },
+    {
+      "id": "emerald",
+      "name": "Emerald",
+      "category": "mineral",
+      "sellPrice": 180,
+      "icon": {
+        "shape": "gem",
+        "colors": ["#4ab87a", "#2a7a4a", "#b8f0d0"]
+      }
+    },
+    {
+      "id": "star-crystal",
+      "name": "Star Crystal",
+      "category": "mineral",
+      "sellPrice": 450,
+      "icon": {
+        "shape": "gem",
+        "colors": ["#f6e27a", "#c89a2a", "#fffbe0"]
+      }
     }
   ]
 }

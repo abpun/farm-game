@@ -6,6 +6,8 @@ import type { FishingService } from './FishingService';
 import type { GameContext } from './GameContext';
 
 const UNCATCHABLE_FOR_ORDERS = new Set(['rare', 'legendary']);
+/** Mine drops count as obtainable only when they are a deposit's usual result. */
+const COMMON_DROP_SHARE = 0.5;
 
 // Delivery board: offers refill over time, accepted orders run against a deadline,
 // and delivering consumes every requested item before the reward is paid exactly once.
@@ -164,6 +166,7 @@ export class OrderService {
     for (const animal of content.animals.all()) {
       if (world.countOf(animal.housing) > 0) items.add(animal.product);
     }
+    for (const id of this.mineableItems()) items.add(id);
     let grew = true;
     while (grew) {
       grew = false;
@@ -180,6 +183,20 @@ export class OrderService {
       }
     }
     return items;
+  }
+
+  private mineableItems(): string[] {
+    const { content, progression, state } = this.ctx;
+    if (!progression.isUnlocked(content.config.mining.unlockLevel)) return [];
+    const tier = content.pickaxes.find(state.mining.pickaxeId)?.tier ?? 0;
+    return content.deposits
+      .all()
+      .filter((deposit) => deposit.tier <= tier)
+      .flatMap((deposit) => {
+        const total = deposit.drops.reduce((sum, drop) => sum + drop.weight, 0);
+        return deposit.drops.filter((drop) => drop.weight / total >= COMMON_DROP_SHARE);
+      })
+      .map((drop) => drop.item);
   }
 
   private rollDaily(now: number): boolean {
