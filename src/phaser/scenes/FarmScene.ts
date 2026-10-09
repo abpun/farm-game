@@ -5,9 +5,11 @@ import { WorldFx } from '../fx/WorldFx';
 import { createFarmGrid } from '../iso/createFarmGrid';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { AutosaveManager } from '../managers/AutosaveManager';
-import { CameraManager, paddedBounds } from '../managers/CameraManager';
-import { createIslandShape, FarmScenery, islandExtent, sceneryFocus } from '../scenery/FarmScenery';
+import { CameraManager } from '../managers/CameraManager';
+import { reducedMotion } from '../fx/prefs';
+import { createWorldShape, farmFocus, worldArea, WorldScenery } from '../scenery/WorldScenery';
 import { FishingSpots } from '../scenery/FishingSpots';
+import { Landmarks } from '../scenery/Landmarks';
 import { LandView } from '../scenery/LandView';
 import { getSession, getTools, getUiBus } from '../session';
 import { TEXT } from '../theme';
@@ -23,11 +25,12 @@ type Say = (message: string, color: string) => void;
 export class FarmScene extends Phaser.Scene {
   private grid!: IsoGrid;
   private world!: WorldView;
-  private scenery!: FarmScenery;
+  private scenery!: WorldScenery;
   private cursor!: BuildCursor;
   private cameraControl!: CameraManager;
   private fishingSpots!: FishingSpots;
   private fx!: WorldFx;
+  private landmarks!: Landmarks;
   private hoveredCell: Cell | null = null;
   /** A planted plot the remove tool was tapped on once; a second tap digs it up. */
   private pendingDig: { plotId: number; until: number } | null = null;
@@ -40,17 +43,20 @@ export class FarmScene extends Phaser.Scene {
     const session = getSession(this);
     const tools = getTools(this);
     this.grid = createFarmGrid(session);
-    const shape = createIslandShape(this.grid, session.config.farm.paths);
-    const island = islandExtent(this.grid, shape);
+    const shape = createWorldShape(this.grid, session.config.farm.paths);
     const season = session.seasons.current().id;
-    this.scenery = new FarmScenery(this, this.grid, shape, paddedBounds(island), season);
-    session.bus.on('SeasonChanged', ({ seasonId }) => this.scenery.setSeason(seasonId));
+    this.scenery = new WorldScenery(this, this.grid, shape, season);
+    this.landmarks = new Landmarks(this, session, this.grid, shape, season);
+    session.bus.on('SeasonChanged', ({ seasonId }) => {
+      this.scenery.setSeason(seasonId);
+      this.landmarks.setSeason(seasonId);
+    });
     new LandView(this, session, this.grid);
-    this.fishingSpots = new FishingSpots(this, session, this.grid, shape);
+    this.fishingSpots = new FishingSpots(this, session, this.grid);
     this.world = new WorldView(this, session, this.grid);
     this.cursor = new BuildCursor(this, session, this.grid, this.world);
     this.fx = new WorldFx(this, session, this.grid, this.world, this.fishingSpots);
-    this.cameraControl = new CameraManager(this, island, sceneryFocus(this.grid));
+    this.cameraControl = new CameraManager(this, worldArea(this.grid), farmFocus(this.grid));
     new AutosaveManager(this, session);
 
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => this.hover(pointer));
@@ -75,7 +81,8 @@ export class FarmScene extends Phaser.Scene {
     getSession(this).update(deltaMs / MS_PER_SEC);
     this.world.update();
     this.fishingSpots.update();
-    this.scenery.update(deltaMs / MS_PER_SEC);
+    this.landmarks.update();
+    this.scenery.update(deltaMs / MS_PER_SEC, reducedMotion(this));
     this.fx.update(deltaMs);
   }
 

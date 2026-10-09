@@ -58,6 +58,7 @@ const LOOKS: Record<string, BuildingLook> = {
   'building-bakery': production(houseStyle(0xc8704a, PALETTE.thatchDark, { chimney: true })),
   'building-jam-kitchen': production(houseStyle(0xf4d0d8, 0x8a4fa8)),
   'building-kitchen': production(houseStyle(0xd6cfc2, 0x5e9a34, { chimney: true })),
+  'building-forge': production(houseStyle(0x8f8a80, 0x4a3a3a, { chimney: true })),
   'building-coop': housing(houseStyle(0xc4471e, PALETTE.thatch), 0xd9b25a),
   'building-cowshed': housing(houseStyle(0xa8382a, 0x6e4423), 0xb08a50),
   'building-sheep-pen': housing(houseStyle(0xc08a52, PALETTE.thatch), PALETTE.grassDark),

@@ -32,8 +32,10 @@ export class LandView {
   private refresh(): void {
     this.tiles.splice(0).forEach((tile) => tile.destroy());
     const { world, farm } = this.session;
-    for (let row = 0; row < world.size.rows; row++) {
-      for (let col = 0; col < world.size.columns; col++) {
+    // Only the next plot for sale is marked; land beyond it is plain meadow.
+    const limit = farm.nextExpansion()?.size ?? 0;
+    for (let row = 0; row < Math.min(limit, world.size.rows); row++) {
+      for (let col = 0; col < Math.min(limit, world.size.columns); col++) {
         if (world.isOwned(col, row)) continue;
         const top = this.grid.tileTop(col, row);
         this.tiles.push(

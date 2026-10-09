@@ -1,8 +1,8 @@
 {
   "startingMoney": 20,
   "world": {
-    "columns": 16,
-    "rows": 16
+    "columns": 20,
+    "rows": 20
   },
   "land": {
     "startSize": 12,
@@ -16,6 +16,16 @@
         "size": 16,
         "price": 5000,
         "unlockLevel": 9
+      },
+      {
+        "size": 18,
+        "price": 12000,
+        "unlockLevel": 13
+      },
+      {
+        "size": 20,
+        "price": 25000,
+        "unlockLevel": 16
       }
     ]
   },
@@ -28,7 +38,8 @@
         [4.4, 13.2],
         [4.1, 15],
         [4.3, 17],
-        [4.1, 19.5]
+        [4.1, 19.5],
+        [4.2, 21]
       ],
       "width": 0.45
     }

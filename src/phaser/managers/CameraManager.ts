@@ -3,24 +3,14 @@ import type { Point } from '../iso/IsoGrid';
 import { CAMERA, GAME_HEIGHT, GAME_WIDTH, PIXEL_SCALE } from '../layout';
 
 // Zoom steps keep each art pixel an integer number of screen pixels.
-const ZOOM_LEVELS = [2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
-const DEFAULT_ZOOM_INDEX = 1;
+const ZOOM_LEVELS = [1, 2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
+const DEFAULT_ZOOM_INDEX = 2;
 
 interface Bounds {
   x: number;
   y: number;
   width: number;
   height: number;
-}
-
-export function paddedBounds(world: Bounds): Bounds {
-  const pad = CAMERA.boundsPadding;
-  return {
-    x: world.x - pad.left,
-    y: world.y - pad.top,
-    width: world.width + pad.left + pad.right,
-    height: world.height + pad.top + pad.bottom,
-  };
 }
 
 interface DragStart {
@@ -38,8 +28,7 @@ export class CameraManager {
 
   constructor(scene: Phaser.Scene, world: Bounds, focus: Point) {
     this.camera = scene.cameras.main;
-    const area = paddedBounds(world);
-    this.camera.setBounds(area.x, area.y, area.width, area.height);
+    this.camera.setBounds(world.x, world.y, world.width, world.height);
     this.applyZoom();
     this.focus(focus);
 

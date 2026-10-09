@@ -1,5 +1,5 @@
 import type * as Phaser from 'phaser';
-import type { Bounds } from '../art/IslandArtist';
+import type { Bounds } from '../art/TerrainArtist';
 import { addArt, bake, seededRandom } from '../art/paint';
 import type { AmbientKind, SeasonLook } from '../art/seasonLooks';
 
@@ -40,7 +40,8 @@ export class AmbientWeather {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly area: Bounds,
+    /** The weather follows whatever part of the world is on screen. */
+    private readonly areaOf: () => Bounds,
   ) {
     for (let i = 0; i < MAX_PARTICLES; i++) {
       const image = addArt(scene, 0, 0, '__WHITE').setDepth(DEPTH).setVisible(false);
@@ -82,7 +83,9 @@ export class AmbientWeather {
       const wave = this.elapsed * motion.swayFrequency + particle.phase;
       particle.image.setPosition(particle.baseX + Math.sin(wave) * motion.sway, y);
       particle.image.setFlipX(Math.cos(wave) > 0);
-      const gone = y > this.area.y + this.area.height || particle.baseX < this.area.x;
+      const area = this.areaOf();
+      const gone =
+        y > area.y + area.height || particle.baseX < area.x || particle.baseX > area.x + area.width;
       if (gone) this.respawn(particle, false);
     }
   }
@@ -100,10 +103,11 @@ export class AmbientWeather {
     const motion = this.motion;
     if (!motion) return;
     const r = this.random;
-    particle.baseX = this.area.x + r() * this.area.width;
+    const area = this.areaOf();
+    particle.baseX = area.x + r() * area.width;
     particle.vx = motion.drift[0] + r() * (motion.drift[1] - motion.drift[0]);
     particle.vy = motion.fall[0] + r() * (motion.fall[1] - motion.fall[0]);
     particle.phase = r() * Math.PI * 2;
-    particle.image.setY(this.area.y + (anywhere ? r() * this.area.height : -10));
+    particle.image.setY(area.y + (anywhere ? r() * area.height : -10));
   }
 }

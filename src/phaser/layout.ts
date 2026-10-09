@@ -13,12 +13,8 @@ export const ISO = {
   cropHeadroomRatio: 0.5,
 } as const;
 
-// Natural island around the build grid; distances are in tiles.
-export const ISLAND = { grassMargin: 2.2, sandWidth: 0.8, coastWobble: 0.9, seed: 11 } as const;
-
 export const CAMERA = {
   focusOnScreen: { x: 640, y: 400 },
-  boundsPadding: { left: 120, right: 520, top: 160, bottom: 120 },
   dragThreshold: 8,
 } as const;
 
