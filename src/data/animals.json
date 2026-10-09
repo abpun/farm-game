@@ -1,0 +1,73 @@
+{
+  "happiness": {
+    "start": 60,
+    "max": 100,
+    "feedGain": 10,
+    "idleLossPerDay": 20,
+    "productiveMin": 50,
+    "bonusFrom": 70,
+    "bonusChanceMax": 0.5
+  },
+  "animals": [
+    {
+      "id": "chicken",
+      "name": "Chicken",
+      "housing": "coop",
+      "price": 60,
+      "unlockLevel": 3,
+      "feed": "chicken-feed",
+      "feedAmount": 1,
+      "product": "egg",
+      "produceSec": 60,
+      "xp": 2
+    },
+    {
+      "id": "cow",
+      "name": "Cow",
+      "housing": "cowshed",
+      "price": 250,
+      "unlockLevel": 5,
+      "feed": "animal-feed",
+      "feedAmount": 2,
+      "product": "milk",
+      "produceSec": 120,
+      "xp": 4
+    },
+    {
+      "id": "sheep",
+      "name": "Sheep",
+      "housing": "sheep-pen",
+      "price": 300,
+      "unlockLevel": 7,
+      "feed": "animal-feed",
+      "feedAmount": 2,
+      "product": "wool",
+      "produceSec": 180,
+      "xp": 5
+    },
+    {
+      "id": "goat",
+      "name": "Goat",
+      "housing": "goat-shelter",
+      "price": 350,
+      "unlockLevel": 9,
+      "feed": "animal-feed",
+      "feedAmount": 2,
+      "product": "goat-milk",
+      "produceSec": 150,
+      "xp": 5
+    },
+    {
+      "id": "pig",
+      "name": "Pig",
+      "housing": "pigsty",
+      "price": 450,
+      "unlockLevel": 11,
+      "feed": "pig-feed",
+      "feedAmount": 2,
+      "product": "truffle",
+      "produceSec": 240,
+      "xp": 8
+    }
+  ]
+}

@@ -23,7 +23,13 @@ export const CAMERA = {
 } as const;
 
 // UI rectangles are multiples of the UI pixel (3) so frames stay crisp.
-export const HUD = { margin: 12, height: 54, coinWidth: 222, dayWidth: 186 } as const;
+export const HUD = {
+  margin: 12,
+  height: 54,
+  coinWidth: 222,
+  dayWidth: 186,
+  levelWidth: 150,
+} as const;
 export const DOCK = { margin: 12, top: 84, button: 57, gap: 6, labelHeight: 21 } as const;
 export const DRAWER = { width: 405, height: 618, gap: 12, rowHeight: 69 } as const;
 export const TOAST_ANCHOR = { x: 640, y: 81 } as const;

@@ -10,13 +10,21 @@ export interface Harvest {
 
 const DEFAULT_SEASON_RATE = 1;
 
-// Crop growth on garden beds; a bed is identified by its placed-object id.
+export const emptyPlot = (): PlotCrop => ({
+  cropId: null,
+  growth: 0,
+  watered: false,
+  matured: false,
+});
+
+// Crop growth on garden beds and orchard plots; a plot is identified by its placed-object id.
 export class PlotSystem {
   constructor(
     private readonly state: FarmState,
     private readonly crops: CropRegistry,
     private readonly seasons: SeasonSystem,
     private readonly bus: GameBus,
+    private readonly waterBoost: number,
   ) {}
 
   ids(): number[] {
@@ -28,7 +36,7 @@ export class PlotSystem {
   }
 
   create(plotId: number): void {
-    this.state.plots[String(plotId)] = { cropId: null, growth: 0 };
+    this.state.plots[String(plotId)] = emptyPlot();
   }
 
   delete(plotId: number): void {
@@ -44,11 +52,8 @@ export class PlotSystem {
   grow(dtSec: number, seasonId: string): void {
     for (const plot of Object.values(this.state.plots)) {
       if (!plot.cropId || plot.growth >= 1) continue;
-      const rate = this.seasonRate(plot.cropId, seasonId);
-      plot.growth = Math.min(
-        1,
-        plot.growth + (dtSec * rate) / this.crops.get(plot.cropId).growthTimeSec,
-      );
+      const rate = this.rate(plot, seasonId);
+      plot.growth = Math.min(1, plot.growth + (dtSec * rate) / this.duration(plot));
     }
   }
 
@@ -60,49 +65,91 @@ export class PlotSystem {
     return this.plot(plotId).cropId === null;
   }
 
+  isWatered(plotId: number): boolean {
+    return this.plot(plotId).watered;
+  }
+
   progress(plotId: number): number {
     const { cropId, growth } = this.plot(plotId);
     return cropId ? growth : 0;
   }
 
-  /** Seconds until ready at the current season's pace; Infinity while dormant. */
+  /** Seconds until ready at the current pace; Infinity while dormant. */
   secondsRemaining(plotId: number): number {
-    const { cropId, growth } = this.plot(plotId);
-    if (!cropId || growth >= 1) return 0;
-    const rate = this.seasonRate(cropId);
+    const plot = this.plot(plotId);
+    if (!plot.cropId || plot.growth >= 1) return 0;
+    const rate = this.rate(plot, this.seasons.current().id);
     if (rate <= 0) return Infinity;
-    return ((1 - growth) * this.crops.get(cropId).growthTimeSec) / rate;
+    return ((1 - plot.growth) * this.duration(plot)) / rate;
   }
 
   isReady(plotId: number): boolean {
     return !this.isEmpty(plotId) && this.progress(plotId) >= 1;
   }
 
+  /** Art stage; a regrowing crop stays mature-looking between harvests. */
   stage(plotId: number): number {
-    const { cropId } = this.plot(plotId);
-    if (!cropId) return 0;
-    const lastStage = this.crops.get(cropId).stages - 1;
-    return this.isReady(plotId) ? lastStage : Math.floor(this.progress(plotId) * lastStage);
+    const plot = this.plot(plotId);
+    if (!plot.cropId) return 0;
+    const lastStage = this.crops.get(plot.cropId).stages - 1;
+    if (this.isReady(plotId)) return lastStage;
+    if (plot.matured) return lastStage - 1;
+    return Math.floor(plot.growth * lastStage);
   }
 
   plant(plotId: number, cropId: string): boolean {
     const plot = this.plot(plotId);
     if (plot.cropId !== null) return false;
-    plot.cropId = cropId;
-    plot.growth = 0;
+    Object.assign(plot, emptyPlot(), { cropId });
     this.bus.emit('CropPlanted', { plotId, cropId });
     this.bus.emit('PlotUpdated', { plotId });
     return true;
   }
 
-  harvest(plotId: number): Harvest | null {
-    if (!this.isReady(plotId)) return null;
+  water(plotId: number): boolean {
     const plot = this.plot(plotId);
-    const cropId = plot.cropId as string;
-    plot.cropId = null;
-    plot.growth = 0;
+    if (!plot.cropId || plot.watered || plot.growth >= 1) return false;
+    plot.watered = true;
+    this.bus.emit('CropWatered', { plotId });
     this.bus.emit('PlotUpdated', { plotId });
+    return true;
+  }
+
+  /** What a harvest would yield right now, without taking it. */
+  peekHarvest(plotId: number): Harvest | null {
+    if (!this.isReady(plotId)) return null;
+    const cropId = this.plot(plotId).cropId as string;
     return { cropId, amount: this.crops.get(cropId).yield };
+  }
+
+  harvest(plotId: number): Harvest | null {
+    const harvest = this.peekHarvest(plotId);
+    if (!harvest) return null;
+    const plot = this.plot(plotId);
+    const regrows = this.crops.get(harvest.cropId).regrowSec !== undefined;
+    if (regrows) Object.assign(plot, { growth: 0, watered: false, matured: true });
+    else Object.assign(plot, emptyPlot());
+    this.bus.emit('PlotUpdated', { plotId });
+    return harvest;
+  }
+
+  /** Digs up whatever is planted (used to make room after a regrowing crop). */
+  clear(plotId: number): boolean {
+    const plot = this.plot(plotId);
+    if (!plot.cropId) return false;
+    Object.assign(plot, emptyPlot());
+    this.bus.emit('PlotUpdated', { plotId });
+    return true;
+  }
+
+  private rate(plot: PlotCrop, seasonId: string): number {
+    const season = this.seasonRate(plot.cropId as string, seasonId);
+    return plot.watered ? season * this.waterBoost : season;
+  }
+
+  private duration(plot: PlotCrop): number {
+    const crop = this.crops.get(plot.cropId as string);
+    return plot.matured && crop.regrowSec ? crop.regrowSec : crop.growthTimeSec;
   }
 
   private plot(plotId: number): PlotCrop {

@@ -1,6 +1,6 @@
 import type { FarmState, PlacedObject, PlotCrop } from '../entities/types';
 
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 export interface SaveFile {
   version: number;
@@ -11,9 +11,15 @@ export interface SaveFile {
   state: StoredState;
 }
 
-/** A bed as stored: v4 growth, or a migrated bed still carrying its old planting time. */
-export type StoredPlot = PlotCrop | { cropId: string | null; legacyPlantedAt: number };
-export type StoredState = Omit<FarmState, 'plots'> & { plots: Record<string, StoredPlot> };
+/** A bed as stored: growth (v4+), or a migrated bed still carrying its old planting time. */
+export type StoredPlot =
+  | (Pick<PlotCrop, 'cropId' | 'growth'> & Partial<PlotCrop>)
+  | { cropId: string | null; legacyPlantedAt: number };
+
+type CoreField = 'money' | 'time' | 'inventory' | 'nextObjectId' | 'objects';
+/** Fields added after v4 may be missing or damaged; normalizeState repairs them. */
+export type StoredState = Pick<FarmState, CoreField> &
+  Partial<Omit<FarmState, CoreField | 'plots'>> & { plots: Record<string, StoredPlot> };
 
 type RawFile = Record<string, unknown>;
 type Migration = (file: RawFile) => RawFile;
@@ -61,6 +67,8 @@ const MIGRATIONS: Record<number, Migration> = {
     );
     return { ...file, version: 4, state: { ...state, plots } };
   },
+  // v5 adds progression, buildings, fishing, orders and achievements; normalizeState fills defaults.
+  4: (file) => ({ ...file, version: 5 }),
 };
 
 export function migrate(input: unknown): unknown {

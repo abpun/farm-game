@@ -64,9 +64,9 @@ describe('building', () => {
     session.economy.earn(1000);
     expect(session.farm.build('fence', cottage.col, cottage.row).ok).toBe(false);
     expect(session.farm.build('fence', -1, 0).ok).toBe(false);
-    expect(session.farm.build('chicken', free(session).col, free(session).row)).toEqual({
+    expect(session.farm.build('kitchen', free(session).col, free(session).row)).toEqual({
       ok: false,
-      reason: 'Coming soon',
+      reason: 'Unlocks at level 9',
     });
     session.economy.spend(session.economy.balance());
     expect(session.farm.build('fence', free(session).col, free(session).row)).toEqual({

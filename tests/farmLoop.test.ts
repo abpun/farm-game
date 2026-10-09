@@ -40,7 +40,7 @@ describe('farm loop', () => {
     const rate = session.plots.seasonRate('carrot');
     expect(session.plots.secondsRemaining(bed)).toBeCloseTo(carrot.growthTimeSec / rate);
 
-    session.update(carrot.growthTimeSec);
+    session.update(session.plots.secondsRemaining(bed));
     expect(session.plots.isReady(bed)).toBe(true);
     expect(session.plots.stage(bed)).toBe(carrot.stages - 1);
 
@@ -64,9 +64,10 @@ describe('farm loop', () => {
     expect(session.farm.plant(bed, 'tomato')).toEqual({ ok: false, reason: 'Bed is occupied' });
   });
 
-  it('is profitable for every configured crop', () => {
+  it('pays back every crop within its first harvest, or three for regrowing ones', () => {
     for (const crop of loadConfig().crops) {
-      expect(crop.yield * crop.sellPrice).toBeGreaterThan(crop.seedCost);
+      const harvests = crop.regrowSec ? 3 : 1;
+      expect(crop.yield * crop.sellPrice * harvests).toBeGreaterThan(crop.seedCost);
     }
   });
 

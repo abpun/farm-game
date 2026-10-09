@@ -4,7 +4,9 @@ import type { GameConfig } from '@core/entities/types';
 import { GameSession } from '@core/GameSession';
 import { MemoryStore } from '@core/save/KeyValueStore';
 
-const base = loadConfig();
+// Season mechanics are tested from spring, whatever the shipped start season is.
+const loaded = loadConfig();
+const base: GameConfig = { ...loaded, seasons: { ...loaded.seasons, startSeason: 'spring' } };
 const seasonLength = base.seasons.daysPerSeason * base.farm.dayLengthSec;
 
 const withRates = (rates: Record<string, number>): GameConfig => ({

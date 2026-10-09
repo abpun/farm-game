@@ -1,0 +1,462 @@
+{
+  "recipes": [
+    {
+      "id": "chicken-feed",
+      "building": "feed-mill",
+      "inputs": {
+        "wheat": 2
+      },
+      "outputs": {
+        "chicken-feed": 3
+      },
+      "durationSec": 20,
+      "unlockLevel": 2,
+      "xp": 1
+    },
+    {
+      "id": "animal-feed",
+      "building": "feed-mill",
+      "inputs": {
+        "corn": 1,
+        "wheat": 1
+      },
+      "outputs": {
+        "animal-feed": 3
+      },
+      "durationSec": 30,
+      "unlockLevel": 4,
+      "xp": 2
+    },
+    {
+      "id": "pig-feed",
+      "building": "feed-mill",
+      "inputs": {
+        "potato": 2,
+        "carrot": 1
+      },
+      "outputs": {
+        "pig-feed": 3
+      },
+      "durationSec": 30,
+      "unlockLevel": 11,
+      "xp": 2
+    },
+    {
+      "id": "flour",
+      "building": "grain-mill",
+      "inputs": {
+        "wheat": 3
+      },
+      "outputs": {
+        "flour": 1
+      },
+      "durationSec": 25,
+      "unlockLevel": 3,
+      "xp": 2
+    },
+    {
+      "id": "cornmeal",
+      "building": "grain-mill",
+      "inputs": {
+        "corn": 2
+      },
+      "outputs": {
+        "cornmeal": 1
+      },
+      "durationSec": 25,
+      "unlockLevel": 3,
+      "xp": 2
+    },
+    {
+      "id": "sugar",
+      "building": "grain-mill",
+      "inputs": {
+        "sugarcane": 2
+      },
+      "outputs": {
+        "sugar": 1
+      },
+      "durationSec": 30,
+      "unlockLevel": 6,
+      "xp": 2
+    },
+    {
+      "id": "cream",
+      "building": "dairy",
+      "inputs": {
+        "milk": 1
+      },
+      "outputs": {
+        "cream": 1
+      },
+      "durationSec": 30,
+      "unlockLevel": 5,
+      "xp": 3
+    },
+    {
+      "id": "butter",
+      "building": "dairy",
+      "inputs": {
+        "milk": 2
+      },
+      "outputs": {
+        "butter": 1
+      },
+      "durationSec": 50,
+      "unlockLevel": 5,
+      "xp": 4
+    },
+    {
+      "id": "cheese",
+      "building": "dairy",
+      "inputs": {
+        "milk": 2
+      },
+      "outputs": {
+        "cheese": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 6,
+      "xp": 4
+    },
+    {
+      "id": "yogurt",
+      "building": "dairy",
+      "inputs": {
+        "goat-milk": 1
+      },
+      "outputs": {
+        "yogurt": 1
+      },
+      "durationSec": 40,
+      "unlockLevel": 9,
+      "xp": 4
+    },
+    {
+      "id": "goat-cheese",
+      "building": "dairy",
+      "inputs": {
+        "goat-milk": 2
+      },
+      "outputs": {
+        "goat-cheese": 1
+      },
+      "durationSec": 70,
+      "unlockLevel": 10,
+      "xp": 6
+    },
+    {
+      "id": "bread",
+      "building": "bakery",
+      "inputs": {
+        "flour": 2,
+        "egg": 1
+      },
+      "outputs": {
+        "bread": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 6,
+      "xp": 6
+    },
+    {
+      "id": "corn-bread",
+      "building": "bakery",
+      "inputs": {
+        "cornmeal": 2,
+        "egg": 1
+      },
+      "outputs": {
+        "corn-bread": 1
+      },
+      "durationSec": 50,
+      "unlockLevel": 6,
+      "xp": 5
+    },
+    {
+      "id": "cake",
+      "building": "bakery",
+      "inputs": {
+        "flour": 2,
+        "egg": 2,
+        "milk": 1,
+        "sugar": 1
+      },
+      "outputs": {
+        "cake": 1
+      },
+      "durationSec": 120,
+      "unlockLevel": 7,
+      "xp": 10
+    },
+    {
+      "id": "pumpkin-pie",
+      "building": "bakery",
+      "inputs": {
+        "pumpkin": 1,
+        "flour": 1,
+        "egg": 1,
+        "sugar": 1
+      },
+      "outputs": {
+        "pumpkin-pie": 1
+      },
+      "durationSec": 120,
+      "unlockLevel": 8,
+      "xp": 10
+    },
+    {
+      "id": "apple-pie",
+      "building": "bakery",
+      "inputs": {
+        "apple": 3,
+        "flour": 1,
+        "butter": 1
+      },
+      "outputs": {
+        "apple-pie": 1
+      },
+      "durationSec": 120,
+      "unlockLevel": 7,
+      "xp": 10
+    },
+    {
+      "id": "carrot-juice",
+      "building": "juice-press",
+      "inputs": {
+        "carrot": 3
+      },
+      "outputs": {
+        "carrot-juice": 1
+      },
+      "durationSec": 40,
+      "unlockLevel": 5,
+      "xp": 3
+    },
+    {
+      "id": "apple-juice",
+      "building": "juice-press",
+      "inputs": {
+        "apple": 3
+      },
+      "outputs": {
+        "apple-juice": 1
+      },
+      "durationSec": 40,
+      "unlockLevel": 5,
+      "xp": 3
+    },
+    {
+      "id": "orange-juice",
+      "building": "juice-press",
+      "inputs": {
+        "orange": 3
+      },
+      "outputs": {
+        "orange-juice": 1
+      },
+      "durationSec": 40,
+      "unlockLevel": 6,
+      "xp": 3
+    },
+    {
+      "id": "grape-juice",
+      "building": "juice-press",
+      "inputs": {
+        "grapes": 3
+      },
+      "outputs": {
+        "grape-juice": 1
+      },
+      "durationSec": 40,
+      "unlockLevel": 12,
+      "xp": 3
+    },
+    {
+      "id": "mango-juice",
+      "building": "juice-press",
+      "inputs": {
+        "mango": 2
+      },
+      "outputs": {
+        "mango-juice": 1
+      },
+      "durationSec": 45,
+      "unlockLevel": 11,
+      "xp": 3
+    },
+    {
+      "id": "strawberry-jam",
+      "building": "jam-kitchen",
+      "inputs": {
+        "strawberry": 3,
+        "sugar": 1
+      },
+      "outputs": {
+        "strawberry-jam": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 8,
+      "xp": 5
+    },
+    {
+      "id": "blueberry-jam",
+      "building": "jam-kitchen",
+      "inputs": {
+        "blueberry": 3,
+        "sugar": 1
+      },
+      "outputs": {
+        "blueberry-jam": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 8,
+      "xp": 5
+    },
+    {
+      "id": "grape-jelly",
+      "building": "jam-kitchen",
+      "inputs": {
+        "grapes": 3,
+        "sugar": 1
+      },
+      "outputs": {
+        "grape-jelly": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 12,
+      "xp": 5
+    },
+    {
+      "id": "pear-preserves",
+      "building": "jam-kitchen",
+      "inputs": {
+        "pear": 3,
+        "sugar": 1
+      },
+      "outputs": {
+        "pear-preserves": 1
+      },
+      "durationSec": 70,
+      "unlockLevel": 9,
+      "xp": 6
+    },
+    {
+      "id": "vegetable-soup",
+      "building": "kitchen",
+      "inputs": {
+        "tomato": 1,
+        "potato": 1,
+        "carrot": 1,
+        "onion": 1
+      },
+      "outputs": {
+        "vegetable-soup": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 9,
+      "xp": 6
+    },
+    {
+      "id": "corn-chowder",
+      "building": "kitchen",
+      "inputs": {
+        "corn": 2,
+        "milk": 1,
+        "potato": 1
+      },
+      "outputs": {
+        "corn-chowder": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 9,
+      "xp": 5
+    },
+    {
+      "id": "grilled-fish",
+      "building": "kitchen",
+      "inputs": {
+        "trout": 1,
+        "onion": 1
+      },
+      "outputs": {
+        "grilled-fish": 1
+      },
+      "durationSec": 45,
+      "unlockLevel": 9,
+      "xp": 4
+    },
+    {
+      "id": "fish-stew",
+      "building": "kitchen",
+      "inputs": {
+        "salmon": 1,
+        "potato": 2,
+        "cream": 1
+      },
+      "outputs": {
+        "fish-stew": 1
+      },
+      "durationSec": 90,
+      "unlockLevel": 10,
+      "xp": 8
+    },
+    {
+      "id": "pumpkin-soup",
+      "building": "kitchen",
+      "inputs": {
+        "pumpkin": 1,
+        "cream": 1,
+        "onion": 1
+      },
+      "outputs": {
+        "pumpkin-soup": 1
+      },
+      "durationSec": 90,
+      "unlockLevel": 10,
+      "xp": 8
+    },
+    {
+      "id": "omelette",
+      "building": "kitchen",
+      "inputs": {
+        "egg": 2,
+        "cheese": 1
+      },
+      "outputs": {
+        "omelette": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 10,
+      "xp": 7
+    },
+    {
+      "id": "truffle-pasta",
+      "building": "kitchen",
+      "inputs": {
+        "truffle": 1,
+        "flour": 1,
+        "cheese": 1
+      },
+      "outputs": {
+        "truffle-pasta": 1
+      },
+      "durationSec": 120,
+      "unlockLevel": 12,
+      "xp": 12
+    },
+    {
+      "id": "glow-bait",
+      "building": "kitchen",
+      "inputs": {
+        "minnow": 2
+      },
+      "outputs": {
+        "glow-bait": 2
+      },
+      "durationSec": 30,
+      "unlockLevel": 9,
+      "xp": 2
+    }
+  ]
+}

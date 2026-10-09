@@ -4,6 +4,7 @@ import type { GameSession } from '@core/GameSession';
 import { FENCE_LINK, fenceTextureKey } from '../art/FenceArtist';
 import { PlotView } from '../components/PlotView';
 import type { IsoGrid } from '../iso/IsoGrid';
+import { BuildingView } from './BuildingView';
 import { createItemImage, itemDepth, itemTexture } from './itemArt';
 
 const NEIGHBOURS: Array<[dc: number, dr: number, bit: number]> = [
@@ -17,6 +18,7 @@ const NEIGHBOURS: Array<[dc: number, dr: number, bit: number]> = [
 export class WorldView {
   private readonly sprites = new Map<number, Phaser.GameObjects.Image>();
   private readonly plotViews = new Map<number, PlotView>();
+  private readonly buildingViews = new Map<number, BuildingView>();
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -46,6 +48,7 @@ export class WorldView {
 
   update(): void {
     this.plotViews.forEach((view) => view.refresh());
+    this.buildingViews.forEach((view) => view.refresh());
   }
 
   plotView(plotId: number): PlotView | undefined {
@@ -62,18 +65,20 @@ export class WorldView {
   private add(object: PlacedObject): void {
     const item = this.session.catalog.get(object.itemId);
     const mask = item.kind === 'fence' ? this.fenceMask(object.col, object.row) : 0;
-    this.sprites.set(
-      object.id,
-      createItemImage(
-        this.scene,
-        this.grid,
-        item,
-        object.col,
-        object.row,
-        this.session.seasons.current().id,
-        mask,
-      ),
+    const sprite = createItemImage(
+      this.scene,
+      this.grid,
+      item,
+      object.col,
+      object.row,
+      this.session.seasons.current().id,
+      mask,
     );
+    this.sprites.set(object.id, sprite);
+    if (this.session.buildings.isBuilding(object.id)) {
+      const view = new BuildingView(this.scene, this.session, this.grid, object, item, sprite);
+      this.buildingViews.set(object.id, view);
+    }
     if (item.kind !== 'plot') return;
     const depth = itemDepth(this.grid, item, object.col, object.row);
     const view = new PlotView(
@@ -93,6 +98,8 @@ export class WorldView {
     this.sprites.delete(objectId);
     this.plotViews.get(objectId)?.destroy();
     this.plotViews.delete(objectId);
+    this.buildingViews.get(objectId)?.destroy();
+    this.buildingViews.delete(objectId);
   }
 
   private refreshFencesAround(origin: PlacedObject): void {

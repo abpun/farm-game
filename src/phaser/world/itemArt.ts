@@ -1,6 +1,7 @@
 import type * as Phaser from 'phaser';
 import type { CatalogItem } from '@core/entities/types';
 import { BED_TEXTURES } from '../art/BedArtist';
+import { EXTRA_TEXTURES } from '../art/ExtraArtist';
 import { FENCE_LINK, fenceShape, fenceTextureKey } from '../art/FenceArtist';
 import { houseShape, type HouseFootprint } from '../art/HouseArtist';
 import { addArt } from '../art/paint';
@@ -10,9 +11,9 @@ import { PIXEL_SCALE } from '../layout';
 
 // The cottage art is slightly shallower than its 2×2 tile footprint, so it sits inset.
 export const COTTAGE_ART: HouseFootprint = { cols: 2, rows: 1.6 };
-const COTTAGE_ROW_INSET = 0.2;
+export const COTTAGE_ROW_INSET = 0.2;
 const STANDING_ORIGIN = { x: 0.5, y: 0.95 };
-const LAYER = { plot: 0, fence: 3, decor: 5, building: 5, animal: 5 } as const;
+const LAYER = { plot: 0, fence: 3, decor: 5, building: 5 } as const;
 export const CROP_LAYER = 2;
 
 export const STRAIGHT_FENCE_MASK = FENCE_LINK.north | FENCE_LINK.south;
@@ -37,7 +38,7 @@ export function createItemImage(
   const image = (() => {
     switch (item.kind) {
       case 'plot':
-        return addArt(scene, top.x - grid.tileW / 2, top.y, BED_TEXTURES.bed);
+        return addArt(scene, top.x - grid.tileW / 2, top.y, plotTexture(item));
       case 'fence': {
         const anchor = fenceShape(grid).tileTop;
         return addArt(scene, top.x - anchor.x * PIXEL_SCALE, top.y - anchor.y * PIXEL_SCALE, art);
@@ -64,7 +65,7 @@ export function itemTexture(
   seasonId: string,
   fenceMask = 0,
 ): string {
-  if (item.kind === 'plot') return BED_TEXTURES.bed;
+  if (item.kind === 'plot') return plotTexture(item);
   if (item.kind === 'fence') return fenceTextureKey(fenceMask);
   return seasonalTexture(scene.textures, item.art, seasonId);
 }
@@ -76,3 +77,6 @@ export function itemIconKey(scene: Phaser.Scene, item: CatalogItem): string {
   if (item.kind === 'fence') return fenceTextureKey(STRAIGHT_FENCE_MASK);
   return scene.textures.exists(item.art) ? item.art : 'ui-icon-lock';
 }
+
+const plotTexture = (item: CatalogItem) =>
+  item.soil === 'orchard' ? EXTRA_TEXTURES.orchardPlot : BED_TEXTURES.bed;

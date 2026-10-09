@@ -61,6 +61,8 @@ export class Button extends Phaser.GameObjects.Container {
   private readonly label?: Phaser.GameObjects.Text;
   private readonly sublabel?: Phaser.GameObjects.Text;
   private readonly skin: ButtonSkin;
+  private readonly centered: boolean;
+  private readonly buttonWidth: number;
   private flags: ButtonFlags = { enabled: true, selected: false, hovered: false, pressed: false };
 
   constructor(scene: Phaser.Scene, x: number, y: number, options: ButtonOptions) {
@@ -103,9 +105,9 @@ export class Button extends Phaser.GameObjects.Container {
         .setOrigin(0, 0.5);
       this.content.add(this.sublabel);
     }
-    if ((options.align ?? (options.icon ? 'left' : 'center')) === 'center') {
-      this.centerContent(options.width);
-    }
+    this.buttonWidth = options.width;
+    this.centered = (options.align ?? (options.icon ? 'left' : 'center')) === 'center';
+    if (this.centered) this.centerContent(options.width);
 
     this.background
       .setInteractive({ useHandCursor: true })
@@ -121,7 +123,9 @@ export class Button extends Phaser.GameObjects.Container {
   }
 
   setLabel(text: string): this {
-    this.label?.setText(text);
+    if (!this.label || this.label.text === text) return this;
+    this.label.setText(text);
+    if (this.centered) this.centerContent(this.buttonWidth);
     return this;
   }
 
@@ -163,6 +167,7 @@ export class Button extends Phaser.GameObjects.Container {
   }
 
   private centerContent(width: number): void {
+    this.content.setX(0);
     const bounds = this.content.getBounds();
     this.content.setX(Math.round((width - bounds.width) / 2 / UI_PX) * UI_PX - PADDING);
   }

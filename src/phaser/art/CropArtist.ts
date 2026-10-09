@@ -3,16 +3,17 @@ import type { CropDef } from '@core/entities/types';
 import { diamondPoint, type IsoGrid } from '../iso/IsoGrid';
 import { PALETTE } from '../theme';
 import { FURROW_ROWS } from './BedArtist';
+import {
+  drawBerry,
+  drawBulb,
+  drawCane,
+  drawStalk,
+  drawTrellis,
+  drawVine,
+  type Plant,
+} from './cropShapes';
 import { bake, hex, lineWidth, shade, SHADOW } from './paint';
-
-interface Plant {
-  x: number;
-  y: number;
-  s: number;
-  t: number;
-  leaf: number;
-  produce: number;
-}
+import { drawFruitTree, drawPalm, TREE_DESIGN_WIDTH, TREE_HEADROOM_RATIO } from './treeShapes';
 
 type PlantDrawer = (g: Phaser.GameObjects.Graphics, plant: Plant) => void;
 
@@ -22,7 +23,17 @@ const DRAWERS: Record<string, PlantDrawer> = {
   bush: drawBushCrop,
   grain: drawGrain,
   head: drawHead,
+  stalk: drawStalk,
+  berry: drawBerry,
+  bulb: drawBulb,
+  cane: drawCane,
+  vine: drawVine,
+  trellis: drawTrellis,
 };
+
+// Trees fill a whole orchard tile with one plant and stand taller than bed crops.
+const TREE_DRAWERS: Record<string, PlantDrawer> = { tree: drawFruitTree, palm: drawPalm };
+const TREE_ICON_SCALE = 0.6;
 
 const PLANT_COLUMNS = [0.22, 0.5, 0.78] as const;
 const BASE_TILE_WIDTH = 128;
@@ -40,6 +51,10 @@ export function generateCropTextures(scene: Phaser.Scene, crops: CropDef[], grid
   );
 
   for (const crop of crops) {
+    if (crop.visual.kind in TREE_DRAWERS) {
+      generateTreeTextures(scene, crop, grid);
+      continue;
+    }
     const drawer = DRAWERS[crop.visual.kind];
     if (!drawer) throw new Error(`${crop.id}: unknown visual kind "${crop.visual.kind}"`);
     const leaf = hex(crop.visual.leaf);
@@ -68,6 +83,24 @@ export function generateCropTextures(scene: Phaser.Scene, crops: CropDef[], grid
         }
       });
     }
+  }
+}
+
+function generateTreeTextures(scene: Phaser.Scene, crop: CropDef, grid: IsoGrid): void {
+  const draw = TREE_DRAWERS[crop.visual.kind] as PlantDrawer;
+  const { tileW: w, tileH: h } = grid.art;
+  const headroom = Math.round(w * TREE_HEADROOM_RATIO);
+  const s = w / TREE_DESIGN_WIDTH;
+  const leaf = hex(crop.visual.leaf);
+  const produce = hex(crop.visual.produce);
+  bake(scene, cropIconKey(crop.id), ICON.width, ICON.height, (g) =>
+    draw(g, { x: ICON.width / 2, y: ICON.baseY, s: TREE_ICON_SCALE, t: 1, leaf, produce }),
+  );
+  for (let stage = 0; stage < crop.stages; stage++) {
+    const t = stage / (crop.stages - 1);
+    bake(scene, cropTextureKey(crop.id, stage), w, h + headroom, (g) =>
+      draw(g, { x: Math.round(w / 2), y: Math.round(h / 2 + headroom), s, t, leaf, produce }),
+    );
   }
 }
 

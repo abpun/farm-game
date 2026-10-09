@@ -1,19 +1,28 @@
 import * as Phaser from 'phaser';
 import { DOCK, DRAWER, TOAST_ANCHOR } from '../layout';
-import { getSession, getTools } from '../session';
+import { getSession, getTools, getUiBus } from '../session';
 import { formatDuration } from '../ui/format';
 import { BarnPanel } from '../ui/screens/BarnPanel';
+import { openBuildingDialog } from '../ui/screens/BuildingDialog';
+import { CraftingPanel } from '../ui/screens/CraftingPanel';
 import { DOCK_ENTRIES, Docks, drawerX, type DockEntry } from '../ui/screens/Docks';
+import { FishingPanel } from '../ui/screens/FishingPanel';
 import { Hud } from '../ui/screens/Hud';
+import { openLandDialog } from '../ui/screens/LandDialog';
 import { MarketPanel } from '../ui/screens/MarketPanel';
+import { Notifications } from '../ui/screens/Notifications';
+import { OrdersPanel } from '../ui/screens/OrdersPanel';
 import { openSettingsMenu } from '../ui/screens/SettingsMenu';
 import { ToolBanner } from '../ui/screens/ToolBanner';
+import { TrophiesPanel } from '../ui/screens/TrophiesPanel';
 import { iconKey, seasonIconKey } from '../ui/uiTextures';
 import { UI_TEXT } from '../ui/uiTheme';
+import { Dialog } from '../ui/widgets/Dialog';
 import { DRAWER_EVENTS, type Drawer } from '../ui/widgets/Drawer';
 import { ToastManager } from '../ui/widgets/ToastManager';
 
 const WELCOME_BACK_MIN_SEC = 60;
+const BADGE_REFRESH_MS = 500;
 
 export class UIScene extends Phaser.Scene {
   private hud!: Hud;
@@ -26,12 +35,31 @@ export class UIScene extends Phaser.Scene {
   create(): void {
     const session = getSession(this);
     const tools = getTools(this);
+    const uiBus = getUiBus(this);
     const toasts = new ToastManager(this, TOAST_ANCHOR);
     this.hud = new Hud(this, session, () => openSettingsMenu(this, session, toasts));
+    const openBuilding = (objectId: number) => {
+      this.closeDrawers();
+      openBuildingDialog(this, session, toasts, objectId);
+    };
 
-    const x = drawerX('right', DRAWER.width);
-    this.drawers.set('market', new MarketPanel(this, session, tools, x, DOCK.top).drawer);
-    this.drawers.set('barn', new BarnPanel(this, session, toasts, x, DOCK.top).drawer);
+    const right = drawerX('right', DRAWER.width);
+    const left = drawerX('left', DRAWER.width);
+    const fishing = new FishingPanel(this, session, toasts, right, DOCK.top);
+    const orders = new OrdersPanel(this, session, toasts, right, DOCK.top);
+    const trophies = new TrophiesPanel(this, session, toasts, left, DOCK.top);
+    this.drawers.set(
+      'market',
+      new MarketPanel(this, session, tools, toasts, right, DOCK.top).drawer,
+    );
+    this.drawers.set('barn', new BarnPanel(this, session, toasts, right, DOCK.top).drawer);
+    this.drawers.set(
+      'crafting',
+      new CraftingPanel(this, session, openBuilding, right, DOCK.top).drawer,
+    );
+    this.drawers.set('orders', orders.drawer);
+    this.drawers.set('fishing', fishing.drawer);
+    this.drawers.set('achievements', trophies.drawer);
 
     const entries: DockEntry[] = DOCK_ENTRIES.map((entry) =>
       this.drawers.has(entry.id) ? { ...entry, onOpen: () => this.toggleDrawer(entry.id) } : entry,
@@ -43,8 +71,23 @@ export class UIScene extends Phaser.Scene {
       drawer.on(DRAWER_EVENTS.opened, () => docks.setActive(id));
       drawer.on(DRAWER_EVENTS.closed, () => docks.setActive(null));
     });
+    const updateBadges = () => {
+      docks.setBadge('achievements', session.achievements.unclaimedCount());
+      docks.setBadge('orders', orders.deliverableCount());
+      docks.setBadge('crafting', this.readyBuildings());
+    };
+    this.time.addEvent({ delay: BADGE_REFRESH_MS, loop: true, callback: updateBadges });
+    updateBadges();
+
+    uiBus.on('OpenBuilding', ({ objectId }) => openBuilding(objectId));
+    uiBus.on('OpenFishing', ({ spotId }) => {
+      fishing.focusSpot(spotId);
+      if (!fishing.drawer.isOpen) this.toggleDrawer('fishing');
+    });
+    uiBus.on('OpenLand', () => openLandDialog(this, session, toasts));
 
     new ToolBanner(this, session, tools);
+    new Notifications(this, session, toasts);
     session.bus.on('SeasonChanged', () => {
       const season = session.seasons.current();
       toasts.show(`${season.name} has arrived!`, {
@@ -54,7 +97,8 @@ export class UIScene extends Phaser.Scene {
     });
     this.input.keyboard?.on('keydown-ESC', () => {
       tools.clear();
-      this.drawers.forEach((drawer) => drawer.close());
+      Dialog.closeAll();
+      this.closeDrawers();
     });
 
     if (session.offlineSeconds >= WELCOME_BACK_MIN_SEC) {
@@ -67,6 +111,19 @@ export class UIScene extends Phaser.Scene {
 
   override update(): void {
     this.hud.update();
+  }
+
+  /** Buildings with something to collect, for the Crafting badge. */
+  private readyBuildings(): number {
+    const { buildings, production, ranch } = getSession(this);
+    return buildings.ids().filter((id) => {
+      if (!buildings.isOperational(id)) return false;
+      return production.readyCount(id) > 0 || ranch.countByStatus(id, 'ready') > 0;
+    }).length;
+  }
+
+  private closeDrawers(): void {
+    this.drawers.forEach((drawer) => drawer.close());
   }
 
   // One drawer at a time: opening one closes the others.

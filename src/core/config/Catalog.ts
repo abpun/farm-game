@@ -32,6 +32,10 @@ export class Catalog {
     return [...this.byId.values()].filter((item) => item.category === categoryId && item.listed);
   }
 
+  all(): CatalogItem[] {
+    return [...this.byId.values()];
+  }
+
   private assertValid(item: CatalogItem, categoryIds: Set<string>): void {
     if (this.byId.has(item.id)) throw new Error(`Duplicate catalog id: ${item.id}`);
     if (!categoryIds.has(item.category))

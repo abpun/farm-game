@@ -1,10 +1,37 @@
 {
   "categories": [
-    { "id": "crops", "name": "Crops" },
-    { "id": "buildings", "name": "Build" },
-    { "id": "plants", "name": "Plants" },
-    { "id": "animals", "name": "Animals" },
-    { "id": "decor", "name": "Decor" }
+    {
+      "id": "crops",
+      "name": "Crops"
+    },
+    {
+      "id": "orchard",
+      "name": "Orchard"
+    },
+    {
+      "id": "animals",
+      "name": "Animals"
+    },
+    {
+      "id": "supplies",
+      "name": "Supplies"
+    },
+    {
+      "id": "production",
+      "name": "Production"
+    },
+    {
+      "id": "buildings",
+      "name": "Build"
+    },
+    {
+      "id": "plants",
+      "name": "Plants"
+    },
+    {
+      "id": "decor",
+      "name": "Decor"
+    }
   ],
   "items": [
     {
@@ -13,7 +40,10 @@
       "category": "buildings",
       "kind": "plot",
       "price": 25,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "bed",
       "description": "Tilled soil for one crop",
       "removable": true,
@@ -26,24 +56,14 @@
       "category": "buildings",
       "kind": "fence",
       "price": 3,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "fence",
       "description": "Connects to nearby fences",
       "removable": true,
       "available": true,
-      "listed": true
-    },
-    {
-      "id": "coop",
-      "name": "Chicken Coop",
-      "category": "buildings",
-      "kind": "building",
-      "price": 400,
-      "footprint": { "cols": 2, "rows": 2 },
-      "art": "house-cottage",
-      "description": "Houses chickens",
-      "removable": true,
-      "available": false,
       "listed": true
     },
     {
@@ -52,7 +72,10 @@
       "category": "buildings",
       "kind": "building",
       "price": 0,
-      "footprint": { "cols": 2, "rows": 2 },
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
       "art": "house-cottage",
       "description": "Home sweet home",
       "removable": false,
@@ -65,7 +88,10 @@
       "category": "plants",
       "kind": "decor",
       "price": 40,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "tree-orange",
       "description": "Autumn shade tree",
       "removable": true,
@@ -78,7 +104,10 @@
       "category": "plants",
       "kind": "decor",
       "price": 40,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "tree-amber",
       "description": "Golden autumn tree",
       "removable": true,
@@ -91,7 +120,10 @@
       "category": "plants",
       "kind": "decor",
       "price": 45,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "tree-red",
       "description": "Crimson autumn tree",
       "removable": true,
@@ -104,37 +136,14 @@
       "category": "plants",
       "kind": "decor",
       "price": 15,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "bush-autumn",
       "description": "A cosy red shrub",
       "removable": true,
       "available": true,
-      "listed": true
-    },
-    {
-      "id": "chicken",
-      "name": "Chicken",
-      "category": "animals",
-      "kind": "animal",
-      "price": 80,
-      "footprint": { "cols": 1, "rows": 1 },
-      "art": "animal-chicken",
-      "description": "Lays eggs daily",
-      "removable": true,
-      "available": false,
-      "listed": true
-    },
-    {
-      "id": "cow",
-      "name": "Cow",
-      "category": "animals",
-      "kind": "animal",
-      "price": 300,
-      "footprint": { "cols": 1, "rows": 1 },
-      "art": "animal-cow",
-      "description": "Gives fresh milk",
-      "removable": true,
-      "available": false,
       "listed": true
     },
     {
@@ -143,12 +152,283 @@
       "category": "decor",
       "kind": "decor",
       "price": 5,
-      "footprint": { "cols": 1, "rows": 1 },
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
       "art": "rock",
       "description": "A sturdy grey stone",
       "removable": true,
       "available": true,
       "listed": true
+    },
+    {
+      "id": "orchard-plot",
+      "name": "Orchard Plot",
+      "category": "orchard",
+      "kind": "plot",
+      "price": 40,
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "art": "orchard-plot",
+      "description": "Room for one fruit tree",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "soil": "orchard",
+      "unlockLevel": 3
+    },
+    {
+      "id": "feed-mill",
+      "name": "Feed Mill",
+      "category": "production",
+      "kind": "building",
+      "price": 300,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-feed-mill",
+      "description": "Grinds grain into animal feed",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 2,
+      "maxCount": 1
+    },
+    {
+      "id": "grain-mill",
+      "name": "Grain Mill",
+      "category": "production",
+      "kind": "building",
+      "price": 400,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-grain-mill",
+      "description": "Mills flour, cornmeal and sugar",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 3,
+      "maxCount": 1
+    },
+    {
+      "id": "juice-press",
+      "name": "Juice Press",
+      "category": "production",
+      "kind": "building",
+      "price": 700,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-juice-press",
+      "description": "Presses fresh fruit juice",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 5,
+      "maxCount": 1
+    },
+    {
+      "id": "dairy",
+      "name": "Dairy",
+      "category": "production",
+      "kind": "building",
+      "price": 800,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-dairy",
+      "description": "Turns milk into cheese and butter",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 5,
+      "maxCount": 1
+    },
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "category": "production",
+      "kind": "building",
+      "price": 1000,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-bakery",
+      "description": "Bakes bread, cakes and pies",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 6,
+      "maxCount": 1
+    },
+    {
+      "id": "jam-kitchen",
+      "name": "Jam Kitchen",
+      "category": "production",
+      "kind": "building",
+      "price": 1200,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-jam-kitchen",
+      "description": "Cooks jams and preserves",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 8,
+      "maxCount": 1
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "category": "production",
+      "kind": "building",
+      "price": 1500,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-kitchen",
+      "description": "Cooks soups, meals and bait",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 9,
+      "maxCount": 1
+    },
+    {
+      "id": "coop",
+      "name": "Chicken Coop",
+      "category": "animals",
+      "kind": "building",
+      "price": 400,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-coop",
+      "description": "Houses chickens",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 3,
+      "maxCount": 2
+    },
+    {
+      "id": "cowshed",
+      "name": "Cowshed",
+      "category": "animals",
+      "kind": "building",
+      "price": 900,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-cowshed",
+      "description": "Houses cows",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 5,
+      "maxCount": 2
+    },
+    {
+      "id": "sheep-pen",
+      "name": "Sheep Pen",
+      "category": "animals",
+      "kind": "building",
+      "price": 1100,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-sheep-pen",
+      "description": "Pasture for sheep",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 7,
+      "maxCount": 2
+    },
+    {
+      "id": "goat-shelter",
+      "name": "Goat Shelter",
+      "category": "animals",
+      "kind": "building",
+      "price": 1300,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-goat-shelter",
+      "description": "Pasture for goats",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 9,
+      "maxCount": 2
+    },
+    {
+      "id": "pigsty",
+      "name": "Pigsty",
+      "category": "animals",
+      "kind": "building",
+      "price": 1600,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-pigsty",
+      "description": "Houses pigs",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 11,
+      "maxCount": 2
+    },
+    {
+      "id": "scarecrow",
+      "name": "Scarecrow",
+      "category": "decor",
+      "kind": "decor",
+      "price": 0,
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "art": "scarecrow",
+      "description": "Trophy: Green Thumb",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "rewardOnly": true
+    },
+    {
+      "id": "fish-statue",
+      "name": "Golden Fish Statue",
+      "category": "decor",
+      "kind": "decor",
+      "price": 0,
+      "footprint": {
+        "cols": 1,
+        "rows": 1
+      },
+      "art": "fish-statue",
+      "description": "Trophy: Master Angler",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "rewardOnly": true
     }
   ]
 }

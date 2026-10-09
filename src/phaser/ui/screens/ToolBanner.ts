@@ -55,7 +55,7 @@ export class ToolBanner {
     const { crops, catalog } = this.session;
     switch (tool.kind) {
       case 'plant':
-        return `Planting ${crops.get(tool.cropId).name} · tap empty beds`;
+        return `Planting ${crops.plantName(tool.cropId)} · tap empty ${crops.get(tool.cropId).plantOn === 'orchard' ? 'orchard plots' : 'beds'}`;
       case 'build': {
         const item = catalog.get(tool.itemId);
         return `Placing ${item.name} ($${formatMoney(item.price)}) · tap tiles`;

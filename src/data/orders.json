@@ -1,0 +1,119 @@
+{
+  "boardSlots": [
+    {
+      "reputation": 0,
+      "slots": 3
+    },
+    {
+      "reputation": 10,
+      "slots": 4
+    },
+    {
+      "reputation": 30,
+      "slots": 5
+    }
+  ],
+  "maxActive": 3,
+  "refreshCooldownSec": 45,
+  "historySize": 12,
+  "maxQuantity": 12,
+  "bonus": {
+    "withinFraction": 0.5,
+    "coinsFraction": 0.2,
+    "reputation": 1
+  },
+  "daily": {
+    "unlockLevel": 2,
+    "difficulty": "hard",
+    "rewardMultiplier": 2,
+    "reputation": 3
+  },
+  "categories": [
+    {
+      "id": "produce",
+      "name": "Farm Produce",
+      "itemCategories": ["crop"],
+      "unlockLevel": 1
+    },
+    {
+      "id": "fish",
+      "name": "Fresh Catch",
+      "itemCategories": ["fish"],
+      "unlockLevel": 1
+    },
+    {
+      "id": "goods",
+      "name": "Kitchen Goods",
+      "itemCategories": ["goods"],
+      "unlockLevel": 2
+    },
+    {
+      "id": "orchard",
+      "name": "Orchard Harvest",
+      "itemCategories": ["fruit"],
+      "unlockLevel": 3
+    },
+    {
+      "id": "animal",
+      "name": "Animal Products",
+      "itemCategories": ["animal"],
+      "unlockLevel": 3
+    },
+    {
+      "id": "mixed",
+      "name": "Big Contract",
+      "itemCategories": ["crop", "fruit", "fish", "animal", "goods"],
+      "unlockLevel": 6
+    }
+  ],
+  "difficulties": [
+    {
+      "id": "easy",
+      "name": "Easy",
+      "unlockLevel": 1,
+      "items": [1, 2],
+      "value": [30, 70],
+      "valuePerLevel": 0.15,
+      "rewardMultiplier": 1.35,
+      "xpPerCoin": 0.12,
+      "deadlineDays": 3,
+      "reputation": 1
+    },
+    {
+      "id": "medium",
+      "name": "Medium",
+      "unlockLevel": 3,
+      "items": [2, 3],
+      "value": [70, 160],
+      "valuePerLevel": 0.15,
+      "rewardMultiplier": 1.5,
+      "xpPerCoin": 0.12,
+      "deadlineDays": 4,
+      "reputation": 2
+    },
+    {
+      "id": "hard",
+      "name": "Hard",
+      "unlockLevel": 6,
+      "items": [2, 4],
+      "value": [160, 360],
+      "valuePerLevel": 0.15,
+      "rewardMultiplier": 1.7,
+      "xpPerCoin": 0.12,
+      "deadlineDays": 5,
+      "reputation": 4
+    }
+  ],
+  "customers": [
+    "Mabel",
+    "Old Tom",
+    "Rosie",
+    "Captain Finn",
+    "Hazel",
+    "Pip",
+    "Granny Wren",
+    "Bram",
+    "Juniper",
+    "Farmer Lou"
+  ]
+}

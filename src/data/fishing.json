@@ -1,0 +1,221 @@
+{
+  "biteDelaySec": {
+    "min": 2.5,
+    "max": 7
+  },
+  "levels": [0, 30, 80, 160, 280, 450, 700, 1000, 1400, 2000],
+  "rarities": [
+    {
+      "id": "common",
+      "name": "Common",
+      "weight": 62,
+      "reactionSec": 1.6,
+      "xp": 3
+    },
+    {
+      "id": "uncommon",
+      "name": "Uncommon",
+      "weight": 27,
+      "reactionSec": 1.25,
+      "xp": 6
+    },
+    {
+      "id": "rare",
+      "name": "Rare",
+      "weight": 9,
+      "reactionSec": 0.95,
+      "xp": 14
+    },
+    {
+      "id": "legendary",
+      "name": "Legendary",
+      "weight": 2,
+      "reactionSec": 0.75,
+      "xp": 40
+    }
+  ],
+  "spots": [
+    {
+      "id": "pier",
+      "name": "Old Pier",
+      "unlockLevel": 1,
+      "description": "Calm shallows off the west shore"
+    },
+    {
+      "id": "rocks",
+      "name": "Rocky Point",
+      "unlockLevel": 6,
+      "description": "Deep water off the north rocks"
+    }
+  ],
+  "rods": [
+    {
+      "id": "bamboo-rod",
+      "name": "Bamboo Rod",
+      "price": 0,
+      "fishingLevel": 1,
+      "reactionBonusSec": 0,
+      "luck": 1
+    },
+    {
+      "id": "fiberglass-rod",
+      "name": "Fiberglass Rod",
+      "price": 250,
+      "fishingLevel": 3,
+      "reactionBonusSec": 0.25,
+      "luck": 1.3
+    },
+    {
+      "id": "steel-rod",
+      "name": "Steel Rod",
+      "price": 900,
+      "fishingLevel": 5,
+      "reactionBonusSec": 0.45,
+      "luck": 1.7
+    },
+    {
+      "id": "golden-rod",
+      "name": "Golden Rod",
+      "price": 3000,
+      "fishingLevel": 8,
+      "reactionBonusSec": 0.7,
+      "luck": 2.5
+    }
+  ],
+  "baits": [
+    {
+      "item": "worm-bait",
+      "luck": 1.5,
+      "biteSpeed": 0.7,
+      "fishingLevel": 1
+    },
+    {
+      "item": "glow-bait",
+      "luck": 3,
+      "biteSpeed": 0.5,
+      "fishingLevel": 4
+    }
+  ],
+  "fish": [
+    {
+      "id": "minnow",
+      "name": "Minnow",
+      "rarity": "common",
+      "sellPrice": 6,
+      "fishingLevel": 1,
+      "spots": ["pier"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#b8c4c8", "#7a8a90", "#e8f0f0"]
+      }
+    },
+    {
+      "id": "sardine",
+      "name": "Sardine",
+      "rarity": "common",
+      "sellPrice": 8,
+      "fishingLevel": 1,
+      "spots": ["pier", "rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#9ab8d8", "#5a7aa0", "#e8f0ff"]
+      }
+    },
+    {
+      "id": "carp",
+      "name": "Carp",
+      "rarity": "common",
+      "sellPrice": 12,
+      "fishingLevel": 2,
+      "spots": ["pier"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#c8a050", "#8a6a2a", "#f2d890"]
+      }
+    },
+    {
+      "id": "perch",
+      "name": "Perch",
+      "rarity": "uncommon",
+      "sellPrice": 18,
+      "fishingLevel": 1,
+      "spots": ["pier"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#a8b84a", "#6a7a2a", "#e8822a"]
+      }
+    },
+    {
+      "id": "trout",
+      "name": "Trout",
+      "rarity": "uncommon",
+      "sellPrice": 26,
+      "fishingLevel": 3,
+      "spots": ["pier", "rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#a8a0b8", "#6a607a", "#f4b6c8"]
+      }
+    },
+    {
+      "id": "catfish",
+      "name": "Catfish",
+      "rarity": "uncommon",
+      "sellPrice": 34,
+      "fishingLevel": 4,
+      "spots": ["pier"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#8a7a6a", "#5a4a3a", "#c8b8a0"]
+      }
+    },
+    {
+      "id": "bass",
+      "name": "Bass",
+      "rarity": "uncommon",
+      "sellPrice": 40,
+      "fishingLevel": 5,
+      "spots": ["rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#6a9a5a", "#3f6a3a", "#d8e8b0"]
+      }
+    },
+    {
+      "id": "salmon",
+      "name": "Salmon",
+      "rarity": "rare",
+      "sellPrice": 70,
+      "fishingLevel": 4,
+      "spots": ["pier", "rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#f0907a", "#b85a4a", "#f8d0c0"]
+      }
+    },
+    {
+      "id": "tuna",
+      "name": "Tuna",
+      "rarity": "rare",
+      "sellPrice": 110,
+      "fishingLevel": 6,
+      "spots": ["rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#4a6a9a", "#2a3a6a", "#c8d8e8"]
+      }
+    },
+    {
+      "id": "golden-fish",
+      "name": "Golden Fish",
+      "rarity": "legendary",
+      "sellPrice": 500,
+      "fishingLevel": 7,
+      "spots": ["pier", "rocks"],
+      "icon": {
+        "shape": "fish",
+        "colors": ["#f6c544", "#d08a1e", "#fff3c0"]
+      }
+    }
+  ]
+}

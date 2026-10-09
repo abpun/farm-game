@@ -6,14 +6,18 @@ import { FONT_SIZE, UI_PX, uiTextOnWood } from '../uiTheme';
 import { Button } from '../widgets/Button';
 import { CoinCounter } from '../widgets/CoinCounter';
 import { createFrame } from '../widgets/Frame';
+import { BAR_COLORS, ProgressBar } from '../widgets/ProgressBar';
 
 const SAVE_BLINK_MS = 900;
+const XP_BAR_HEIGHT = UI_PX * 4;
 
 export class Hud {
   private readonly coins: CoinCounter;
   private readonly dayText: Phaser.GameObjects.Text;
   private readonly seasonIcon: Phaser.GameObjects.Image;
   private readonly saveIcon: Phaser.GameObjects.Image;
+  private readonly levelText: Phaser.GameObjects.Text;
+  private readonly xpBar: ProgressBar;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -42,8 +46,31 @@ export class Hud {
       .setOrigin(0, 0.5)
       .setDepth(1);
 
+    // Level plaque: star, level number and a thin XP bar along the bottom.
+    const levelX = dayX + dayWidth + margin;
+    const levelWidth = HUD.levelWidth;
+    createFrame(scene, levelX, margin, levelWidth, height, 'plaque');
+    scene.add
+      .image(levelX + UI_PX * 5, margin + height / 2 - UI_PX * 2, iconKey('star'))
+      .setOrigin(0, 0.5)
+      .setScale(UI_PX)
+      .setDepth(1);
+    this.levelText = scene.add
+      .text(levelX + UI_PX * 15, margin + height / 2 - UI_PX * 2, '', uiTextOnWood(FONT_SIZE.title))
+      .setOrigin(0, 0.5)
+      .setDepth(1);
+    const barWidth = levelWidth - UI_PX * 10;
+    this.xpBar = new ProgressBar(
+      scene,
+      levelX + UI_PX * 5,
+      margin + height - UI_PX * 4 - XP_BAR_HEIGHT,
+      barWidth,
+      XP_BAR_HEIGHT,
+      BAR_COLORS.xp,
+    ).setDepth(1);
+
     this.saveIcon = scene.add
-      .image(dayX + dayWidth + margin, margin + height / 2, iconKey('save'))
+      .image(levelX + levelWidth + margin, margin + height / 2, iconKey('save'))
       .setOrigin(0, 0.5)
       .setScale(UI_PX)
       .setAlpha(0);
@@ -64,7 +91,10 @@ export class Hud {
   private readonly iconSize: number;
 
   update(): void {
-    const { seasons } = this.session;
+    const { seasons, progression } = this.session;
+    const [earned, needed] = progression.levelProgress();
+    this.levelText.setText(`Lv ${progression.level()}`);
+    this.xpBar.setProgress(needed ? earned / needed : 1);
     const season = seasons.current();
     this.dayText.setText(`${season.name} ${seasons.dayOfSeason()}`);
     const icon = seasonIconKey(season.id);

@@ -4,7 +4,9 @@ import { BED_TEXTURES } from '../art/BedArtist';
 import { cropTextureKey } from '../art/CropArtist';
 import { addArt } from '../art/paint';
 import type { IsoGrid, Point } from '../iso/IsoGrid';
+import { PIXEL_SCALE } from '../layout';
 import { COLORS } from '../theme';
+import { iconKey } from '../ui/uiTextures';
 import { CROP_LAYER } from '../world/itemArt';
 
 const BAR_HEIGHT = 6;
@@ -20,6 +22,7 @@ export class PlotView {
   private readonly barTrack: Phaser.GameObjects.Rectangle;
   private readonly barFill: Phaser.GameObjects.Rectangle;
   private readonly barWidth: number;
+  private readonly waterDrop: Phaser.GameObjects.Image;
   private readonly centerPoint: Point;
   private cropKey: string | null = null;
   private pulse: Phaser.Tweens.Tween | null = null;
@@ -41,7 +44,8 @@ export class PlotView {
     this.outline = addArt(scene, left, top.y, BED_TEXTURES.outline)
       .setDepth(baseDepth + 1)
       .setVisible(false);
-    this.crop = addArt(scene, left, top.y - grid.cropHeadroom, BED_TEXTURES.bed)
+    // Bottom-anchored so tall art (fruit trees) grows up out of the same tile.
+    this.crop = addArt(scene, left, top.y + grid.tileH, BED_TEXTURES.bed, 0, 1)
       .setDepth(baseDepth + CROP_LAYER)
       .setVisible(false);
 
@@ -55,6 +59,11 @@ export class PlotView {
       .rectangle(barX, barY, 0, BAR_HEIGHT, COLORS.progressFill)
       .setOrigin(0)
       .setDepth(BAR_DEPTH);
+    this.waterDrop = scene.add
+      .image(this.centerPoint.x + grid.tileW * 0.28, this.centerPoint.y, iconKey('water'))
+      .setScale(PIXEL_SCALE)
+      .setDepth(baseDepth + CROP_LAYER + 1)
+      .setVisible(false);
     this.refresh();
   }
 
@@ -79,6 +88,7 @@ export class PlotView {
       .setSize(this.barWidth * plots.progress(this.plotId), BAR_HEIGHT);
     this.updateCrop(cropId ? cropTextureKey(cropId, plots.stage(this.plotId)) : null);
     this.updateGlow(ready);
+    this.waterDrop.setVisible(cropId !== null && !ready && plots.isWatered(this.plotId));
     const dormant = cropId !== null && !ready && plots.seasonRate(cropId) <= 0;
     if (dormant) this.crop.setTint(DORMANT_TINT);
     else this.crop.clearTint();
@@ -86,7 +96,9 @@ export class PlotView {
 
   destroy(): void {
     this.pulse?.stop();
-    [this.outline, this.crop, this.barTrack, this.barFill].forEach((object) => object.destroy());
+    [this.outline, this.crop, this.barTrack, this.barFill, this.waterDrop].forEach((object) =>
+      object.destroy(),
+    );
   }
 
   private updateCrop(key: string | null): void {

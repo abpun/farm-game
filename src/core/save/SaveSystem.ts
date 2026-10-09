@@ -1,16 +1,9 @@
-import type { Catalog } from '../config/Catalog';
-import type { CropRegistry } from '../config/CropRegistry';
-import type { FarmState, PlotCrop } from '../entities/types';
+import type { Content } from '../config/Content';
+import type { FarmState } from '../entities/types';
 import type { Clock } from './Clock';
 import type { KeyValueStore } from './KeyValueStore';
-import {
-  isSaveFile,
-  migrate,
-  SAVE_VERSION,
-  type SaveFile,
-  type StoredPlot,
-  type StoredState,
-} from './saveFormat';
+import { normalizeState } from './normalizeState';
+import { isSaveFile, migrate, SAVE_VERSION, type SaveFile } from './saveFormat';
 
 export const SAVE_KEYS = { main: 'farm-game.save', backup: 'farm-game.save.backup' } as const;
 
@@ -24,8 +17,7 @@ export interface LoadedSave {
 export class SaveSystem {
   constructor(
     private readonly store: KeyValueStore,
-    private readonly crops: CropRegistry,
-    private readonly catalog: Catalog,
+    private readonly content: Content,
     private readonly clock: Clock,
   ) {}
 
@@ -91,41 +83,12 @@ export class SaveSystem {
       const file = migrate(JSON.parse(raw));
       if (!isSaveFile(file)) return null;
       return {
-        state: this.sanitize(file.state),
+        state: normalizeState(file.state, this.content),
         savedAt: file.savedAt,
         layoutPending: file.layoutPending === true,
       };
     } catch {
       return null;
     }
-  }
-
-  // Drops content removed from config so old saves never crash the game.
-  private sanitize(state: StoredState): FarmState {
-    const objects = state.objects.filter((object) => this.catalog.has(object.itemId));
-    const bedIds = new Set(
-      objects.filter((o) => this.catalog.get(o.itemId).kind === 'plot').map((o) => String(o.id)),
-    );
-    const plots = Object.fromEntries(
-      Object.entries(state.plots)
-        .filter(([id]) => bedIds.has(id))
-        .map(([id, plot]) => [id, this.toPlotCrop(plot, state.time)]),
-    );
-    for (const id of bedIds) plots[id] ??= { cropId: null, growth: 0 };
-    const inventory = Object.fromEntries(
-      Object.entries(state.inventory).filter(([cropId]) => this.crops.has(cropId)),
-    );
-    const nextObjectId = Math.max(state.nextObjectId, ...objects.map((o) => o.id + 1));
-    return { ...state, objects, plots, inventory, nextObjectId };
-  }
-
-  private toPlotCrop(plot: StoredPlot, time: number): PlotCrop {
-    const cropId = plot.cropId && this.crops.has(plot.cropId) ? plot.cropId : null;
-    if (!cropId) return { cropId: null, growth: 0 };
-    const growth =
-      'growth' in plot
-        ? plot.growth
-        : (time - plot.legacyPlantedAt) / this.crops.get(cropId).growthTimeSec;
-    return { cropId, growth: Math.max(0, Math.min(1, growth)) };
   }
 }

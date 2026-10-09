@@ -43,10 +43,18 @@ export class WorldSystem {
     return col >= 0 && row >= 0 && col < this.size.columns && row < this.size.rows;
   }
 
+  /** True for tiles inside the land the player has bought. */
+  isOwned(col: number, row: number): boolean {
+    return this.inBounds(col, row) && col < this.state.landSize && row < this.state.landSize;
+  }
+
+  countOf(itemId: string): number {
+    return this.state.objects.filter((object) => object.itemId === itemId).length;
+  }
+
   canPlace(itemId: string, col: number, row: number): boolean {
     return this.cellsFor(itemId, col, row).every(
-      ([c, r]) =>
-        this.inBounds(c, r) && !this.isBlocked(c, r) && !this.occupancy.has(cellKey(c, r)),
+      ([c, r]) => this.isOwned(c, r) && !this.isBlocked(c, r) && !this.occupancy.has(cellKey(c, r)),
     );
   }
 

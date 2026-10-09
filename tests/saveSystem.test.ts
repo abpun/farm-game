@@ -22,13 +22,13 @@ describe('save system', () => {
     const clock = new FakeClock();
     const first = session(store, clock);
     const bed = first.plots.ids()[2]!;
-    first.farm.plant(bed, 'tomato');
+    first.farm.plant(bed, 'carrot');
     first.update(10);
     expect(first.save()).toBe(true);
 
     const second = session(store, clock);
     expect(second.economy.balance()).toBe(first.economy.balance());
-    expect(second.plots.cropOf(bed)).toBe('tomato');
+    expect(second.plots.cropOf(bed)).toBe('carrot');
     expect(second.world.objects()).toHaveLength(first.world.objects().length);
     expect(second.time.now()).toBe(10);
   });
@@ -99,9 +99,10 @@ describe('save system', () => {
     game.farm.plant(bed, 'carrot');
     game.save();
 
-    clock.advanceSec(60);
+    const away = Math.ceil(game.plots.secondsRemaining(bed));
+    clock.advanceSec(away);
     const back = session(store, clock);
-    expect(back.offlineSeconds).toBe(60);
+    expect(back.offlineSeconds).toBe(away);
     expect(back.plots.isReady(bed)).toBe(true);
 
     back.save();

@@ -1,0 +1,381 @@
+{
+  "categories": [
+    {
+      "id": "farming",
+      "name": "Farming"
+    },
+    {
+      "id": "orchard",
+      "name": "Orchard"
+    },
+    {
+      "id": "fishing",
+      "name": "Fishing"
+    },
+    {
+      "id": "animals",
+      "name": "Animal Care"
+    },
+    {
+      "id": "production",
+      "name": "Production"
+    },
+    {
+      "id": "deliveries",
+      "name": "Deliveries"
+    },
+    {
+      "id": "economy",
+      "name": "Economy"
+    },
+    {
+      "id": "collections",
+      "name": "Collections"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "first-harvest",
+      "name": "First Harvest",
+      "description": "Harvest your first crop",
+      "category": "farming",
+      "stat": "cropsHarvested",
+      "target": 1,
+      "reward": {
+        "coins": 20,
+        "xp": 5
+      }
+    },
+    {
+      "id": "green-thumb",
+      "name": "Green Thumb",
+      "description": "Harvest 100 crops",
+      "category": "farming",
+      "stat": "cropsHarvested",
+      "target": 100,
+      "reward": {
+        "coins": 200,
+        "xp": 50,
+        "unlocks": ["scarecrow"]
+      }
+    },
+    {
+      "id": "master-farmer",
+      "name": "Master Farmer",
+      "description": "Harvest 500 crops",
+      "category": "farming",
+      "stat": "cropsHarvested",
+      "target": 500,
+      "reward": {
+        "coins": 1000,
+        "xp": 200
+      }
+    },
+    {
+      "id": "first-fruit",
+      "name": "Fresh Picked",
+      "description": "Harvest your first fruit",
+      "category": "orchard",
+      "stat": "fruitsHarvested",
+      "target": 1,
+      "reward": {
+        "coins": 30,
+        "xp": 10
+      }
+    },
+    {
+      "id": "orchard-keeper",
+      "name": "Orchard Keeper",
+      "description": "Harvest 50 fruits",
+      "category": "orchard",
+      "stat": "fruitsHarvested",
+      "target": 50,
+      "reward": {
+        "coins": 300,
+        "xp": 80
+      }
+    },
+    {
+      "id": "tree-planter",
+      "name": "Tree Planter",
+      "description": "Plant 5 fruit trees",
+      "category": "orchard",
+      "stat": "treesPlanted",
+      "target": 5,
+      "reward": {
+        "coins": 150,
+        "xp": 40
+      }
+    },
+    {
+      "id": "first-catch",
+      "name": "First Catch",
+      "description": "Catch your first fish",
+      "category": "fishing",
+      "stat": "fishCaught",
+      "target": 1,
+      "reward": {
+        "coins": 20,
+        "xp": 5,
+        "items": {
+          "worm-bait": 5
+        }
+      }
+    },
+    {
+      "id": "angler",
+      "name": "Angler",
+      "description": "Catch 50 fish",
+      "category": "fishing",
+      "stat": "fishCaught",
+      "target": 50,
+      "reward": {
+        "coins": 300,
+        "xp": 80,
+        "items": {
+          "glow-bait": 3
+        }
+      }
+    },
+    {
+      "id": "fishing-expert",
+      "name": "Fishing Expert",
+      "description": "Discover 10 fish types",
+      "category": "fishing",
+      "stat": "fishSpecies",
+      "target": 10,
+      "reward": {
+        "coins": 800,
+        "xp": 200
+      }
+    },
+    {
+      "id": "legend-of-the-deep",
+      "name": "Legend of the Deep",
+      "description": "Catch a legendary fish",
+      "category": "fishing",
+      "stat": "legendaryCaught",
+      "target": 1,
+      "reward": {
+        "coins": 500,
+        "xp": 100
+      }
+    },
+    {
+      "id": "first-egg",
+      "name": "Fresh From the Farm",
+      "description": "Collect your first animal product",
+      "category": "animals",
+      "stat": "animalProducts",
+      "target": 1,
+      "reward": {
+        "coins": 30,
+        "xp": 10
+      }
+    },
+    {
+      "id": "happy-farm",
+      "name": "Happy Farm",
+      "description": "Have 5 happy, productive animals at once",
+      "category": "animals",
+      "stat": "productiveAnimals",
+      "target": 5,
+      "reward": {
+        "coins": 400,
+        "xp": 100
+      }
+    },
+    {
+      "id": "rancher",
+      "name": "Rancher",
+      "description": "Collect 200 animal products",
+      "category": "animals",
+      "stat": "animalProducts",
+      "target": 200,
+      "reward": {
+        "coins": 800,
+        "xp": 200
+      }
+    },
+    {
+      "id": "first-batch",
+      "name": "Open for Business",
+      "description": "Complete your first production batch",
+      "category": "production",
+      "stat": "batchesProduced",
+      "target": 1,
+      "reward": {
+        "coins": 30,
+        "xp": 10
+      }
+    },
+    {
+      "id": "master-producer",
+      "name": "Master Producer",
+      "description": "Complete 100 production batches",
+      "category": "production",
+      "stat": "batchesProduced",
+      "target": 100,
+      "reward": {
+        "coins": 1000,
+        "xp": 250
+      }
+    },
+    {
+      "id": "builder",
+      "name": "Builder",
+      "description": "Construct 5 buildings",
+      "category": "production",
+      "stat": "buildingsBuilt",
+      "target": 5,
+      "reward": {
+        "coins": 500,
+        "xp": 120
+      }
+    },
+    {
+      "id": "first-delivery",
+      "name": "Special Delivery",
+      "description": "Complete a delivery order",
+      "category": "deliveries",
+      "stat": "ordersCompleted",
+      "target": 1,
+      "reward": {
+        "coins": 30,
+        "xp": 10
+      }
+    },
+    {
+      "id": "local-supplier",
+      "name": "Local Supplier",
+      "description": "Complete 25 delivery orders",
+      "category": "deliveries",
+      "stat": "ordersCompleted",
+      "target": 25,
+      "reward": {
+        "coins": 600,
+        "xp": 150
+      }
+    },
+    {
+      "id": "daily-dedication",
+      "name": "Daily Dedication",
+      "description": "Complete 7 daily contracts",
+      "category": "deliveries",
+      "stat": "dailiesCompleted",
+      "target": 7,
+      "reward": {
+        "coins": 700,
+        "xp": 180
+      }
+    },
+    {
+      "id": "trusted-name",
+      "name": "Trusted Name",
+      "description": "Reach 30 reputation",
+      "category": "deliveries",
+      "stat": "reputation",
+      "target": 30,
+      "reward": {
+        "coins": 500,
+        "xp": 120
+      }
+    },
+    {
+      "id": "first-sale",
+      "name": "First Sale",
+      "description": "Earn 100 coins",
+      "category": "economy",
+      "stat": "lifetimeEarnings",
+      "target": 100,
+      "reward": {
+        "xp": 10
+      }
+    },
+    {
+      "id": "thousandaire",
+      "name": "Prosperous",
+      "description": "Earn 10,000 coins in total",
+      "category": "economy",
+      "stat": "lifetimeEarnings",
+      "target": 10000,
+      "reward": {
+        "coins": 500,
+        "xp": 150
+      }
+    },
+    {
+      "id": "millionaire-farmer",
+      "name": "Millionaire Farmer",
+      "description": "Earn 1,000,000 coins in total",
+      "category": "economy",
+      "stat": "lifetimeEarnings",
+      "target": 1000000,
+      "reward": {
+        "coins": 50000,
+        "xp": 2000
+      }
+    },
+    {
+      "id": "seasoned-farmer",
+      "name": "Seasoned Farmer",
+      "description": "Reach level 10",
+      "category": "economy",
+      "stat": "level",
+      "target": 10,
+      "reward": {
+        "coins": 1000,
+        "xp": 0
+      }
+    },
+    {
+      "id": "pioneer",
+      "name": "Pioneer",
+      "description": "Expand your land",
+      "category": "collections",
+      "stat": "landExpansions",
+      "target": 1,
+      "reward": {
+        "coins": 300,
+        "xp": 80
+      }
+    },
+    {
+      "id": "crop-collector",
+      "name": "Seed Collector",
+      "description": "Harvest 8 kinds of crops",
+      "category": "collections",
+      "stat": "cropTypes",
+      "target": 8,
+      "reward": {
+        "coins": 400,
+        "xp": 100
+      }
+    },
+    {
+      "id": "master-collector",
+      "name": "Master Collector",
+      "description": "Harvest every kind of crop",
+      "category": "collections",
+      "stat": "cropTypes",
+      "target": -1,
+      "reward": {
+        "coins": 2000,
+        "xp": 400
+      }
+    },
+    {
+      "id": "master-angler",
+      "name": "Master Angler",
+      "description": "Discover every kind of fish",
+      "category": "collections",
+      "stat": "fishSpecies",
+      "target": -1,
+      "reward": {
+        "coins": 2000,
+        "xp": 400,
+        "unlocks": ["fish-statue"]
+      }
+    }
+  ]
+}

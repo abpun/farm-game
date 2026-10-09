@@ -1,0 +1,404 @@
+{
+  "items": [
+    {
+      "id": "egg",
+      "name": "Egg",
+      "category": "animal",
+      "sellPrice": 15,
+      "icon": {
+        "shape": "egg",
+        "colors": ["#fff3d6", "#e2c79a"]
+      }
+    },
+    {
+      "id": "milk",
+      "name": "Milk",
+      "category": "animal",
+      "sellPrice": 30,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f8f8f0", "#cfd8e3", "#3b6fb6"]
+      }
+    },
+    {
+      "id": "wool",
+      "name": "Wool",
+      "category": "animal",
+      "sellPrice": 45,
+      "icon": {
+        "shape": "wool",
+        "colors": ["#f4efe2", "#cdbfa6"]
+      }
+    },
+    {
+      "id": "goat-milk",
+      "name": "Goat Milk",
+      "category": "animal",
+      "sellPrice": 40,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f8f4e0", "#d8cfa8", "#5e9a34"]
+      }
+    },
+    {
+      "id": "truffle",
+      "name": "Truffle",
+      "category": "animal",
+      "sellPrice": 120,
+      "icon": {
+        "shape": "truffle",
+        "colors": ["#5a3a24", "#3a2414", "#8a6a44"]
+      }
+    },
+    {
+      "id": "chicken-feed",
+      "name": "Chicken Feed",
+      "category": "supply",
+      "sellPrice": 5,
+      "buyPrice": 12,
+      "unlockLevel": 2,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#e8c547", "#b8932c", "#c08a52"]
+      }
+    },
+    {
+      "id": "animal-feed",
+      "name": "Animal Feed",
+      "category": "supply",
+      "sellPrice": 5,
+      "buyPrice": 15,
+      "unlockLevel": 4,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#a5c84a", "#6f9a2c", "#c08a52"]
+      }
+    },
+    {
+      "id": "pig-feed",
+      "name": "Pig Slop",
+      "category": "supply",
+      "sellPrice": 8,
+      "buyPrice": 25,
+      "unlockLevel": 11,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#c89a5a", "#8a6a3a", "#c08a52"]
+      }
+    },
+    {
+      "id": "worm-bait",
+      "name": "Worm Bait",
+      "category": "supply",
+      "sellPrice": 0,
+      "buyPrice": 5,
+      "unlockLevel": 1,
+      "icon": {
+        "shape": "worm",
+        "colors": ["#e07b7b", "#b84a4a"]
+      }
+    },
+    {
+      "id": "glow-bait",
+      "name": "Glow Bait",
+      "category": "supply",
+      "sellPrice": 0,
+      "buyPrice": 30,
+      "unlockLevel": 6,
+      "icon": {
+        "shape": "bait",
+        "colors": ["#a6f0ff", "#3fb8d8", "#fff3c0"]
+      }
+    },
+    {
+      "id": "flour",
+      "name": "Flour",
+      "category": "goods",
+      "sellPrice": 36,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#f4efe2", "#cdbfa6", "#c08a52"]
+      }
+    },
+    {
+      "id": "cornmeal",
+      "name": "Cornmeal",
+      "category": "goods",
+      "sellPrice": 22,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#f2d04a", "#c8a23a", "#c08a52"]
+      }
+    },
+    {
+      "id": "sugar",
+      "name": "Sugar",
+      "category": "goods",
+      "sellPrice": 20,
+      "icon": {
+        "shape": "sack",
+        "colors": ["#ffffff", "#d8dce8", "#7fa8de"]
+      }
+    },
+    {
+      "id": "cream",
+      "name": "Cream",
+      "category": "goods",
+      "sellPrice": 40,
+      "icon": {
+        "shape": "jug",
+        "colors": ["#fff8e8", "#e2d6b8", "#7fa8de"]
+      }
+    },
+    {
+      "id": "butter",
+      "name": "Butter",
+      "category": "goods",
+      "sellPrice": 80,
+      "icon": {
+        "shape": "butter",
+        "colors": ["#f6d860", "#d8b030"]
+      }
+    },
+    {
+      "id": "cheese",
+      "name": "Cheese",
+      "category": "goods",
+      "sellPrice": 84,
+      "icon": {
+        "shape": "cheese",
+        "colors": ["#f2c84a", "#d09a2a"]
+      }
+    },
+    {
+      "id": "yogurt",
+      "name": "Yogurt",
+      "category": "goods",
+      "sellPrice": 55,
+      "icon": {
+        "shape": "jar",
+        "colors": ["#fff8f0", "#e2d6c8", "#f4b6c8"]
+      }
+    },
+    {
+      "id": "goat-cheese",
+      "name": "Goat Cheese",
+      "category": "goods",
+      "sellPrice": 115,
+      "icon": {
+        "shape": "cheese",
+        "colors": ["#f8f4e8", "#d8cfb8"]
+      }
+    },
+    {
+      "id": "bread",
+      "name": "Bread",
+      "category": "goods",
+      "sellPrice": 115,
+      "icon": {
+        "shape": "bread",
+        "colors": ["#d8923a", "#a8662a"]
+      }
+    },
+    {
+      "id": "corn-bread",
+      "name": "Corn Bread",
+      "category": "goods",
+      "sellPrice": 80,
+      "icon": {
+        "shape": "bread",
+        "colors": ["#f2c84a", "#c8902a"]
+      }
+    },
+    {
+      "id": "cake",
+      "name": "Cake",
+      "category": "goods",
+      "sellPrice": 210,
+      "icon": {
+        "shape": "cake",
+        "colors": ["#fdd3e3", "#f4b6c8", "#e53935"]
+      }
+    },
+    {
+      "id": "pumpkin-pie",
+      "name": "Pumpkin Pie",
+      "category": "goods",
+      "sellPrice": 220,
+      "icon": {
+        "shape": "pie",
+        "colors": ["#e8822a", "#c08a52"]
+      }
+    },
+    {
+      "id": "apple-pie",
+      "name": "Apple Pie",
+      "category": "goods",
+      "sellPrice": 215,
+      "icon": {
+        "shape": "pie",
+        "colors": ["#e8c08a", "#c08a52"]
+      }
+    },
+    {
+      "id": "carrot-juice",
+      "name": "Carrot Juice",
+      "category": "goods",
+      "sellPrice": 50,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f08a24", "#c06a14", "#5fae3a"]
+      }
+    },
+    {
+      "id": "apple-juice",
+      "name": "Apple Juice",
+      "category": "goods",
+      "sellPrice": 58,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f2d04a", "#c8a23a", "#d8342a"]
+      }
+    },
+    {
+      "id": "orange-juice",
+      "name": "Orange Juice",
+      "category": "goods",
+      "sellPrice": 66,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f6a83a", "#c87a14", "#f08a24"]
+      }
+    },
+    {
+      "id": "grape-juice",
+      "name": "Grape Juice",
+      "category": "goods",
+      "sellPrice": 58,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#7a3f9a", "#552a6e", "#5a9a3a"]
+      }
+    },
+    {
+      "id": "mango-juice",
+      "name": "Mango Juice",
+      "category": "goods",
+      "sellPrice": 66,
+      "icon": {
+        "shape": "bottle",
+        "colors": ["#f2a83a", "#c87a14", "#2f7a3a"]
+      }
+    },
+    {
+      "id": "strawberry-jam",
+      "name": "Strawberry Jam",
+      "category": "goods",
+      "sellPrice": 92,
+      "icon": {
+        "shape": "jar",
+        "colors": ["#e8344a", "#a81a2a", "#f4efe2"]
+      }
+    },
+    {
+      "id": "blueberry-jam",
+      "name": "Blueberry Jam",
+      "category": "goods",
+      "sellPrice": 70,
+      "icon": {
+        "shape": "jar",
+        "colors": ["#4a5fc8", "#2a3a8a", "#f4efe2"]
+      }
+    },
+    {
+      "id": "grape-jelly",
+      "name": "Grape Jelly",
+      "category": "goods",
+      "sellPrice": 85,
+      "icon": {
+        "shape": "jar",
+        "colors": ["#7a3f9a", "#552a6e", "#f4efe2"]
+      }
+    },
+    {
+      "id": "pear-preserves",
+      "name": "Pear Preserves",
+      "category": "goods",
+      "sellPrice": 100,
+      "icon": {
+        "shape": "jar",
+        "colors": ["#c8d84a", "#98a82a", "#f4efe2"]
+      }
+    },
+    {
+      "id": "vegetable-soup",
+      "name": "Vegetable Soup",
+      "category": "goods",
+      "sellPrice": 85,
+      "icon": {
+        "shape": "bowl",
+        "colors": ["#e8822a", "#5fae3a"]
+      }
+    },
+    {
+      "id": "corn-chowder",
+      "name": "Corn Chowder",
+      "category": "goods",
+      "sellPrice": 78,
+      "icon": {
+        "shape": "bowl",
+        "colors": ["#f2e08a", "#f2d04a"]
+      }
+    },
+    {
+      "id": "pumpkin-soup",
+      "name": "Pumpkin Soup",
+      "category": "goods",
+      "sellPrice": 190,
+      "icon": {
+        "shape": "bowl",
+        "colors": ["#f0a040", "#fff3d6"]
+      }
+    },
+    {
+      "id": "grilled-fish",
+      "name": "Grilled Fish",
+      "category": "goods",
+      "sellPrice": 55,
+      "icon": {
+        "shape": "plate",
+        "colors": ["#c8823a", "#e3b07a"]
+      }
+    },
+    {
+      "id": "fish-stew",
+      "name": "Fish Stew",
+      "category": "goods",
+      "sellPrice": 175,
+      "icon": {
+        "shape": "bowl",
+        "colors": ["#f4b080", "#e8822a"]
+      }
+    },
+    {
+      "id": "omelette",
+      "name": "Omelette",
+      "category": "goods",
+      "sellPrice": 150,
+      "icon": {
+        "shape": "plate",
+        "colors": ["#f6d860", "#5fae3a"]
+      }
+    },
+    {
+      "id": "truffle-pasta",
+      "name": "Truffle Pasta",
+      "category": "goods",
+      "sellPrice": 320,
+      "icon": {
+        "shape": "plate",
+        "colors": ["#f2e0a0", "#5a3a24"]
+      }
+    }
+  ]
+}
