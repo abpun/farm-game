@@ -63,6 +63,7 @@ export class PagedList<T> extends Phaser.GameObjects.Container {
       .setOrigin(0.5, 0);
     this.add([this.rows, this.nav, this.empty]);
     scene.add.existing(this);
+    this.draw();
   }
 
   get perPage(): number {

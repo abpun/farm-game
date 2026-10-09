@@ -35,12 +35,13 @@ export class Drawer extends Panel {
 
   open(): void {
     if (this.isOpen) return;
-    this.emit(DRAWER_EVENTS.opened);
     playCue(this.scene, 'open');
     const offset = this.slideOffset();
     this.setVisible(true)
       .setAlpha(0)
       .setX(this.restX + offset);
+    // Listeners refresh only while open, so announce after becoming visible.
+    this.emit(DRAWER_EVENTS.opened);
     this.scene.tweens.add({
       targets: this,
       x: this.restX,

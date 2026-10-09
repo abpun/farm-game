@@ -158,7 +158,10 @@
       "target": 1,
       "reward": {
         "coins": 500,
-        "xp": 100
+        "xp": 100,
+        "items": {
+          "glow-bait": 5
+        }
       }
     },
     {
@@ -182,7 +185,10 @@
       "target": 5,
       "reward": {
         "coins": 400,
-        "xp": 100
+        "xp": 100,
+        "items": {
+          "animal-feed": 10
+        }
       }
     },
     {
@@ -194,7 +200,10 @@
       "target": 200,
       "reward": {
         "coins": 800,
-        "xp": 200
+        "xp": 200,
+        "items": {
+          "truffle": 2
+        }
       }
     },
     {
@@ -218,7 +227,10 @@
       "target": 100,
       "reward": {
         "coins": 1000,
-        "xp": 250
+        "xp": 250,
+        "items": {
+          "cake": 2
+        }
       }
     },
     {

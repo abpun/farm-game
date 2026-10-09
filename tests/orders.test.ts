@@ -25,6 +25,8 @@ describe('delivery orders', () => {
     buildAnywhere(session, 'coop');
     buildAnywhere(session, 'grain-mill');
     buildAnywhere(session, 'bakery');
+    // Wheat may be dormant in the starting season; stored wheat still counts.
+    session.inventory.add('wheat', 1);
     const items = session.orders.obtainableItems();
     expect(items.has('egg')).toBe(true);
     expect(items.has('flour')).toBe(true);

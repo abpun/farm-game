@@ -148,10 +148,12 @@ export class OrderService {
 
   /** Items the player can realistically produce right now, for order generation. */
   obtainableItems(): Set<string> {
-    const { content, progression, world } = this.ctx;
+    const { content, progression, world, plots, inventory } = this.ctx;
     const items = new Set<string>();
+    // A crop that can't grow this season only counts if some is already in the barn.
     for (const crop of content.crops.all()) {
-      if (progression.isUnlocked(crop.unlockLevel)) items.add(crop.id);
+      if (!progression.isUnlocked(crop.unlockLevel)) continue;
+      if (plots.seasonRate(crop.id) > 0 || inventory.count(crop.id) > 0) items.add(crop.id);
     }
     for (const spot of content.spots.all()) {
       if (this.fishing.spotBlocker(spot.id)) continue;
