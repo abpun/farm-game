@@ -18,6 +18,7 @@ export class AudioDirector {
   private features = new Set<string>();
   private sinceFeatures = FEATURE_REFRESH_SEC;
   private fishing = false;
+  private place: string | null = null;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -42,6 +43,13 @@ export class AudioDirector {
     this.chooseMusic();
   }
 
+  /** A place with its own music (the mine), or null for the open valley. */
+  setPlace(place: string | null): void {
+    if (this.place === place) return;
+    this.place = place;
+    this.chooseMusic();
+  }
+
   update(deltaMs: number): void {
     const audio = getAudio(this.scene);
     if (!audio) return;
@@ -59,7 +67,7 @@ export class AudioDirector {
   private chooseMusic(): void {
     const seasonId = this.session.seasons.current().id;
     getAudio(this.scene)?.setMusic(
-      pickTrack(musicJson as MusicData, { seasonId, fishing: this.fishing }),
+      pickTrack(musicJson as MusicData, { seasonId, fishing: this.fishing, place: this.place }),
     );
   }
 

@@ -37,7 +37,7 @@ export class FishingPanel {
   private readonly fishPage: Phaser.GameObjects.Container;
   private readonly journalPage: Phaser.GameObjects.Container;
   private readonly tabs: Map<string, Button>;
-  private readonly spotChips: Map<string, Button>;
+  private readonly spotButton: Button;
   private readonly baitChips: Map<string, Button>;
   private readonly spotText: Phaser.GameObjects.Text;
   private readonly rodText: Phaser.GameObjects.Text;
@@ -57,6 +57,7 @@ export class FishingPanel {
     private readonly toasts: ToastManager,
     x: number,
     y: number,
+    openChart: (spotId: string) => void,
   ) {
     this.drawer = new Drawer(scene, x, y, DRAWER.width, DRAWER.height, 'Fishing', 'right');
     const page = this.drawer.content;
@@ -78,16 +79,19 @@ export class FishingPanel {
     this.journalPage = scene.add.container(0, top);
     page.add([this.fishPage, this.journalPage]);
 
-    const spots = session.content.spots.all();
-    this.spotChips = chipRow(
-      scene,
-      this.fishPage,
-      0,
+    // Eight spots don't fit as chips; the sea chart is the one place to pick where to fish.
+    this.spotButton = new Button(scene, 0, 0, {
       width,
-      CHIP_HEIGHT,
-      spots.map((spot) => ({ id: spot.id, label: spot.name })),
-      (id) => this.selectSpot(id),
-    );
+      height: CHIP_HEIGHT,
+      label: '',
+      icon: iconKey('compass'),
+      iconSize: UI_PX * 8,
+      fontSize: FONT_SIZE.small,
+      align: 'center',
+      sound: null,
+      onClick: () => openChart(this.spotId),
+    });
+    this.fishPage.add(this.spotButton);
     let cursor = CHIP_HEIGHT + UI_PX * 2;
     this.spotText = scene.add.text(0, cursor, '', uiText(FONT_SIZE.small, UI_TEXT.muted));
     cursor += LINE;
@@ -239,10 +243,8 @@ export class FishingPanel {
     const { fishing, inventory, economy, content } = this.session;
     const cast = fishing.cast();
     const spotId = cast?.spotId ?? this.spotId;
-    this.spotChips.forEach((chip, id) =>
-      chip.setSelected(id === spotId).setEnabled(!cast || id === spotId),
-    );
     const spot = content.spots.get(spotId);
+    this.spotButton.setLabel(`${spot.name} · change spot`).setEnabled(!cast);
     const blocker = fishing.spotBlocker(spotId);
     this.spotText.setText(blocker ? `${spot.name}: ${blocker}` : spot.description);
     this.spotText.setColor(blocker ? UI_TEXT.danger : UI_TEXT.muted);

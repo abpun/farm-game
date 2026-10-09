@@ -5,6 +5,7 @@ import { CAMERA, GAME_HEIGHT, GAME_WIDTH, PIXEL_SCALE } from '../layout';
 // Zoom steps keep each art pixel an integer number of screen pixels.
 const ZOOM_LEVELS = [1, 2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
 const DEFAULT_ZOOM_INDEX = 2;
+const PAN_MS = 700;
 
 interface Bounds {
   x: number;
@@ -51,6 +52,18 @@ export class CameraManager {
       point.x + (GAME_WIDTH / 2 - CAMERA.focusOnScreen.x) / zoom,
       point.y + (GAME_HEIGHT / 2 - CAMERA.focusOnScreen.y) / zoom,
     );
+  }
+
+  /** Glides (or jumps) so the point sits where the farm focus normally sits. */
+  panTo(point: Point, animate: boolean): void {
+    const zoom = this.camera.zoom;
+    const x = point.x + (GAME_WIDTH / 2 - CAMERA.focusOnScreen.x) / zoom;
+    const y = point.y + (GAME_HEIGHT / 2 - CAMERA.focusOnScreen.y) / zoom;
+    if (!animate) {
+      this.camera.centerOn(x, y);
+      return;
+    }
+    this.camera.pan(x, y, PAN_MS, 'Sine.easeInOut');
   }
 
   private beginDrag(pointer: Phaser.Input.Pointer): void {

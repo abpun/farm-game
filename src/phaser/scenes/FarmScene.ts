@@ -67,6 +67,10 @@ export class FarmScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ESC', () => tools.clear());
     this.input.mouse?.disableContextMenu();
     tools.bus.on('ToolChanged', ({ tool }) => this.cursor.show(this.hoveredCell, tool));
+    getUiBus(this).on('FocusMap', ({ featureId }) => {
+      const point = featureId === 'farm' ? farmFocus(this.grid) : this.landmarks.pointOf(featureId);
+      if (point) this.cameraControl.panTo(point, !reducedMotion(this));
+    });
     session.bus.on('MoneyChanged', () => this.cursor.show(this.hoveredCell, tools.tool));
     session.bus.on('CropHarvested', ({ plotId, cropId, amount, xp }) => {
       const view = this.world.plotView(plotId);
@@ -77,8 +81,8 @@ export class FarmScene extends Phaser.Scene {
     });
   }
 
+  // The game clock ticks in the UI scene, which keeps running while this one sleeps (mine).
   override update(_time: number, deltaMs: number): void {
-    getSession(this).update(deltaMs / MS_PER_SEC);
     this.world.update();
     this.fishingSpots.update();
     this.landmarks.update();
@@ -109,6 +113,7 @@ export class FarmScene extends Phaser.Scene {
     const session = getSession(this);
     const tool = getTools(this).tool;
     const cell = this.cellAt(pointer);
+    if (tool.kind === 'none' && this.tapLandmark(pointer)) return;
     const say: Say = (message, color) => {
       const { x, y } = this.grid.tileCenter(cell.col, cell.row);
       floatText(this, x, y, message, color);
@@ -146,6 +151,16 @@ export class FarmScene extends Phaser.Scene {
     }
     if (!session.plots.isPlot(target.id)) return;
     this.tapPlot(target.id, tool.kind === 'plant' ? tool.cropId : null, say);
+  }
+
+  private tapLandmark(pointer: Phaser.Input.Pointer): boolean {
+    const tap = this.landmarks.tapAt(pointer.worldX, pointer.worldY);
+    if (!tap) return false;
+    const uiBus = getUiBus(this);
+    if (tap.kind === 'mine') uiBus.emit('OpenMine', {});
+    else if (tap.kind === 'harbor') uiBus.emit('OpenHarbor', {});
+    else uiBus.emit('Discover', { id: tap.id });
+    return true;
   }
 
   private remove(objectId: number, say: Say): void {

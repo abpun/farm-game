@@ -17,6 +17,7 @@ import { PagedList } from '../widgets/PagedList';
 import type { ToastManager } from '../widgets/ToastManager';
 import { openLandDialog } from './LandDialog';
 import { openTradeDialog } from './TradeDialog';
+import { describeQuantities } from '@core/services/rewards';
 
 const ROW_GAP = UI_PX * 2;
 const CHIP_HEIGHT = UI_PX * 16;
@@ -37,7 +38,7 @@ const CATEGORY_ICONS: Record<string, IconName> = {
 const CATEGORY_HINTS: Record<string, string> = {
   orchard: 'Build orchard plots, then plant trees',
   animals: 'Build housing, then buy animals',
-  supplies: 'Rods, feed and bait',
+  supplies: 'Gear, feed and bait',
   production: 'Workshops that turn crops into goods',
   buildings: 'Pick a piece, then tap tiles',
   plants: 'Trees and shrubs for your farm',
@@ -52,6 +53,8 @@ type MarketEntry =
   | { kind: 'animal'; animal: AnimalDef }
   | { kind: 'supply'; itemId: string }
   | { kind: 'rod' }
+  | { kind: 'pickaxe' }
+  | { kind: 'boat' }
   | { kind: 'land' };
 
 // Market drawer: seeds, saplings, buildings, animals and supplies. Picking something to
@@ -119,6 +122,8 @@ export class MarketPanel {
       'AchievementClaimed',
       'InventoryChanged',
       'RodUpgraded',
+      'PickaxeUpgraded',
+      'BoatUpgraded',
       'FishCaught',
     ] as const) {
       session.bus.on(event, refresh);
@@ -177,6 +182,8 @@ export class MarketPanel {
       case 'supplies':
         return [
           { kind: 'rod' },
+          { kind: 'pickaxe' },
+          { kind: 'boat' },
           ...content.items
             .buyable()
             .map((item): MarketEntry => ({ kind: 'supply', itemId: item.id })),
@@ -200,6 +207,10 @@ export class MarketPanel {
         return this.supplyRow(entry.itemId, width, height);
       case 'rod':
         return this.rodRow(width, height);
+      case 'pickaxe':
+        return this.pickaxeRow(width, height);
+      case 'boat':
+        return this.boatRow(width, height);
       case 'land':
         return this.landRow(width, height);
     }
@@ -309,6 +320,74 @@ export class MarketPanel {
         const result = fishing.upgradeRod();
         this.toasts.show(result.ok ? `Upgraded to the ${next?.name}!` : result.reason, {
           icon: iconKey('fishing'),
+          color: result.ok ? UI_TEXT.gold : UI_TEXT.danger,
+        });
+      },
+    });
+  }
+
+  private pickaxeRow(width: number, height: number) {
+    const { mining, progression } = this.session;
+    const next = mining.nextPickaxe();
+    const locked = next ? !progression.isUnlocked(next.unlockLevel) : false;
+    return this.gearRow(width, height, {
+      icon: 'pickaxe',
+      current: mining.pickaxe().name,
+      next,
+      blocker: locked && next ? `Unlocks at level ${next.unlockLevel}` : null,
+      perk: 'mines deeper veins and hits harder',
+      buy: () => mining.upgradePickaxe(),
+    });
+  }
+
+  private boatRow(width: number, height: number) {
+    const { fishing, progression } = this.session;
+    const next = fishing.nextBoat();
+    const locked = next ? !progression.isUnlocked(next.unlockLevel) : false;
+    return this.gearRow(width, height, {
+      icon: 'boat',
+      current: fishing.boat()?.name ?? 'no boat',
+      next,
+      blocker: locked && next ? `Unlocks at level ${next.unlockLevel}` : null,
+      perk: 'sails to farther fishing spots',
+      buy: () => fishing.upgradeBoat(),
+    });
+  }
+
+  // Pickaxes and boats cost coins plus materials; the core checks both on purchase.
+  private gearRow(
+    width: number,
+    height: number,
+    gear: {
+      icon: IconName;
+      current: string;
+      next: { name: string; price: number; materials: Record<string, number> } | undefined;
+      blocker: string | null;
+      perk: string;
+      buy: () => { ok: true } | { ok: false; reason: string };
+    },
+  ) {
+    const { next } = gear;
+    const materials =
+      next && Object.keys(next.materials).length
+        ? ` + ${describeQuantities(this.session, next.materials)}`
+        : '';
+    const affordable =
+      next !== undefined &&
+      this.session.economy.canAfford(next.price) &&
+      this.session.inventory.has(next.materials);
+    return slotRow(this.scene, width, height, {
+      icon: iconKey(gear.icon),
+      title: next ? `${next.name}  $${formatMoney(next.price)}${materials}` : gear.current,
+      subtitle: !next
+        ? `${gear.current} · the best there is`
+        : (gear.blocker ?? `You have: ${gear.current} · ${gear.perk}`),
+      subtitleColor: gear.blocker ? UI_TEXT.danger : undefined,
+      enabled: Boolean(next) && !gear.blocker && affordable,
+      onClick: () => {
+        const result = gear.buy();
+        this.toasts.show(result.ok ? `Got the ${next?.name}!` : result.reason, {
+          icon: iconKey(gear.icon),
           color: result.ok ? UI_TEXT.gold : UI_TEXT.danger,
         });
       },
