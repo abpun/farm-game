@@ -33,4 +33,10 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Node build scripts (e.g. npm run tiles) print what they wrote.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: { console: 'readonly', Buffer: 'readonly' } },
+    rules: { 'no-console': 'off' },
+  },
 );
