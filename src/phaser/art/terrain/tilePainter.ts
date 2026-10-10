@@ -17,8 +17,8 @@ const WET_SAND = 0.24;
 const FRESH_EDGE = { shallow: 0.12, light: 0.3, deep: 0.72 };
 const PATH_EDGE = 0.16;
 const SPECKLE = { light: 0.9, dark: 0.08, highlight: 0.985, shadow: 0.02 };
-const WAVE = { every: 0.965, length: 4 };
-const BANK = { sea: 3, cliff: 5, fresh: 2 };
+const WAVE = { every: 0.965, length: 12 };
+const BANK = { sea: 9, cliff: 15, fresh: 6 };
 const noise = createNoise(41);
 
 export interface TileContext {

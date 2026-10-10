@@ -10,11 +10,11 @@ import { paintLayerTile } from './tilePainter';
  * Layout of a terrain tileset PNG (one per season, `public/assets/tiles/terrain-<season>.png`):
  * row = terrain (TERRAINS order), column = corner mask (N=1, E=2, S=4, W=8; 15 = full),
  * columns 16+ are extra plain variants. Rows after the terrains hold the second animation
- * frame for the terrains in ANIMATED. Every cell is a 40×20 diamond with a 2 px gutter.
+ * frame for the terrains in ANIMATED. Every cell is a 120×60 diamond with a 6 px gutter.
  */
 export const SHEET = {
-  tile: { w: 40, h: 20 },
-  gutter: 2,
+  tile: { w: 120, h: 60 },
+  gutter: 6,
   masks: 16,
   variants: 4,
   animated: [CODE.sea, CODE.fresh] as readonly TerrainCode[],
@@ -106,11 +106,12 @@ function decorate(
     P: PALETTE.sandShade,
     n: look.snow ? undefined : NEEDLES,
   };
+  const S = 3;
   const place = (rows: readonly string[], accent?: number) => {
     const x = Math.floor(random() * size.w);
     const y = Math.floor(random() * size.h);
-    const right = x + Math.max(...rows.map((row) => row.length)) - 1;
-    const bottom = y + rows.length - 1;
+    const right = x + Math.max(...rows.map((row) => row.length)) * S - 1;
+    const bottom = y + rows.length * S - 1;
     const corners = [
       [x, y],
       [right, y],
@@ -121,7 +122,11 @@ function decorate(
     rows.forEach((row, dy) =>
       [...row].forEach((char, dx) => {
         const color = char === 'A' ? accent : colors[char];
-        if (color !== undefined) buffer.set(ox + x + dx, oy + y + dy, color);
+        if (color !== undefined) {
+          for (let sy = 0; sy < S; sy++)
+            for (let sx = 0; sx < S; sx++)
+              buffer.set(ox + x + dx * S + sx, oy + y + dy * S + sy, color);
+        }
       }),
     );
   };

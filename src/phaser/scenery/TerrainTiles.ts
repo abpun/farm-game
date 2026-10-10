@@ -63,8 +63,7 @@ export class TerrainTiles {
     TERRAINS.forEach((name, code) => {
       const layer = map.createBlankLayer(name, tileset, top.x - grid.tileW / 2, top.y);
       if (!layer) throw new Error(`Terrain layer ${name} failed to create`);
-      const tileScale = grid.tileW / sheetTileW;
-      layer.setScale(tileScale).setDepth(TERRAIN_DEPTH.land + code * LAYER_DEPTH_STEP);
+      layer.setDepth(TERRAIN_DEPTH.land + code * LAYER_DEPTH_STEP);
       layer.putTilesAt(data[code] ?? [], 0, 0, false);
       layer.cullCallback = (_layer: unknown, camera: Phaser.Cameras.Scene2D.Camera) =>
         this.cull(layer, camera);

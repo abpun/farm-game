@@ -32,25 +32,36 @@ export function ramp(color: number): Ramp {
 /** A drawing surface in art pixels with the shaping tools the crop painters share. */
 export class Pixels {
   readonly buffer: PixelBuffer;
+  private readonly s: number;
 
   constructor(
     readonly width: number,
     readonly height: number,
+    scale = 1,
   ) {
-    this.buffer = new PixelBuffer(width, height);
+    this.s = scale;
+    this.buffer = new PixelBuffer(width * scale, height * scale);
   }
 
   set(x: number, y: number, color: number): void {
-    this.buffer.set(Math.round(x), Math.round(y), color);
+    const s = this.s;
+    const px = Math.round(x) * s;
+    const py = Math.round(y) * s;
+    for (let dy = 0; dy < s; dy++)
+      for (let dx = 0; dx < s; dx++) this.buffer.set(px + dx, py + dy, color);
   }
 
   isSet(x: number, y: number): boolean {
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height) return false;
-    return (this.buffer.data[(y * this.width + x) * 4 + 3] ?? 0) > 0;
+    const px = Math.round(x) * this.s;
+    const py = Math.round(y) * this.s;
+    if (px < 0 || py < 0 || px >= this.buffer.width || py >= this.buffer.height) return false;
+    return (this.buffer.data[(py * this.buffer.width + px) * 4 + 3] ?? 0) > 0;
   }
 
   colorAt(x: number, y: number): number {
-    const i = (y * this.width + x) * 4;
+    const px = Math.round(x) * this.s;
+    const py = Math.round(y) * this.s;
+    const i = (py * this.buffer.width + px) * 4;
     const d = this.buffer.data;
     return ((d[i] ?? 0) << 16) | ((d[i + 1] ?? 0) << 8) | (d[i + 2] ?? 0);
   }
@@ -133,22 +144,33 @@ export class Pixels {
 
   /** A soft ground shadow (drawn after the outline so it is not outlined). */
   shadow(cx: number, cy: number, rx: number, alpha = SHADOW_ALPHA): void {
-    for (let x = Math.ceil(cx - rx); x <= Math.floor(cx + rx); x++) {
+    const s = this.s;
+    for (let lx = Math.ceil(cx - rx); lx <= Math.floor(cx + rx); lx++) {
       for (const dy of [0, 1]) {
-        if (this.isSet(Math.round(x), Math.round(cy + dy))) continue;
-        if (dy === 1 && Math.abs(x - cx) > rx - 1) continue;
-        this.buffer.set(Math.round(x), Math.round(cy + dy), SHADOW_COLOR, alpha);
+        if (this.isSet(lx, cy + dy)) continue;
+        if (dy === 1 && Math.abs(lx - cx) > rx - 1) continue;
+        const px = Math.round(lx) * s;
+        const py = Math.round(cy + dy) * s;
+        for (let sy = 0; sy < s; sy++)
+          for (let sx = 0; sx < s; sx++) this.buffer.set(px + sx, py + sy, SHADOW_COLOR, alpha);
       }
     }
   }
 
   /** Copies another surface onto this one at an offset, optionally mirrored. */
   stamp(source: Pixels, ox: number, oy: number, mirror = false): void {
-    for (let y = 0; y < source.height; y++) {
-      for (let x = 0; x < source.width; x++) {
-        const sx = mirror ? source.width - 1 - x : x;
-        if (!source.isSet(sx, y)) continue;
-        this.set(ox + x, oy + y, source.colorAt(sx, y));
+    const pw = source.buffer.width;
+    const ph = source.buffer.height;
+    for (let py = 0; py < ph; py++) {
+      for (let px = 0; px < pw; px++) {
+        const sx = mirror ? pw - 1 - px : px;
+        const i = (py * pw + sx) * 4;
+        if ((source.buffer.data[i + 3] ?? 0) === 0) continue;
+        const color =
+          ((source.buffer.data[i] ?? 0) << 16) |
+          ((source.buffer.data[i + 1] ?? 0) << 8) |
+          (source.buffer.data[i + 2] ?? 0);
+        this.buffer.set(ox * this.s + px, oy * this.s + py, color);
       }
     }
   }

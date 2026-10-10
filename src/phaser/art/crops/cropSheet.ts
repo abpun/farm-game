@@ -8,8 +8,8 @@ import { PRODUCE_PAINTERS } from './producePainters';
 /**
  * Layout of a crop sheet PNG (`public/assets/crops/<cropId>.png`): one row of equal frames.
  * Frame 0 is the harvested produce (its icon; trimmed to its pixels), frames 1..stages are
- * the growth stages of one plant, rooted at the frame's ground point. Bed crops use 20×32
- * frames (four plants are placed per bed); orchard crops use 40×60 frames (one tree).
+ * the growth stages of one plant, rooted at the frame's ground point. Bed crops use 60×96
+ * frames (four plants are placed per bed); orchard crops use 120×180 frames (one tree).
  */
 export interface CropSheetSpec {
   frame: { w: number; h: number };
@@ -18,13 +18,16 @@ export interface CropSheetSpec {
   tree: boolean;
 }
 
+const CROP_SCALE = 3;
 const SHADOW_RADIUS = { bed: [2, 4], tree: [3, 10] } as const;
 
 export function cropSheetSpec(crop: CropDef): CropSheetSpec {
   const tree = crop.visual.kind in TREE_PAINTERS;
+  const lf = tree ? TREE_FRAME : PLANT_FRAME;
+  const lg = tree ? TREE_GROUND : GROUND;
   return {
-    frame: tree ? TREE_FRAME : PLANT_FRAME,
-    ground: tree ? TREE_GROUND : GROUND,
+    frame: { w: lf.w * CROP_SCALE, h: lf.h * CROP_SCALE },
+    ground: { x: lg.x * CROP_SCALE, y: lg.y * CROP_SCALE },
     frames: crop.stages + 1,
     tree,
   };
@@ -36,13 +39,15 @@ const hexColor = (value: string) => Number.parseInt(value.replace('#', ''), 16);
 export function paintCropSheet(crop: CropDef): PixelBuffer {
   const spec = cropSheetSpec(crop);
   const { w, h } = spec.frame;
+  const logicalFrame = spec.tree ? TREE_FRAME : PLANT_FRAME;
+  const logicalGround = spec.tree ? TREE_GROUND : GROUND;
   const look: PlantLook = {
     leaf: ramp(hexColor(crop.visual.leaf)),
     produce: ramp(hexColor(crop.visual.produce)),
   };
   const shape: FruitShape = crop.visual.shape ?? 'round';
   const sheet = new PixelBuffer(w * spec.frames, h);
-  const icon = new Pixels(w, h);
+  const icon = new Pixels(logicalFrame.w, logicalFrame.h, CROP_SCALE);
   const produce = PRODUCE_PAINTERS[crop.visual.kind];
   if (!produce) throw new Error(`${crop.id}: no produce painter for "${crop.visual.kind}"`);
   produce(icon, look, shape);
@@ -50,7 +55,7 @@ export function paintCropSheet(crop: CropDef): PixelBuffer {
   blit(sheet, icon.buffer, 0);
   for (let stage = 0; stage < crop.stages; stage++) {
     const t = stage / (crop.stages - 1);
-    const plant = new Pixels(w, h);
+    const plant = new Pixels(logicalFrame.w, logicalFrame.h, CROP_SCALE);
     if (spec.tree) {
       const painter = TREE_PAINTERS[crop.visual.kind];
       painter?.(plant, t, look, shape);
@@ -63,7 +68,7 @@ export function paintCropSheet(crop: CropDef): PixelBuffer {
     }
     plant.outline();
     const [min, max] = spec.tree ? SHADOW_RADIUS.tree : SHADOW_RADIUS.bed;
-    plant.shadow(spec.ground.x, spec.ground.y + 1, min + (max - min) * t);
+    plant.shadow(logicalGround.x, logicalGround.y + 1, min + (max - min) * t);
     blit(sheet, plant.buffer, (stage + 1) * w);
   }
   return sheet;
