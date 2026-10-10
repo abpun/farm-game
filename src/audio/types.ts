@@ -76,6 +76,8 @@ export interface MusicData {
   defaultTrack: string;
   fishingTrack: string;
   seasonTracks: Record<string, string>;
+  /** Tracks for places with their own mood, e.g. the mine. */
+  placeTracks: Record<string, string>;
   fadeSec: number;
   tracks: TrackDef[];
 }

@@ -1,6 +1,6 @@
 // Data-driven definitions for everything beyond crops and placeable catalog items.
 
-export type ItemCategory = 'crop' | 'fruit' | 'fish' | 'animal' | 'goods' | 'supply';
+export type ItemCategory = 'crop' | 'fruit' | 'fish' | 'animal' | 'goods' | 'supply' | 'mineral';
 
 /** Pixel icon recipe: a named shape from the renderer plus up to four hex colours. */
 export interface ItemIcon {
@@ -52,6 +52,8 @@ export interface BuildingLevel {
   capacity?: number;
   /** Production speed multiplier. */
   speed: number;
+  /** Items consumed by the upgrade on top of the coins. */
+  materials?: Quantities;
 }
 
 export type BuildingRole = 'production' | 'housing';
@@ -148,11 +150,30 @@ export interface BaitDef {
   fishingLevel: number;
 }
 
+export type SpotAccess = 'shore' | 'boat';
+
 export interface SpotDef {
   id: string;
   name: string;
   unlockLevel: number;
   description: string;
+  /** Shore spots are walked to on the map; boat spots are sailed to from the harbor. */
+  access: SpotAccess;
+  /** Boat tier needed (0 for shore spots). */
+  boatTier: number;
+  /** Divides the bite reaction window: above 1 is harder. */
+  difficulty: number;
+  /** Look of the place, for the renderer. */
+  biome: string;
+}
+
+export interface BoatDef {
+  id: string;
+  name: string;
+  tier: number;
+  price: number;
+  unlockLevel: number;
+  materials: Quantities;
 }
 
 export interface FishingData {
@@ -161,6 +182,7 @@ export interface FishingData {
   levels: number[];
   rarities: RarityDef[];
   spots: SpotDef[];
+  boats: BoatDef[];
   rods: RodDef[];
   baits: BaitDef[];
   fish: FishDef[];
@@ -239,4 +261,69 @@ export interface LevelDef {
 
 export interface ProgressionData {
   levels: LevelDef[];
+}
+
+export interface PickaxeDef {
+  id: string;
+  name: string;
+  tier: number;
+  price: number;
+  unlockLevel: number;
+  materials: Quantities;
+}
+
+export interface DropDef {
+  item: string;
+  min: number;
+  max: number;
+  weight: number;
+}
+
+export interface DepositDef {
+  id: string;
+  name: string;
+  /** Pickaxe tier needed to mine it. */
+  tier: number;
+  /** Strikes needed with a tier-1 pickaxe; better picks hit harder. */
+  hp: number;
+  respawnSec: number;
+  xp: number;
+  /** One drop is rolled by weight when the deposit breaks. */
+  drops: DropDef[];
+}
+
+export interface MineNodeDef {
+  id: string;
+  deposit: string;
+  /** Position on the mine floor, in mine grid tiles. */
+  col: number;
+  row: number;
+}
+
+export interface MiningData {
+  unlockLevel: number;
+  pickaxes: PickaxeDef[];
+  deposits: DepositDef[];
+  nodes: MineNodeDef[];
+}
+
+export type DiscoveryKind = 'chest' | 'viewpoint' | 'obstacle';
+
+export interface DiscoveryRequirement {
+  level?: number;
+  pickaxeTier?: number;
+  /** Another discovery that must be made first (e.g. a cleared trail). */
+  discovered?: string;
+}
+
+export interface DiscoveryDef {
+  id: string;
+  kind: DiscoveryKind;
+  name: string;
+  requires: DiscoveryRequirement;
+  reward: Reward;
+}
+
+export interface ExplorationData {
+  discoveries: DiscoveryDef[];
 }

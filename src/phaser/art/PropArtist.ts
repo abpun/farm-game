@@ -11,7 +11,12 @@ export const PROP_TEXTURES = {
   treeRed: 'tree-red',
   bush: 'bush-autumn',
   rock: 'rock',
+  pine: 'tree-pine',
+  pineTall: 'tree-pine-tall',
 } as const;
+
+// Evergreens stay green; winter only adds snow on the boughs.
+const PINE = { dark: 0x24503a, base: 0x356b45, light: 0x4f8a52, trunk: 0x5a3a22 } as const;
 
 const BASE_TILE_WIDTH = 128;
 const TREES: Array<[key: string, family: keyof typeof FOLIAGE, seed: number]> = [
@@ -41,6 +46,12 @@ function bakeProps(
       drawTree(g, w * 0.4, w * 1.1, s, look.foliage[family], look.snow, seed),
     );
   }
+  bake(scene, keyFor(PROP_TEXTURES.pine), w * 0.6, w * 1.1, (g) =>
+    drawPine(g, w * 0.3, w * 1.06, s, 1, look.snow),
+  );
+  bake(scene, keyFor(PROP_TEXTURES.pineTall), w * 0.7, w * 1.45, (g) =>
+    drawPine(g, w * 0.35, w * 1.4, s, 1.35, look.snow),
+  );
   bake(scene, keyFor(PROP_TEXTURES.bush), w * 0.5, w * 0.4, (g) =>
     drawBush(g, w * 0.25, w * 0.37, s, look.foliage.red, look.snow),
   );
@@ -76,6 +87,46 @@ function drawTree(
     const radius = random() * 34 * s;
     g.fillStyle(random() > 0.5 ? colors.light : colors.dark);
     g.fillRect(x + Math.cos(angle) * radius, y - 82 * s + Math.sin(angle) * radius, 2, 1);
+  }
+}
+
+// Stacked bough tiers, each a flat triangle with a lit left flank and a shaded right one.
+function drawPine(
+  g: Phaser.GameObjects.Graphics,
+  x: number,
+  y: number,
+  s: number,
+  height: number,
+  snow: boolean,
+): void {
+  g.fillStyle(SHADOW.color, SHADOW.alpha).fillEllipse(x, y - 4 * s, 52 * s, 16 * s);
+  g.fillStyle(PINE.trunk).fillRect(x - 4 * s, y - 26 * s, 8 * s, 24 * s);
+  const tiers = 4;
+  for (let i = 0; i < tiers; i++) {
+    const base = y - (22 + i * 24) * s * height;
+    const half = (34 - i * 6) * s;
+    const top = base - 34 * s * height;
+    g.fillStyle(PINE.dark).fillTriangle(x - half, base, x + half, base, x, top);
+    g.fillStyle(PINE.base).fillTriangle(x - half, base, x, base, x, top);
+    g.fillStyle(PINE.light).fillTriangle(
+      x - half * 0.7,
+      base - 3 * s,
+      x - half * 0.2,
+      base - 3 * s,
+      x - 2 * s,
+      top + 8 * s,
+    );
+    if (snow) {
+      g.fillStyle(SNOW.light).fillTriangle(
+        x - half * 0.45,
+        top + 16 * s,
+        x + half * 0.3,
+        top + 16 * s,
+        x,
+        top,
+      );
+      g.fillStyle(SNOW.shade).fillRect(x - half, base - 2 * s, half * 2, 2 * s);
+    }
   }
 }
 

@@ -30,6 +30,7 @@ const TABS: Array<{ id: ItemCategory; name: string; icon: IconName }> = [
   { id: 'animal', name: 'Animal products', icon: 'chicken' },
   { id: 'goods', name: 'Goods', icon: 'crafting' },
   { id: 'supply', name: 'Supplies', icon: 'supplies' },
+  { id: 'mineral', name: 'Ores & gems', icon: 'pickaxe' },
 ];
 
 // Barn drawer: the one shared inventory, with storage capacity and selling.

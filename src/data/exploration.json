@@ -1,0 +1,60 @@
+{
+  "discoveries": [
+    {
+      "id": "falls-chest",
+      "kind": "chest",
+      "name": "Chest behind the falls",
+      "requires": {},
+      "reward": { "coins": 150, "xp": 20, "items": { "glow-bait": 3 } }
+    },
+    {
+      "id": "grove-chest",
+      "kind": "chest",
+      "name": "Old forager's chest",
+      "requires": {},
+      "reward": { "coins": 120, "xp": 15, "items": { "animal-feed": 6 } }
+    },
+    {
+      "id": "driftwood-cache",
+      "kind": "chest",
+      "name": "Washed-up crate",
+      "requires": {},
+      "reward": { "coins": 80, "xp": 10, "items": { "worm-bait": 8 } }
+    },
+    {
+      "id": "mine-cache",
+      "kind": "chest",
+      "name": "Miner's lost satchel",
+      "requires": { "level": 3 },
+      "reward": { "coins": 200, "xp": 25, "items": { "coal": 6, "amethyst": 1 } }
+    },
+    {
+      "id": "rockfall",
+      "kind": "obstacle",
+      "name": "Rockfall on the high trail",
+      "requires": { "pickaxeTier": 2 },
+      "reward": { "xp": 30, "items": { "stone": 12 } }
+    },
+    {
+      "id": "eagle-lookout",
+      "kind": "viewpoint",
+      "name": "Eagle Lookout",
+      "requires": { "discovered": "rockfall" },
+      "reward": { "coins": 300, "xp": 60, "items": { "emerald": 1 } }
+    },
+    {
+      "id": "falls-overlook",
+      "kind": "viewpoint",
+      "name": "Falls Overlook",
+      "requires": {},
+      "reward": { "xp": 20 }
+    },
+    {
+      "id": "lighthouse",
+      "kind": "viewpoint",
+      "name": "Harbor Lighthouse",
+      "requires": { "level": 2 },
+      "reward": { "coins": 60, "xp": 20 }
+    }
+  ]
+}

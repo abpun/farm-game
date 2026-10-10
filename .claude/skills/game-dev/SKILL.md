@@ -30,6 +30,19 @@ Read `CLAUDE.md` first; this skill adds the working recipes.
 - Default mix: music under effects. Peak-normalised buffers make `gain` in data the
   real loudness, so compare new cues against existing ones of the same kind.
 
+## Editing the world map
+
+- Author in `src/data/world.json` using map coordinates: `u` grows east (screen right),
+  `v` grows south (screen down); screen x = u·tileW/2, y = v·tileH/2.
+- Keep the build grid (the diamond from v=0 to v=40) clear: paths start at its edge,
+  forests stay outside it, and the coast stays south of v≈46.
+- Place deliberately: features at specific landmarks, forests as polygons with clearings,
+  dressing (reeds, shells, hedges, signposts) generated from the geography, never sprinkled.
+- Run `npx vitest run tests/world.test.ts`; it checks the grid stays dry, the river is
+  continuous, bridges sit on path-over-river and features sit on land or by the water.
+- Inspect with the dev handles: `__game.scene.getScene('Farm').cameras.main` (`setZoom`,
+  `centerOn(u*60, v*30)`), `scenery.shape.surface(col, row)`.
+
 ## Settings
 
 Add a field to `core/settings/settings.ts` (default + `normalizeSettings` repair), a

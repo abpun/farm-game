@@ -429,6 +429,24 @@
       "available": true,
       "listed": true,
       "rewardOnly": true
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "category": "production",
+      "kind": "building",
+      "price": 900,
+      "footprint": {
+        "cols": 2,
+        "rows": 2
+      },
+      "art": "building-forge",
+      "description": "Smelts ore into copper and iron bars",
+      "removable": true,
+      "available": true,
+      "listed": true,
+      "unlockLevel": 5,
+      "maxCount": 1
     }
   ]
 }

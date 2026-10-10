@@ -50,3 +50,12 @@ export function createNoise(seed: number): Noise {
 const BAYER_4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 export const bayer = (x: number, y: number): number =>
   ((BAYER_4[(y & 3) * 4 + (x & 3)] ?? 0) + 0.5) / 16;
+
+// Deterministic pseudo-random so decorations stay put between reloads.
+export function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 1664525 + 1013904223) % 4294967296;
+    return state / 4294967296;
+  };
+}

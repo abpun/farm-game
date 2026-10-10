@@ -3,24 +3,15 @@ import type { Point } from '../iso/IsoGrid';
 import { CAMERA, GAME_HEIGHT, GAME_WIDTH, PIXEL_SCALE } from '../layout';
 
 // Zoom steps keep each art pixel an integer number of screen pixels.
-const ZOOM_LEVELS = [2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
-const DEFAULT_ZOOM_INDEX = 1;
+const ZOOM_LEVELS = [1, 2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
+const DEFAULT_ZOOM_INDEX = 2;
+const PAN_MS = 700;
 
 interface Bounds {
   x: number;
   y: number;
   width: number;
   height: number;
-}
-
-export function paddedBounds(world: Bounds): Bounds {
-  const pad = CAMERA.boundsPadding;
-  return {
-    x: world.x - pad.left,
-    y: world.y - pad.top,
-    width: world.width + pad.left + pad.right,
-    height: world.height + pad.top + pad.bottom,
-  };
 }
 
 interface DragStart {
@@ -38,8 +29,7 @@ export class CameraManager {
 
   constructor(scene: Phaser.Scene, world: Bounds, focus: Point) {
     this.camera = scene.cameras.main;
-    const area = paddedBounds(world);
-    this.camera.setBounds(area.x, area.y, area.width, area.height);
+    this.camera.setBounds(world.x, world.y, world.width, world.height);
     this.applyZoom();
     this.focus(focus);
 
@@ -62,6 +52,18 @@ export class CameraManager {
       point.x + (GAME_WIDTH / 2 - CAMERA.focusOnScreen.x) / zoom,
       point.y + (GAME_HEIGHT / 2 - CAMERA.focusOnScreen.y) / zoom,
     );
+  }
+
+  /** Glides (or jumps) so the point sits where the farm focus normally sits. */
+  panTo(point: Point, animate: boolean): void {
+    const zoom = this.camera.zoom;
+    const x = point.x + (GAME_WIDTH / 2 - CAMERA.focusOnScreen.x) / zoom;
+    const y = point.y + (GAME_HEIGHT / 2 - CAMERA.focusOnScreen.y) / zoom;
+    if (!animate) {
+      this.camera.centerOn(x, y);
+      return;
+    }
+    this.camera.pan(x, y, PAN_MS, 'Sine.easeInOut');
   }
 
   private beginDrag(pointer: Phaser.Input.Pointer): void {

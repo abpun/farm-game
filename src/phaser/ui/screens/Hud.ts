@@ -27,6 +27,7 @@ export class Hud {
     private readonly scene: Phaser.Scene,
     private readonly session: GameSession,
     onMenu: () => void,
+    onPlaces: () => void,
   ) {
     const { margin, height, coinWidth, dayWidth } = HUD;
     this.coins = new CoinCounter(
@@ -89,6 +90,15 @@ export class Hud {
       onClick: onMenu,
     });
     this.addMuteButton(GAME_WIDTH - margin * 2 - height * 2);
+    new Button(scene, GAME_WIDTH - margin * 3 - height * 3, margin, {
+      width: height,
+      height,
+      icon: iconKey('compass'),
+      iconSize: UI_PX * 11,
+      align: 'center',
+      sound: null,
+      onClick: onPlaces,
+    });
 
     session.bus.on('MoneyChanged', ({ balance }) => this.coins.setValue(balance));
     session.bus.on('GameSaved', () => this.blinkSaved());

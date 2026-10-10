@@ -1,7 +1,8 @@
 import * as Phaser from 'phaser';
 import { AudioDirector } from '../audio/AudioDirector';
 import { UiFx } from '../fx/UiFx';
-import { DOCK, DRAWER, TOAST_ANCHOR } from '../layout';
+import { DOCK, DRAWER, ISO, TOAST_ANCHOR } from '../layout';
+import type { MapPoint } from '../map/WorldMap';
 import { getSession, getTools, getUiBus } from '../session';
 import { formatDuration } from '../ui/format';
 import { BarnPanel } from '../ui/screens/BarnPanel';
@@ -12,8 +13,10 @@ import { FishingPanel } from '../ui/screens/FishingPanel';
 import { Hud } from '../ui/screens/Hud';
 import { openLandDialog } from '../ui/screens/LandDialog';
 import { MarketPanel } from '../ui/screens/MarketPanel';
+import { exploreDiscovery, openPlacesMenu } from '../ui/screens/Exploration';
 import { Notifications } from '../ui/screens/Notifications';
 import { OrdersPanel } from '../ui/screens/OrdersPanel';
+import { openSeaChart } from '../ui/screens/SeaChart';
 import { openSettingsMenu } from '../ui/screens/SettingsMenu';
 import { ToolBanner } from '../ui/screens/ToolBanner';
 import { TrophiesPanel } from '../ui/screens/TrophiesPanel';
@@ -24,6 +27,7 @@ import { DRAWER_EVENTS, type Drawer } from '../ui/widgets/Drawer';
 import { ToastManager } from '../ui/widgets/ToastManager';
 
 const WELCOME_BACK_MIN_SEC = 60;
+const MS_PER_SEC = 1000;
 const BADGE_REFRESH_MS = 500;
 
 export class UIScene extends Phaser.Scene {
@@ -41,7 +45,12 @@ export class UIScene extends Phaser.Scene {
     const uiBus = getUiBus(this);
     const toasts = new ToastManager(this, TOAST_ANCHOR);
     this.audio = new AudioDirector(this, session);
-    this.hud = new Hud(this, session, () => openSettingsMenu(this, session, toasts));
+    this.hud = new Hud(
+      this,
+      session,
+      () => openSettingsMenu(this, session, toasts),
+      () => openPlacesMenu(this),
+    );
     const openBuilding = (objectId: number) => {
       this.closeDrawers();
       openBuildingDialog(this, session, toasts, objectId);
@@ -49,7 +58,17 @@ export class UIScene extends Phaser.Scene {
 
     const right = drawerX('right', DRAWER.width);
     const left = drawerX('left', DRAWER.width);
-    const fishing = new FishingPanel(this, session, toasts, right, DOCK.top);
+    const goFishing = (spotId: string) => {
+      fishing.focusSpot(spotId);
+      const spot = session.content.spots.get(spotId);
+      uiBus.emit('FocusMap', { featureId: spot.access === 'boat' ? 'harbor' : `spot-${spotId}` });
+      if (!fishing.drawer.isOpen) this.toggleDrawer('fishing');
+    };
+    const chart = (focus?: string) => {
+      this.closeDrawers();
+      openSeaChart(this, session, toasts, goFishing, focus);
+    };
+    const fishing = new FishingPanel(this, session, toasts, right, DOCK.top, chart);
     const orders = new OrdersPanel(this, session, toasts, right, DOCK.top);
     const trophies = new TrophiesPanel(this, session, toasts, left, DOCK.top);
     this.drawers.set(
@@ -92,6 +111,20 @@ export class UIScene extends Phaser.Scene {
       if (!fishing.drawer.isOpen) this.toggleDrawer('fishing');
     });
     uiBus.on('OpenLand', () => openLandDialog(this, session, toasts));
+    uiBus.on('OpenHarbor', () => chart());
+    uiBus.on('Discover', ({ id }) => exploreDiscovery(session, toasts, id));
+    uiBus.on('OpenMine', () => {
+      if (!session.mining.isUnlocked()) {
+        toasts.show(`The mine opens at level ${session.mining.unlockLevel()}`, {
+          icon: iconKey('pickaxe'),
+          color: UI_TEXT.danger,
+        });
+        return;
+      }
+      this.enterMine();
+    });
+    uiBus.on('LeaveMine', () => this.leaveMine());
+    uiBus.on('FocusMap', () => this.leaveMine());
 
     new ToolBanner(this, session, tools);
     new Notifications(this, session, toasts);
@@ -117,8 +150,34 @@ export class UIScene extends Phaser.Scene {
   }
 
   override update(_time: number, deltaMs: number): void {
+    getSession(this).update(deltaMs / MS_PER_SEC);
     this.hud.update();
-    this.audio.update(deltaMs);
+    this.audio.update(deltaMs, this.listener());
+  }
+
+  /** Map point at the centre of the farm view, where ambience is heard from. */
+  private listener(): MapPoint | null {
+    if (this.scene.isActive('Mine')) return null;
+    const view = this.scene.get('Farm').cameras.main.worldView;
+    return { u: view.centerX / (ISO.tileWidth / 2), v: view.centerY / (ISO.tileWidth / 4) };
+  }
+
+  // The farm sleeps (no rendering or input) while the mine scene runs between it and the HUD.
+  private enterMine(): void {
+    if (this.scene.isActive('Mine')) return;
+    Dialog.closeAll();
+    this.closeDrawers();
+    this.scene.sleep('Farm');
+    this.scene.launch('Mine');
+    this.scene.bringToTop('UI');
+    this.audio.setPlace('mine');
+  }
+
+  private leaveMine(): void {
+    if (!this.scene.isActive('Mine')) return;
+    this.scene.stop('Mine');
+    this.scene.wake('Farm');
+    this.audio.setPlace(null);
   }
 
   /** Buildings with something to collect, for the Crafting badge. */

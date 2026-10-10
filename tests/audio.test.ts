@@ -169,7 +169,7 @@ describe('music and ambience', () => {
 
   it('spaces ambient sounds out and skips sources that are not present', () => {
     const scheduler = new AmbientScheduler(ambience, () => 0.5);
-    const winter = { seasonId: 'winter', features: new Set<string>() };
+    const winter = { seasonId: 'winter', features: new Set(['outdoors', 'near:coast']) };
     const cues: string[] = [];
     for (let t = 0; t < 600; t++) {
       const cue = scheduler.update(1, winter);
@@ -179,11 +179,21 @@ describe('music and ambience', () => {
     expect(cues.length).toBeLessThan(120);
     expect(cues.some((cue) => cue.startsWith('bird') || cue.startsWith('animal'))).toBe(false);
 
-    const farm = { seasonId: 'spring', features: new Set(['animal:cow']) };
+    const farm = { seasonId: 'spring', features: new Set(['outdoors', 'animal:cow']) };
     const heard = new Set<string>();
     for (let t = 0; t < 600; t++) heard.add(scheduler.update(1, farm) ?? '');
     expect(heard.has('animal-cow')).toBe(true);
     expect(heard.has('animal-pig')).toBe(false);
+  });
+
+  it('hears only the mine underground', () => {
+    const scheduler = new AmbientScheduler(ambience, () => 0.5);
+    const mine = { seasonId: 'summer', features: new Set(['place:mine']) };
+    const heard = new Set<string>();
+    for (let t = 0; t < 300; t++) heard.add(scheduler.update(1, mine) ?? '');
+    heard.delete('');
+    expect([...heard].every((cue) => cue.startsWith('drip'))).toBe(true);
+    expect(heard.size).toBeGreaterThan(0);
   });
 
   it('never bursts after a long stall', () => {

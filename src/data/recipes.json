@@ -457,6 +457,34 @@
       "durationSec": 30,
       "unlockLevel": 9,
       "xp": 2
+    },
+    {
+      "id": "copper-bar",
+      "building": "forge",
+      "inputs": {
+        "copper-ore": 3,
+        "coal": 1
+      },
+      "outputs": {
+        "copper-bar": 1
+      },
+      "durationSec": 45,
+      "unlockLevel": 5,
+      "xp": 4
+    },
+    {
+      "id": "iron-bar",
+      "building": "forge",
+      "inputs": {
+        "iron-ore": 3,
+        "coal": 1
+      },
+      "outputs": {
+        "iron-bar": 1
+      },
+      "durationSec": 60,
+      "unlockLevel": 8,
+      "xp": 6
     }
   ]
 }

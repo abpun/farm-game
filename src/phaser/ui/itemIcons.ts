@@ -63,6 +63,10 @@ const SHAPES: Record<string, readonly string[]> = {
   truffle: ['..ooo..', '.oaaao.', 'oacaaao', 'oaaacao', 'oabaaao', '.obbbo.', '..ooo..'],
   worm: ['....oo.', '...oaao', '..oabo.', '.oaao..', 'oaaao..', 'obbo...', '.oo....'],
   bait: ['...o...', '..oco..', '.oaaao.', 'oawaaao', 'oaaaaao', '.oabao.', '..ooo..'],
+  lump: ['..ooo...', '.oaaaoo.', 'oawaaaao', 'oaaacaao', 'oacaaabo', '.obbabbo', '..ooooo.'],
+  ore: ['..oooo..', '.oaacaoo', 'oaccaaao', 'oaaaacco', 'oacaaaco', 'obbbcbbo', '.oooooo.'],
+  bar: ['...oooooo', '..ocwccco', '.oaaaaaoo', 'oaaaaaabo', 'obbbbbbo.', '.ooooooo.'],
+  gem: ['..ooooo..', '.ocwccco.', 'oaawaaabo', '.oaaaabo.', '..oaabo..', '...obo...', '....o....'],
 };
 
 const OUTLINE = UI_COLORS.outline;

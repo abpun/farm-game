@@ -3,9 +3,11 @@ import animalsJson from '@data/animals.json';
 import buildingsJson from '@data/buildings.json';
 import catalogJson from '@data/catalog.json';
 import cropsJson from '@data/crops.json';
+import explorationJson from '@data/exploration.json';
 import farmJson from '@data/farm.json';
 import fishingJson from '@data/fishing.json';
 import itemsJson from '@data/items.json';
+import miningJson from '@data/mining.json';
 import ordersJson from '@data/orders.json';
 import progressionJson from '@data/progression.json';
 import recipesJson from '@data/recipes.json';
@@ -14,8 +16,10 @@ import type {
   AchievementsData,
   AnimalsData,
   BuildingsData,
+  ExplorationData,
   FishingData,
   ItemsData,
+  MiningData,
   OrdersData,
   ProgressionData,
   RecipesData,
@@ -41,4 +45,6 @@ export const loadConfig = (): GameConfig => ({
   orders: ordersJson as OrdersData,
   achievements: achievementsJson as AchievementsData,
   progression: progressionJson as ProgressionData,
+  mining: miningJson as MiningData,
+  exploration: explorationJson as unknown as ExplorationData,
 });

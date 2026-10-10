@@ -59,7 +59,11 @@
           "cost": 1200,
           "unlockLevel": 8,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -85,7 +89,11 @@
           "cost": 1500,
           "unlockLevel": 9,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -111,7 +119,11 @@
           "cost": 2000,
           "unlockLevel": 11,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -137,7 +149,11 @@
           "cost": 2200,
           "unlockLevel": 11,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -163,7 +179,11 @@
           "cost": 2600,
           "unlockLevel": 12,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -189,7 +209,11 @@
           "cost": 3000,
           "unlockLevel": 13,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -215,7 +239,11 @@
           "cost": 3500,
           "unlockLevel": 14,
           "slots": 4,
-          "speed": 1.3
+          "speed": 1.3,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -242,7 +270,11 @@
           "cost": 900,
           "unlockLevel": 7,
           "capacity": 8,
-          "speed": 1.2
+          "speed": 1.2,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -269,7 +301,11 @@
           "cost": 1800,
           "unlockLevel": 9,
           "capacity": 8,
-          "speed": 1.2
+          "speed": 1.2,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -296,7 +332,11 @@
           "cost": 2000,
           "unlockLevel": 11,
           "capacity": 8,
-          "speed": 1.2
+          "speed": 1.2,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -323,7 +363,11 @@
           "cost": 2200,
           "unlockLevel": 12,
           "capacity": 8,
-          "speed": 1.2
+          "speed": 1.2,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
         }
       ]
     },
@@ -350,7 +394,44 @@
           "cost": 2600,
           "unlockLevel": 14,
           "capacity": 8,
-          "speed": 1.2
+          "speed": 1.2,
+          "materials": {
+            "stone": 15,
+            "copper-bar": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "forge",
+      "role": "production",
+      "buildSec": 40,
+      "xp": 20,
+      "levels": [
+        {
+          "cost": 0,
+          "unlockLevel": 5,
+          "slots": 2,
+          "speed": 1
+        },
+        {
+          "cost": 1200,
+          "unlockLevel": 8,
+          "slots": 3,
+          "speed": 1.15,
+          "materials": {
+            "stone": 20
+          }
+        },
+        {
+          "cost": 3000,
+          "unlockLevel": 11,
+          "slots": 4,
+          "speed": 1.3,
+          "materials": {
+            "stone": 40,
+            "iron-bar": 4
+          }
         }
       ]
     }

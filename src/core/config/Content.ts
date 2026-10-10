@@ -1,8 +1,14 @@
 import type {
   AchievementDef,
   AnimalDef,
+  BoatDef,
   BuildingDef,
+  DepositDef,
+  DiscoveryDef,
   FishDef,
+  MineNodeDef,
+  PickaxeDef,
+  Quantities,
   RecipeDef,
   RodDef,
   SpotDef,
@@ -25,6 +31,11 @@ export class Content {
   readonly rods: Registry<RodDef>;
   readonly spots: Registry<SpotDef>;
   readonly achievements: Registry<AchievementDef>;
+  readonly boats: Registry<BoatDef>;
+  readonly pickaxes: Registry<PickaxeDef>;
+  readonly deposits: Registry<DepositDef>;
+  readonly mineNodes: Registry<MineNodeDef>;
+  readonly discoveries: Registry<DiscoveryDef>;
 
   constructor(readonly config: GameConfig) {
     this.crops = new CropRegistry(config.crops);
@@ -45,6 +56,39 @@ export class Content {
       this.checkAchievement(a),
     );
     if (this.rods.all().length === 0) throw new Error('At least one fishing rod is required');
+    this.boats = new Registry('boat', config.fishing.boats, (b) =>
+      this.assertQuantities(b.materials, `boat ${b.id}`),
+    );
+    this.pickaxes = new Registry('pickaxe', config.mining.pickaxes, (p) =>
+      this.assertQuantities(p.materials, `pickaxe ${p.id}`),
+    );
+    if (this.pickaxes.all().length === 0) throw new Error('At least one pickaxe is required');
+    this.deposits = new Registry('deposit', config.mining.deposits, (d) => {
+      if (d.drops.length === 0) throw new Error(`deposit ${d.id}: needs drops`);
+      d.drops.forEach((drop) => this.assertItem(drop.item, `deposit ${d.id}`));
+    });
+    this.mineNodes = new Registry('mine node', config.mining.nodes, (n) =>
+      this.deposits.get(n.deposit),
+    );
+    this.discoveries = new Registry('discovery', config.exploration.discoveries, (d) =>
+      this.checkReward(d.reward, `discovery ${d.id}`),
+    );
+    for (const building of this.buildings.all()) {
+      building.levels.forEach((level) =>
+        this.assertQuantities(level.materials ?? {}, `building ${building.id}`),
+      );
+    }
+  }
+
+  private assertQuantities(quantities: Quantities, where: string): void {
+    Object.keys(quantities).forEach((id) => this.assertItem(id, where));
+  }
+
+  private checkReward(reward: AchievementDef['reward'], where: string): void {
+    for (const id of Object.keys(reward.items ?? {})) this.assertItem(id, where);
+    for (const id of reward.unlocks ?? []) {
+      if (!this.catalog.has(id)) throw new Error(`${where}: unknown unlock ${id}`);
+    }
   }
 
   recipesFor(buildingId: string): RecipeDef[] {
@@ -86,10 +130,6 @@ export class Content {
   }
 
   private checkAchievement(achievement: AchievementDef): void {
-    const where = `achievement ${achievement.id}`;
-    for (const id of Object.keys(achievement.reward.items ?? {})) this.assertItem(id, where);
-    for (const id of achievement.reward.unlocks ?? []) {
-      if (!this.catalog.has(id)) throw new Error(`${where}: unknown unlock ${id}`);
-    }
+    this.checkReward(achievement.reward, `achievement ${achievement.id}`);
   }
 }

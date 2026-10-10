@@ -1,4 +1,4 @@
-import type { Quantities } from '../entities/content';
+import type { DiscoveryKind, Quantities } from '../entities/content';
 import type { Order, PlacedObject } from '../entities/types';
 
 export type MoneySource = 'sale' | 'order' | 'reward' | 'refund' | 'spend';
@@ -32,7 +32,8 @@ export interface GameEvents {
   AnimalProductsCollected: { objectId: number; itemId: string; amount: number };
   FishingCast: { spotId: string };
   FishBite: { spotId: string };
-  FishCaught: { fishId: string; firstCatch: boolean };
+  FishCaught: { fishId: string; firstCatch: boolean; spotId: string };
+  BoatUpgraded: { boatId: string };
   FishEscaped: { reason: 'early' | 'late' };
   RodUpgraded: { rodId: string };
   OrdersChanged: Record<string, never>;
@@ -40,4 +41,8 @@ export interface GameEvents {
   OrderExpired: { order: Order };
   AchievementCompleted: { id: string };
   AchievementClaimed: { id: string };
+  DepositStruck: { nodeId: string; hp: number };
+  DepositMined: { nodeId: string; depositId: string; items: Quantities };
+  PickaxeUpgraded: { pickaxeId: string };
+  DiscoveryFound: { id: string; kind: DiscoveryKind };
 }

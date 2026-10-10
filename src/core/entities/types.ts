@@ -1,5 +1,7 @@
 import type {
   AchievementsData,
+  ExplorationData,
+  MiningData,
   AnimalsData,
   BuildingsData,
   FishingData,
@@ -147,6 +149,8 @@ export interface GameConfig {
   orders: OrdersData;
   achievements: AchievementsData;
   progression: ProgressionData;
+  mining: MiningData;
+  exploration: ExplorationData;
 }
 
 export interface PlacedObject {
@@ -208,6 +212,8 @@ export interface FishRecord {
 
 export interface FishingState {
   rodId: string;
+  /** Boat owned for sailing to far spots; null until one is bought. */
+  boatId: string | null;
   xp: number;
   journal: Record<string, FishRecord>;
   cast: FishingCast | null;
@@ -255,6 +261,24 @@ export interface AchievementState {
   claimed: boolean;
 }
 
+export interface MineNodeState {
+  /** Strikes left before it breaks. */
+  hp: number;
+  /** Game time a broken deposit grows back; 0 while standing. */
+  respawnAt: number;
+}
+
+export interface MiningState {
+  pickaxeId: string;
+  /** Only deposits that were struck are stored; the rest are fresh. */
+  nodes: Record<string, MineNodeState>;
+}
+
+export interface ExplorationState {
+  /** Discovery ids already found, claimed or cleared. */
+  found: string[];
+}
+
 export interface FarmState {
   money: number;
   time: number;
@@ -276,4 +300,6 @@ export interface FarmState {
   achievements: Record<string, AchievementState>;
   /** Catalog items unlocked by rewards. */
   unlocks: string[];
+  mining: MiningState;
+  exploration: ExplorationState;
 }

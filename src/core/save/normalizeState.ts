@@ -3,11 +3,14 @@ import type {
   AchievementState,
   AnimalState,
   BuildingState,
+  ExplorationState,
   FarmState,
   FishingCast,
   FishingState,
   FishRecord,
   GameConfig,
+  MineNodeState,
+  MiningState,
   Order,
   OrdersState,
   PlotCrop,
@@ -34,11 +37,19 @@ export function createEmptyState(config: GameConfig): FarmState {
     orders: emptyOrders(),
     achievements: {},
     unlocks: [],
+    mining: emptyMining(config),
+    exploration: { found: [] },
   };
 }
 
+const emptyMining = (config: GameConfig): MiningState => ({
+  pickaxeId: config.mining.pickaxes[0]?.id ?? '',
+  nodes: {},
+});
+
 const emptyFishing = (config: GameConfig): FishingState => ({
   rodId: config.fishing.rods[0]?.id ?? '',
+  boatId: null,
   xp: 0,
   journal: {},
   cast: null,
@@ -107,6 +118,8 @@ export function normalizeState(stored: StoredState, content: Content): FarmState
     unlocks: Array.isArray(stored.unlocks)
       ? stored.unlocks.filter((id) => typeof id === 'string' && content.catalog.has(id))
       : [],
+    mining: toMining(stored.mining, content),
+    exploration: toExploration(stored.exploration, content),
   };
 }
 
@@ -174,6 +187,7 @@ function toFishing(raw: unknown, content: Content): FishingState {
   return {
     rodId:
       typeof raw.rodId === 'string' && content.rods.has(raw.rodId) ? raw.rodId : fallback.rodId,
+    boatId: typeof raw.boatId === 'string' && content.boats.has(raw.boatId) ? raw.boatId : null,
     xp: nonNegative(raw.xp, 0),
     journal,
     cast: toCast(raw.cast, content),
@@ -192,6 +206,31 @@ function toCast(raw: unknown, content: Content): FishingCast | null {
     isFiniteNumber(raw.biteAt) &&
     isFiniteNumber(raw.reactionSec);
   return valid ? (raw as unknown as FishingCast) : null;
+}
+
+function toMining(raw: unknown, content: Content): MiningState {
+  const fallback = emptyMining(content.config);
+  if (!isRecord(raw)) return fallback;
+  const nodes: Record<string, MineNodeState> = {};
+  if (isRecord(raw.nodes)) {
+    for (const [id, node] of Object.entries(raw.nodes)) {
+      if (!content.mineNodes.has(id) || !isRecord(node)) continue;
+      nodes[id] = { hp: nonNegative(node.hp, 0), respawnAt: nonNegative(node.respawnAt, 0) };
+    }
+  }
+  const pickaxeId =
+    typeof raw.pickaxeId === 'string' && content.pickaxes.has(raw.pickaxeId)
+      ? raw.pickaxeId
+      : fallback.pickaxeId;
+  return { pickaxeId, nodes };
+}
+
+function toExploration(raw: unknown, content: Content): ExplorationState {
+  if (!isRecord(raw) || !Array.isArray(raw.found)) return { found: [] };
+  const found = raw.found.filter(
+    (id): id is string => typeof id === 'string' && content.discoveries.has(id),
+  );
+  return { found: [...new Set(found)] };
 }
 
 function toOrders(raw: unknown, content: Content): OrdersState {

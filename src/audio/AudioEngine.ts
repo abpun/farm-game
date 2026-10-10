@@ -13,6 +13,7 @@ const RETURN_FADE_SEC = 0.6;
 const RETURN_QUIET_MS = 500;
 const DUCK_ATTACK_SEC = 0.06;
 const DUCK_RELEASE_SEC = 0.5;
+const BED_FADE_SEC = 0.8;
 const UNLOCK_EVENTS = ['pointerdown', 'keydown', 'touchend'] as const;
 
 export interface PlayOptions {
@@ -38,6 +39,8 @@ export class AudioEngine {
   private ctx: AudioContext | null = null;
   private buses: Buses | null = null;
   private bed: AudioBufferSourceNode | null = null;
+  private bedGain: GainNode | null = null;
+  private bedLevel = 1;
   private readonly limiter: CueLimiter;
   private readonly music: MusicPlayer;
   private readonly offSettings: () => void;
@@ -90,6 +93,14 @@ export class AudioEngine {
       console.warn(`Could not play "${cue}"`, error);
       return false;
     }
+  }
+
+  /** Fades the looping sea bed (0 underground, 1 by the shore). */
+  setBedLevel(level: number): void {
+    if (level === this.bedLevel) return;
+    this.bedLevel = level;
+    const { ctx, bedGain } = this;
+    if (ctx && bedGain) bedGain.gain.setTargetAtTime(level, ctx.currentTime, BED_FADE_SEC);
   }
 
   setMusic(trackId: string | null): void {
@@ -181,7 +192,9 @@ export class AudioEngine {
     this.bed = ctx.createBufferSource();
     this.bed.buffer = buffer;
     this.bed.loop = true;
-    this.bed.connect(output);
+    this.bedGain = ctx.createGain();
+    this.bedGain.gain.value = this.bedLevel;
+    this.bed.connect(this.bedGain).connect(output);
     this.bed.start();
   }
 
