@@ -1,6 +1,7 @@
 import { fail, ok, type ActionResult } from './actions';
 import type { ItemCategory } from './entities/content';
 import type { LandExpansion } from './entities/types';
+import type { Spot } from './systems/WorldSystem';
 import type { GameContext } from './services/GameContext';
 import { payCost } from './services/rewards';
 
@@ -34,9 +35,18 @@ export class FarmService {
     if (plots.seasonRate(cropId) <= 0) {
       return fail(`${crop.name} won't grow in ${seasons.current().name}`);
     }
-    if (!economy.spend(crop.seedCost)) return fail('Not enough money');
+    // Sow one from the barn when there is one; otherwise buy the seed.
+    const fromBarn = this.ctx.inventory.count(cropId) > 0;
+    if (fromBarn) this.ctx.inventory.remove(cropId, 1);
+    else if (!economy.spend(crop.seedCost)) return fail('Not enough money');
     plots.plant(plotId, cropId);
+    if (fromBarn) this.ctx.bus.emit('SeedUsed', { plotId, cropId });
     return ok;
+  }
+
+  /** What planting this crop costs right now: one from the barn, or the seed price. */
+  seedSource(cropId: string): 'barn' | 'market' {
+    return this.ctx.inventory.count(cropId) > 0 ? 'barn' : 'market';
   }
 
   water(plotId: number): ActionResult {
@@ -126,18 +136,47 @@ export class FarmService {
     return null;
   }
 
-  build(itemId: string, col: number, row: number): ActionResult {
+  build(itemId: string, spot: Spot): ActionResult {
     const { content, world, economy, plots, buildings, bus } = this.ctx;
     const blocker = this.buildBlocker(itemId);
     if (blocker) return fail(blocker);
     const item = content.catalog.get(itemId);
-    if (!world.canPlace(itemId, col, row)) return fail("Can't build there");
+    if (!world.canPlace(itemId, spot)) return fail("Can't build there");
     if (!economy.spend(item.price)) return fail('Not enough money');
-    const object = world.place(itemId, col, row);
+    const object = world.place(itemId, spot);
     if (!object) return fail("Can't build there");
     if (item.kind === 'plot') plots.create(object.id);
     if (buildings.hasBehaviour(itemId)) buildings.create(object.id, itemId);
     bus.emit('ObjectPlaced', { object });
+    return ok;
+  }
+
+  move(objectId: number, spot: Spot): ActionResult {
+    const { world, bus } = this.ctx;
+    const object = world.get(objectId);
+    if (!object) return fail('Nothing there');
+    const from = world.move(objectId, spot);
+    if (!from) return fail("Can't move it there");
+    bus.emit('ObjectMoved', { object, from });
+    return ok;
+  }
+
+  /** Turns an object a quarter in place: its footprint swaps and its art mirrors. */
+  rotate(objectId: number): ActionResult {
+    const { world, bus } = this.ctx;
+    const object = world.get(objectId);
+    if (!object) return fail('Nothing there');
+    if (world.isEdgeItem(object.itemId)) {
+      const edge = object.edge === 'w' ? 'n' : 'w';
+      const from = world.move(objectId, { col: object.col, row: object.row, edge });
+      if (!from) return fail('No room to turn it');
+      bus.emit('ObjectMoved', { object, from });
+      return ok;
+    }
+    const spot = { col: object.col, row: object.row, rotated: !object.rotated };
+    const from = world.move(objectId, spot);
+    if (!from) return fail('No room to turn it');
+    bus.emit('ObjectMoved', { object, from });
     return ok;
   }
 

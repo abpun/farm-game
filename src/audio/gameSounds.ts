@@ -44,6 +44,9 @@ export function bindGameSounds(session: GameSession, play: PlayCue): () => void 
       say(PLACE_CUES[content.catalog.get(object.itemId).kind] ?? 'place'),
     ),
     bus.on('ObjectRemoved', () => say('remove')),
+    bus.on('ObjectMoved', ({ object }) =>
+      say(PLACE_CUES[content.catalog.get(object.itemId).kind] ?? 'place'),
+    ),
     bus.on('LandExpanded', () => say('unlock')),
     bus.on('StorageUpgraded', () => say('upgrade')),
     bus.on('BuildingCompleted', () => say('building-complete')),

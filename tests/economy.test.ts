@@ -87,8 +87,8 @@ describe('market', () => {
   it('expands land so new tiles become buildable', () => {
     const session = richSession(20);
     const edge = session.state.landSize;
-    expect(session.world.canPlace('fence', edge, 0)).toBe(false);
+    expect(session.world.canPlace('fence', { col: edge, row: 0 })).toBe(false);
     expect(session.farm.expandLand().ok).toBe(true);
-    expect(session.world.canPlace('fence', edge, 0)).toBe(true);
+    expect(session.world.canPlace('fence', { col: edge, row: 0 })).toBe(true);
   });
 });

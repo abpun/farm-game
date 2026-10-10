@@ -4,6 +4,7 @@ import type { GameSession } from '@core/GameSession';
 import { DRAWER } from '../../layout';
 import { formatMoney } from '../format';
 import { iconImage } from '../icons';
+import type { ChipStrip } from '../widgets/ChipStrip';
 import { chipRow, fitText } from '../rows';
 import { iconKey, type IconName } from '../uiTextures';
 import { FONT_SIZE, UI_PX, UI_TEXT, uiText } from '../uiTheme';
@@ -50,7 +51,7 @@ export class TrophiesPanel {
   readonly drawer: Drawer;
   private readonly levelText: Phaser.GameObjects.Text;
   private readonly xpBar: ProgressBar;
-  private readonly chips: Map<string, Button>;
+  private readonly chips: ChipStrip;
   private readonly list: PagedList<AchievementDef>;
   private category: string;
 
@@ -117,6 +118,13 @@ export class TrophiesPanel {
     fitText(this.levelText, this.drawer.innerWidth);
     this.xpBar.setProgress(needed ? earned / needed : 1);
     this.chips.forEach((chip, id) => chip.setSelected(id === this.category));
+    // Groups holding a finished trophy that is not claimed yet wear a "!".
+    for (const id of this.chips.keys()) {
+      const waiting = achievements
+        .all()
+        .some((a) => a.category === id && achievements.status(a) === 'completed');
+      this.chips.setMarked(id, waiting);
+    }
     this.list.setItems(achievements.all().filter((a) => a.category === this.category));
   }
 

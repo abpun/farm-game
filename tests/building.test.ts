@@ -52,7 +52,7 @@ describe('building', () => {
     const before = session.economy.balance();
     const { col, row } = free(session);
 
-    expect(session.farm.build('plot', col, row).ok).toBe(true);
+    expect(session.farm.build('plot', { col, row }).ok).toBe(true);
     expect(session.economy.balance()).toBe(before - session.catalog.get('plot').price);
     const bed = session.world.objectAt(col, row)!;
     expect(session.farm.plant(bed.id, 'carrot').ok).toBe(true);
@@ -62,17 +62,23 @@ describe('building', () => {
     const session = newSession();
     const cottage = session.world.objects().find((o) => o.itemId === 'cottage')!;
     session.economy.earn(1000);
-    expect(session.farm.build('fence', cottage.col, cottage.row).ok).toBe(false);
-    expect(session.farm.build('fence', -1, 0).ok).toBe(false);
-    expect(session.farm.build('kitchen', free(session).col, free(session).row)).toEqual({
+    expect(session.farm.build('plot', { col: cottage.col, row: cottage.row }).ok).toBe(false);
+    const inside = { col: cottage.col + 1, row: cottage.row, edge: 'w' as const };
+    expect(session.farm.build('fence', inside).ok).toBe(false);
+    expect(session.farm.build('fence', { col: -1, row: 0 }).ok).toBe(false);
+    expect(
+      session.farm.build('kitchen', { col: free(session).col, row: free(session).row }),
+    ).toEqual({
       ok: false,
       reason: 'Unlocks at level 9',
     });
     session.economy.spend(session.economy.balance());
-    expect(session.farm.build('fence', free(session).col, free(session).row)).toEqual({
-      ok: false,
-      reason: 'Not enough money',
-    });
+    expect(session.farm.build('fence', { col: free(session).col, row: free(session).row })).toEqual(
+      {
+        ok: false,
+        reason: 'Not enough money',
+      },
+    );
   });
 
   it('never builds on the farm path', () => {
@@ -81,7 +87,7 @@ describe('building', () => {
     const [col, row] = config.farm.paths[0]!.points[1]!;
     const tile = { col: Math.floor(col), row: Math.floor(row) };
     expect(session.world.isBlocked(tile.col, tile.row)).toBe(true);
-    expect(session.farm.build('plot', tile.col, tile.row).ok).toBe(false);
+    expect(session.farm.build('plot', { col: tile.col, row: tile.row }).ok).toBe(false);
     expect(session.world.isBlocked(tile.col + 1, tile.row)).toBe(false);
   });
 

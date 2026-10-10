@@ -1,74 +1,154 @@
 import type * as Phaser from 'phaser';
+import type { EdgeSide } from '@core/entities/types';
 import type { IsoGrid, Point } from '../iso/IsoGrid';
 import { PALETTE } from '../theme';
 import { bake } from './paint';
+import { seasonalKey, SEASON_LOOKS } from './seasonLooks';
+import { createNoise } from './terrain/noise';
 
-/** Neighbour bits: which adjacent tiles also hold a fence. */
-export const FENCE_LINK = { north: 1, east: 2, south: 4, west: 8 } as const;
-export const FENCE_MASKS = 16;
+/** Item art drawn as a run along a tile edge rather than a standing sprite. */
+export const EDGE_ARTS = ['fence', 'fence-white', 'hedge'] as const;
+type EdgeArt = (typeof EDGE_ARTS)[number];
 
-export const fenceTextureKey = (mask: number) => `fence-${mask}`;
+export const isEdgeArt = (art: string): art is EdgeArt =>
+  (EDGE_ARTS as readonly string[]).includes(art);
+export const edgeKey = (art: string, side: EdgeSide) => `edge-${art}-${side}`;
 
 const POST_HEIGHT_RATIO = 0.22;
+const HEDGE_HEIGHT = 9;
 const RAIL_HEIGHTS = [0.4, 0.78] as const;
-const PAD = 1;
+const PAD = 3;
+/** The hedge is three leaf layers deep, stepped across the edge. */
+const HEDGE_LAYERS = [-1, 0, 1];
+const HEDGE_ROUND = 2;
+const LEAF = { light: 0.8, dark: 0.18 } as const;
+const PICKET = { white: 0xf4f2ea, shade: 0xc9c4b6, rail: 0xa8a294, outline: 0x7a7468 } as const;
+const PICKET_GAP = 2;
+const noise = createNoise(23);
 
-export interface FenceShape {
+// Box-hedge greens by season: [dark, base, light, top]; winter keeps them under snow.
+const HEDGE: Record<string, [number, number, number, number]> = {
+  spring: [0x3f7a2c, 0x5e9a34, 0x7cc04a, 0xa8dd6a],
+  summer: [0x2b5f2e, 0x3f8a3e, 0x5ea844, 0x79bf4c],
+  autumn: [0x5e5a24, 0x7a7a30, 0x9a9440, 0xc0b050],
+  winter: [0x3f5f3a, 0x557048, 0x6a8458, 0xf4f8fc],
+};
+
+export interface EdgeShape {
   width: number;
   height: number;
-  /** Art-pixel offset of the tile's top vertex inside the texture. */
-  tileTop: Point;
+  /** Where the edge's starting grid point (the cell's top corner) sits in the texture. */
+  anchor: Record<EdgeSide, Point>;
 }
 
-export function fenceShape(grid: IsoGrid): FenceShape {
-  const { tileW: w, tileH: h } = grid.art;
-  const postHeight = Math.round(w * POST_HEIGHT_RATIO);
-  return { width: w, height: h + postHeight + PAD, tileTop: { x: w / 2, y: postHeight + PAD } };
-}
-
-// One post in the tile centre plus two thin rails toward each linked neighbour, so you can see through.
-export function generateFenceTextures(scene: Phaser.Scene, grid: IsoGrid): void {
-  const { tileW: w, tileH: h } = grid.art;
-  const shape = fenceShape(grid);
-  const postHeight = shape.tileTop.y - PAD;
-  const top = shape.tileTop.y;
-  const center = { x: w / 2, y: top + h / 2 };
-  const edge: Record<keyof typeof FENCE_LINK, Point> = {
-    north: { x: (w * 3) / 4, y: top + h / 4 },
-    west: { x: w / 4, y: top + h / 4 },
-    east: { x: (w * 3) / 4, y: top + (h * 3) / 4 },
-    south: { x: w / 4, y: top + (h * 3) / 4 },
+/** Texture size and anchors shared by every edge run. */
+export function edgeShape(grid: IsoGrid): EdgeShape {
+  const { tileW: w } = grid.art;
+  const lift = Math.max(Math.round(w * POST_HEIGHT_RATIO), HEDGE_HEIGHT + 2) + PAD;
+  return {
+    width: w / 2 + PAD * 2,
+    height: grid.art.tileH / 2 + lift + PAD,
+    anchor: { n: { x: PAD, y: lift }, w: { x: w / 2 + PAD, y: lift } },
   };
+}
 
-  for (let mask = 0; mask < FENCE_MASKS; mask++) {
-    bake(scene, fenceTextureKey(mask), shape.width, shape.height, (g) => {
-      const linked = (side: keyof typeof FENCE_LINK) => (mask & FENCE_LINK[side]) !== 0;
-      for (const side of ['north', 'west'] as const) {
-        if (linked(side)) drawRails(g, center, edge[side], postHeight);
+// The north edge runs down-right from the cell's top corner, the west edge down-left.
+export function generateFenceTextures(scene: Phaser.Scene, grid: IsoGrid): void {
+  const shape = edgeShape(grid);
+  const postHeight = Math.round(grid.art.tileW * POST_HEIGHT_RATIO);
+  const run = grid.art.tileW / 2;
+  for (const side of ['n', 'w'] as const) {
+    const start = shape.anchor[side];
+    const dir = side === 'n' ? 1 : -1;
+    const at = (i: number): Point => ({ x: start.x + dir * i, y: start.y + Math.floor(i / 2) });
+    bake(scene, edgeKey('fence', side), shape.width, shape.height, (g) =>
+      drawWoodFence(g, at, run, postHeight),
+    );
+    bake(scene, edgeKey('fence-white', side), shape.width, shape.height, (g) =>
+      drawPicket(g, at, run, postHeight),
+    );
+    for (const seasonId of Object.keys(SEASON_LOOKS)) {
+      const key = seasonalKey(edgeKey('hedge', side), seasonId);
+      const colors = HEDGE[seasonId] ?? HEDGE.summer;
+      if (colors) {
+        bake(scene, key, shape.width, shape.height, (g) => drawHedge(g, at, run, dir, colors));
       }
-      drawPost(g, center, postHeight);
-      for (const side of ['east', 'south'] as const) {
-        if (linked(side)) drawRails(g, center, edge[side], postHeight);
-      }
-    });
+    }
   }
 }
 
-function drawRails(
-  g: Phaser.GameObjects.Graphics,
-  from: Point,
-  to: Point,
-  postHeight: number,
-): void {
+type Along = (i: number) => Point;
+
+function drawWoodFence(g: Phaser.GameObjects.Graphics, at: Along, run: number, height: number) {
   for (const ratio of RAIL_HEIGHTS) {
-    const lift = Math.round(postHeight * ratio);
-    g.lineStyle(1, PALETTE.woodLight).lineBetween(from.x, from.y - lift, to.x, to.y - lift);
-    g.lineStyle(1, PALETTE.woodDark).lineBetween(from.x, from.y - lift + 1, to.x, to.y - lift + 1);
+    const lift = Math.round(height * ratio);
+    for (let i = 0; i <= run; i++) {
+      const p = at(i);
+      g.fillStyle(PALETTE.woodLight).fillRect(p.x, p.y - lift, 1, 1);
+      g.fillStyle(PALETTE.woodDark).fillRect(p.x, p.y - lift + 1, 1, 1);
+    }
+  }
+  for (const i of [0, run]) drawPost(g, at(i), height);
+}
+
+function drawPost(g: Phaser.GameObjects.Graphics, base: Point, height: number): void {
+  g.fillStyle(PALETTE.woodDarker).fillRect(base.x - 1, base.y - height, 3, height + 1);
+  g.fillStyle(PALETTE.wood).fillRect(base.x - 1, base.y - height, 2, height);
+  g.fillStyle(PALETTE.woodLight).fillRect(base.x - 1, base.y - height, 2, 1);
+}
+
+// Pointed white pickets on a grey rail, every other board in shade.
+function drawPicket(g: Phaser.GameObjects.Graphics, at: Along, run: number, height: number) {
+  const rail = Math.round(height * RAIL_HEIGHTS[0]);
+  for (let i = 0; i <= run; i++) {
+    const p = at(i);
+    g.fillStyle(PICKET.rail).fillRect(p.x, p.y - rail, 1, 1);
+  }
+  for (let i = 1; i < run; i += PICKET_GAP) {
+    const p = at(i);
+    const board = (i / PICKET_GAP) % 2 < 1 ? PICKET.white : PICKET.shade;
+    g.fillStyle(PICKET.outline).fillRect(p.x, p.y - height + 1, 1, height);
+    g.fillStyle(board).fillRect(p.x, p.y - height + 2, 1, height - 2);
+  }
+  for (const i of [0, run]) {
+    const p = at(i);
+    g.fillStyle(PICKET.outline).fillRect(p.x - 1, p.y - height - 1, 3, height + 2);
+    g.fillStyle(PICKET.white).fillRect(p.x - 1, p.y - height, 2, height);
   }
 }
 
-function drawPost(g: Phaser.GameObjects.Graphics, base: Point, postHeight: number): void {
-  g.fillStyle(PALETTE.woodDarker).fillRect(base.x - 1, base.y - postHeight, 3, postHeight + 1);
-  g.fillStyle(PALETTE.wood).fillRect(base.x - 1, base.y - postHeight, 2, postHeight);
-  g.fillStyle(PALETTE.woodLight).fillRect(base.x - 1, base.y - postHeight, 2, 1);
+// A clipped hedge: a leafy wall along the edge, lighter on top, rounded at the ends.
+function drawHedge(
+  g: Phaser.GameObjects.Graphics,
+  at: Along,
+  run: number,
+  dir: number,
+  [dark, base, light, top]: [number, number, number, number],
+) {
+  for (const k of HEDGE_LAYERS) {
+    for (let i = 0; i <= run; i++) {
+      const edge = at(i);
+      const p = { x: edge.x - dir * 2 * k, y: edge.y + k };
+      hedgeColumn(g, p, i, run, k === 1, [dark, base, light, top]);
+    }
+  }
+}
+
+function hedgeColumn(
+  g: Phaser.GameObjects.Graphics,
+  p: Point,
+  i: number,
+  run: number,
+  front: boolean,
+  [dark, base, light, top]: [number, number, number, number],
+) {
+  const fromEnd = Math.min(i, run - i);
+  const height = HEDGE_HEIGHT - Math.max(0, HEDGE_ROUND - fromEnd);
+  for (let dy = 0; dy <= height; dy++) {
+    const leaf = noise.hash(i * 3, dy * 5 + p.y);
+    let color = leaf > LEAF.light ? light : leaf < LEAF.dark ? dark : base;
+    if (dy >= height - 1) color = top;
+    else if (dy <= 1 && front) color = dark;
+    g.fillStyle(color).fillRect(p.x, p.y - dy, 1, 1);
+  }
 }

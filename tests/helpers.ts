@@ -45,7 +45,7 @@ export function richSession(level = 20, options: TestSessionOptions = {}): GameS
 export function freeTile(session: GameSession, itemId: string): { col: number; row: number } {
   for (let row = 0; row < session.state.landSize; row++) {
     for (let col = 0; col < session.state.landSize; col++) {
-      if (session.world.canPlace(itemId, col, row)) return { col, row };
+      if (session.world.canPlace(itemId, { col, row })) return { col, row };
     }
   }
   throw new Error(`no room for ${itemId}`);
@@ -54,7 +54,7 @@ export function freeTile(session: GameSession, itemId: string): { col: number; r
 /** Builds an item on the first free tile and returns its object id. */
 export function buildAnywhere(session: GameSession, itemId: string): number {
   const { col, row } = freeTile(session, itemId);
-  const result = session.farm.build(itemId, col, row);
+  const result = session.farm.build(itemId, { col, row });
   if (!result.ok) throw new Error(`build ${itemId}: ${result.reason}`);
   return session.world.objectAt(col, row)!.id;
 }

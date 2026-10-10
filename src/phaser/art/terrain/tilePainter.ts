@@ -42,6 +42,7 @@ export function paintTile(
   size: { w: number; h: number },
   corners: Corners,
   ctx: TileContext,
+  layer?: { code: TerrainCode; under: number | null },
 ): void {
   const at = (px: number, py: number, clamp: boolean) => {
     const dx = (px + 0.5 - size.w / 2) / (size.w / 2);
@@ -60,10 +61,46 @@ export function paintTile(
       const blend = at(px, py, false);
       if (!blend) continue;
       const pixel = { px, py };
+      if (layer && blend.top !== layer.code) {
+        if (layer.under !== null) buffer.set(ox + px, oy + py, layer.under);
+        continue;
+      }
       const bank = isWater(blend.top) ? bankColor(blend.top, pixel, ctx, at) : null;
       buffer.set(ox + px, oy + py, bank ?? colorOf(blend, pixel, ctx));
     }
   }
+}
+
+/** Stacking order fallback: what a layer's tile is painted against outside its mask. */
+const BELOW: Record<number, TerrainCode> = {
+  [CODE.sea]: CODE.sand,
+  [CODE.sand]: CODE.sea,
+  [CODE.rock]: CODE.sea,
+  [CODE.grass]: CODE.sand,
+  [CODE.woods]: CODE.grass,
+  [CODE.path]: CODE.grass,
+  [CODE.fresh]: CODE.grass,
+};
+const MASK_BITS = [1, 2, 4, 8] as const;
+
+/**
+ * One cell of the stacked tileset: `code` on the corners in `mask`, transparent elsewhere.
+ * Sea tiles stay opaque (shallows under the land) so the shore never shows a gap.
+ */
+export function paintLayerTile(
+  buffer: PixelBuffer,
+  ox: number,
+  oy: number,
+  size: { w: number; h: number },
+  code: TerrainCode,
+  mask: number,
+  ctx: TileContext,
+): void {
+  const below = BELOW[code] ?? CODE.grass;
+  const corner = (i: number) => ((mask & (MASK_BITS[i] ?? 0)) !== 0 ? code : below);
+  const corners: Corners = [corner(0), corner(1), corner(2), corner(3)];
+  const under = code === CODE.sea ? PALETTE.shallow : null;
+  paintTile(buffer, ox, oy, size, corners, ctx, { code, under });
 }
 
 // A short earth or stone face where land drops into water, read from the pixels above.

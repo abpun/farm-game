@@ -8,12 +8,15 @@ export interface GameEvents {
   InventoryChanged: { itemId: string; count: number };
   PlotUpdated: { plotId: number };
   CropPlanted: { plotId: number; cropId: string };
+  /** A seed taken from the barn instead of bought. */
+  SeedUsed: { plotId: number; cropId: string };
   CropWatered: { plotId: number };
   CropHarvested: { plotId: number; cropId: string; amount: number; xp: number };
   ItemSold: { itemId: string; amount: number; revenue: number };
   ItemBought: { itemId: string; amount: number; cost: number };
   ObjectPlaced: { object: PlacedObject };
   ObjectRemoved: { object: PlacedObject };
+  ObjectMoved: { object: PlacedObject; from: PlacedObject };
   SeasonChanged: { seasonId: string };
   DayChanged: { day: number };
   GameSaved: { savedAt: number };

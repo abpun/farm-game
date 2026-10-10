@@ -1,8 +1,9 @@
 import type * as Phaser from 'phaser';
 import type { CatalogItem } from '@core/entities/types';
+import type { Spot } from '@core/systems/WorldSystem';
 import { BED_TEXTURES } from '../art/BedArtist';
 import { EXTRA_TEXTURES } from '../art/ExtraArtist';
-import { FENCE_LINK, fenceShape, fenceTextureKey } from '../art/FenceArtist';
+import { edgeKey, edgeShape, isEdgeArt } from '../art/FenceArtist';
 import { houseShape, type HouseFootprint } from '../art/HouseArtist';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
@@ -16,57 +17,71 @@ const STANDING_ORIGIN = { x: 0.5, y: 0.95 };
 const LAYER = { plot: 0, fence: 3, decor: 5, building: 5 } as const;
 export const CROP_LAYER = 2;
 
-export const STRAIGHT_FENCE_MASK = FENCE_LINK.north | FENCE_LINK.south;
+const isEdge = (item: CatalogItem) => item.placement === 'edge';
 
-export function itemDepth(grid: IsoGrid, item: CatalogItem, col: number, row: number): number {
-  const center = grid.depthOf(col + item.footprint.cols / 2, row + item.footprint.rows / 2);
-  return center + LAYER[item.kind];
+/** Grid point an object is centred on: its footprint middle, or the middle of its edge. */
+export function spotCenter(item: CatalogItem, spot: Spot): { col: number; row: number } {
+  if (isEdge(item)) {
+    return spot.edge === 'w'
+      ? { col: spot.col, row: spot.row + 0.5 }
+      : { col: spot.col + 0.5, row: spot.row };
+  }
+  const { cols, rows } = item.footprint;
+  return spot.rotated
+    ? { col: spot.col + rows / 2, row: spot.row + cols / 2 }
+    : { col: spot.col + cols / 2, row: spot.row + rows / 2 };
 }
 
-// World sprite for a placed item, anchored on its footprint and depth-sorted.
+export function itemDepth(grid: IsoGrid, item: CatalogItem, spot: Spot): number {
+  const center = spotCenter(item, spot);
+  return grid.depthOf(center.col, center.row) + LAYER[item.kind];
+}
+
+// World sprite for a placed item, anchored on its footprint or edge and depth-sorted.
 export function createItemImage(
   scene: Phaser.Scene,
   grid: IsoGrid,
   item: CatalogItem,
-  col: number,
-  row: number,
+  spot: Spot,
   seasonId: string,
-  fenceMask = 0,
 ): Phaser.GameObjects.Image {
-  const art = itemTexture(scene, item, seasonId, fenceMask);
-  const top = grid.tileTop(col, row);
+  const art = itemTexture(scene, item, seasonId, spot);
+  const top = grid.tileTop(spot.col, spot.row);
   const image = (() => {
+    if (isEdge(item) && isEdgeArt(item.art)) {
+      const anchor = edgeShape(grid).anchor[spot.edge ?? 'n'];
+      return addArt(scene, top.x - anchor.x * PIXEL_SCALE, top.y - anchor.y * PIXEL_SCALE, art);
+    }
     switch (item.kind) {
       case 'plot':
         return addArt(scene, top.x - grid.tileW / 2, top.y, plotTexture(item));
-      case 'fence': {
-        const anchor = fenceShape(grid).tileTop;
-        return addArt(scene, top.x - anchor.x * PIXEL_SCALE, top.y - anchor.y * PIXEL_SCALE, art);
-      }
       case 'building': {
         const anchor = houseShape(grid, COTTAGE_ART).T;
-        const corner = grid.toScreen(col, row + COTTAGE_ROW_INSET);
+        const corner = grid.toScreen(spot.col, spot.row + COTTAGE_ROW_INSET);
         const x = corner.x - anchor.x * PIXEL_SCALE;
         return addArt(scene, x, corner.y - anchor.y * PIXEL_SCALE, art);
       }
       default: {
-        const center = grid.toScreen(col + item.footprint.cols / 2, row + item.footprint.rows / 2);
-        return addArt(scene, center.x, center.y, art, STANDING_ORIGIN.x, STANDING_ORIGIN.y);
+        const center = spotCenter(item, spot);
+        const at = grid.toScreen(center.col, center.row);
+        return addArt(scene, at.x, at.y, art, STANDING_ORIGIN.x, STANDING_ORIGIN.y);
       }
     }
   })();
-  return image.setDepth(itemDepth(grid, item, col, row));
+  return image.setFlipX(Boolean(spot.rotated)).setDepth(itemDepth(grid, item, spot));
 }
 
-/** The world texture for an item in the given season (fences also need their neighbour mask). */
+/** The world texture for an item in the given season (edge runs depend on their side). */
 export function itemTexture(
   scene: Phaser.Scene,
   item: CatalogItem,
   seasonId: string,
-  fenceMask = 0,
+  spot?: Spot,
 ): string {
   if (item.kind === 'plot') return plotTexture(item);
-  if (item.kind === 'fence') return fenceTextureKey(fenceMask);
+  if (isEdgeArt(item.art)) {
+    return seasonalTexture(scene.textures, edgeKey(item.art, spot?.edge ?? 'n'), seasonId);
+  }
   return seasonalTexture(scene.textures, item.art, seasonId);
 }
 
@@ -74,7 +89,7 @@ export function itemTexture(
 export function itemIconKey(scene: Phaser.Scene, item: CatalogItem): string {
   const uiIcon = `ui-icon-${item.id}`;
   if (scene.textures.exists(uiIcon)) return uiIcon;
-  if (item.kind === 'fence') return fenceTextureKey(STRAIGHT_FENCE_MASK);
+  if (isEdgeArt(item.art)) return seasonalTexture(scene.textures, edgeKey(item.art, 'n'), 'summer');
   return scene.textures.exists(item.art) ? item.art : 'ui-icon-lock';
 }
 

@@ -2,6 +2,8 @@ import type * as Phaser from 'phaser';
 import type { GameSession } from '@core/GameSession';
 import { CAVE_TEXTURES } from '../art/CaveArtist';
 import { boatKey, HARBOR_TEXTURES, isletKey } from '../art/HarborArtist';
+import { LANTERN_Y, LIGHTHOUSE_GROUND, LIGHTHOUSE_SIZE } from '../art/harbor/lighthouse';
+import { pierCanvas } from '../art/harbor/pier';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
 import {
@@ -27,7 +29,8 @@ const GLOW_MS = 1200;
 const SPARKLE = { everyMs: 3200, ms: 500 };
 const SAIL_MS = 1600;
 const DOCK_OFFSET = { boathouse: { u: -3.6, v: -1.2 }, goods: { u: 2.6, v: -0.4 } };
-const MOORING = { u: 1.7, v: 6.4 };
+/** Beside the pier head, which sits eight tiles out along the row axis. */
+const MOORING = { u: -5, v: 9.8 };
 
 /** What the player tapped on the map, for the scene to act on. */
 export type LandmarkTap =
@@ -164,7 +167,14 @@ export class Landmarks {
   }
 
   private placeHarbor(feature: WorldFeature): void {
-    const dock = this.image(feature, HARBOR_TEXTURES.dock, 0.5, 0, 1);
+    const pier = pierCanvas();
+    const dock = this.image(
+      feature,
+      HARBOR_TEXTURES.dock,
+      pier.origin.x / pier.width,
+      pier.origin.y / pier.height,
+      1,
+    );
     dock.setDepth(this.depthAt(feature) - 1);
     const shed = this.image(
       offset(feature, DOCK_OFFSET.boathouse),
@@ -199,11 +209,18 @@ export class Landmarks {
   }
 
   private placeLighthouse(feature: WorldFeature): void {
-    const tower = this.image(feature, HARBOR_TEXTURES.lighthouse, 0.5, 1, 2);
+    const { height } = LIGHTHOUSE_SIZE;
+    const tower = this.image(
+      feature,
+      HARBOR_TEXTURES.lighthouse,
+      0.5,
+      LIGHTHOUSE_GROUND / height,
+      2,
+    );
     const glow = addArt(
       this.scene,
       tower.x,
-      tower.y - tower.displayHeight + 14 * PIXEL_SCALE,
+      tower.y - (LIGHTHOUSE_GROUND - LANTERN_Y) * PIXEL_SCALE,
       HARBOR_TEXTURES.lighthouseGlow,
       0.5,
       0.5,

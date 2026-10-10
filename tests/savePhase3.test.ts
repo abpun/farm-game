@@ -81,7 +81,7 @@ describe('Phase 3 save data', () => {
     const clock = new FakeClock();
     const first = richSession(20, { store, clock });
     const { col, row } = { col: 8, row: 8 };
-    first.farm.build('dairy', col, row);
+    first.farm.build('dairy', { col, row });
     const dairy = first.world.objectAt(col, row)!.id;
     first.save();
     const second = newSession({ store, clock });

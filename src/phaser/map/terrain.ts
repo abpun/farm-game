@@ -70,3 +70,31 @@ export const signature = (corners: Corners, variant: number) => `${corners.join(
 
 export const isUniform = (corners: Corners) =>
   corners[0] === corners[1] && corners[1] === corners[2] && corners[2] === corners[3];
+
+/** Corner bits of a tile mask: N, E, S, W. */
+export const CORNER_BITS = [1, 2, 4, 8] as const;
+export const FULL_MASK = 15;
+
+export interface LayerTile {
+  code: TerrainCode;
+  /** Corners covered by this terrain or anything stacked above it. */
+  mask: number;
+}
+
+/**
+ * The tiles a dual tile needs when terrains are stacked as layers in code order: the lowest
+ * terrain present fills the tile, each higher one covers the corners at or above it.
+ * Sea is the exception: its tile knows which corners are sea so it can draw foam.
+ */
+export function layersFor(corners: Corners): LayerTile[] {
+  const present = [...new Set(corners)].sort((a, b) => a - b);
+  return present.map((code, index) => {
+    if (code === CODE.sea) {
+      const mask = corners.reduce((m, c, i) => (c === CODE.sea ? m | (CORNER_BITS[i] ?? 0) : m), 0);
+      return { code, mask };
+    }
+    if (index === 0) return { code, mask: FULL_MASK };
+    const mask = corners.reduce((m, c, i) => (c >= code ? m | (CORNER_BITS[i] ?? 0) : m), 0);
+    return { code, mask };
+  });
+}

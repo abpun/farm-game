@@ -2,6 +2,7 @@ import type * as Phaser from 'phaser';
 import { iconImage } from './icons';
 import { FONT_SIZE, UI_PX, UI_TEXT, uiText } from './uiTheme';
 import { Button } from './widgets/Button';
+import { ChipStrip, type ChipSpec } from './widgets/ChipStrip';
 import { createFrame } from './widgets/Frame';
 import { ProgressBar } from './widgets/ProgressBar';
 
@@ -134,26 +135,8 @@ export function chipRow(
   y: number,
   width: number,
   height: number,
-  chips: Array<{ id: string; icon?: string; label?: string }>,
+  chips: ChipSpec[],
   onPick: (id: string) => void,
-): Map<string, Button> {
-  const gap = UI_PX * 2;
-  const chipWidth = Math.floor((width - gap * (chips.length - 1)) / chips.length / UI_PX) * UI_PX;
-  const result = new Map<string, Button>();
-  chips.forEach((chip, index) => {
-    const button = new Button(scene, index * (chipWidth + gap), y, {
-      width: chipWidth,
-      height,
-      icon: chip.icon,
-      label: chip.label,
-      iconSize: UI_PX * 9,
-      fontSize: FONT_SIZE.small,
-      align: 'center',
-      sound: 'tab',
-      onClick: () => onPick(chip.id),
-    });
-    container.add(button);
-    result.set(chip.id, button);
-  });
-  return result;
+): ChipStrip {
+  return new ChipStrip(scene, container, y, width, height, chips, onPick);
 }

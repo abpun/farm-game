@@ -1,6 +1,6 @@
 import type { FarmState, PlacedObject, PlotCrop } from '../entities/types';
 
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 
 export interface SaveFile {
   version: number;
@@ -71,6 +71,29 @@ const MIGRATIONS: Record<number, Migration> = {
   4: (file) => ({ ...file, version: 5 }),
   // v6 adds mining, exploration and boats; normalizeState fills defaults.
   5: (file) => ({ ...file, version: 6 }),
+  // v7 stands fences and bushes on tile edges. A fence tile becomes edges toward its fence
+  // neighbours east and south (the ring shifts half a tile); a lone piece keeps its north edge.
+  6: (file) => {
+    const state = isRecord(file.state) ? file.state : {};
+    const objects = Array.isArray(state.objects) ? (state.objects as PlacedObject[]) : [];
+    const fenceAt = new Set(
+      objects.filter((o) => o.itemId === 'fence').map((o) => `${o.col},${o.row}`),
+    );
+    let nextId = isFiniteNumber(state.nextObjectId) ? state.nextObjectId : objects.length + 1;
+    const migrated = objects.flatMap((object): PlacedObject[] => {
+      if (object.itemId === 'bush-autumn') return [{ ...object, edge: 'n' }];
+      if (object.itemId !== 'fence') return [object];
+      const { col, row } = object;
+      const east = fenceAt.has(`${col + 1},${row}`);
+      const south = fenceAt.has(`${col},${row + 1}`);
+      if (!east && !south) return [{ ...object, edge: 'n' }];
+      const pieces: PlacedObject[] = [];
+      if (east) pieces.push({ ...object, edge: 'n' });
+      if (south) pieces.push({ ...object, id: east ? nextId++ : object.id, edge: 'w' });
+      return pieces;
+    });
+    return { ...file, version: 7, state: { ...state, objects: migrated, nextObjectId: nextId } };
+  },
 };
 
 export function migrate(input: unknown): unknown {
@@ -112,7 +135,8 @@ function isPlacedObject(value: unknown): value is PlacedObject {
     isFiniteNumber(value.id) &&
     typeof value.itemId === 'string' &&
     isFiniteNumber(value.col) &&
-    isFiniteNumber(value.row)
+    isFiniteNumber(value.row) &&
+    (value.edge === undefined || value.edge === 'n' || value.edge === 'w')
   );
 }
 

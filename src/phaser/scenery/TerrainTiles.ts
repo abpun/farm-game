@@ -1,25 +1,27 @@
 import * as Phaser from 'phaser';
-import { bakeTileset, TILE_GUTTER, TILESET_FRAMES, type TileSpec } from '../art/TilesetArtist';
+import { ensureSheetFrame, SHEET_FRAMES } from '../art/TerrainSheet';
+import { SHEET, sheetIndex } from '../art/terrain/tileSheet';
 import { reducedMotion } from '../fx/prefs';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { PIXEL_SCALE } from '../layout';
-import { isUniform, signature } from '../map/terrain';
+import { FULL_MASK, layersFor, TERRAINS } from '../map/terrain';
 import type { WorldShape } from '../map/WorldShape';
 
 export const TERRAIN_DEPTH = { land: -1500, glints: -1450 } as const;
 
-/** Plain tiles come in this many looks so meadows and sea do not read as a grid. */
-const VARIANTS = 4;
 const FRAME_MS = 900;
 const TILESET_NAME = 'terrain';
+const EMPTY = -1;
 /** Extra tiles drawn past each screen edge. */
 const CULL_MARGIN = 1;
+/** Layers stack in terrain order at the same depth; this keeps them apart. */
+const LAYER_DEPTH_STEP = 0.01;
 
-// The ground as one isometric tilemap. Tiles sit on the dual grid (corners on cell centres),
-// so every corner combination the map needs is baked once per season into a small tileset.
+// The ground as an isometric tilemap built from the tileset PNGs (see art/terrain/tileSheet):
+// one layer per terrain, stacked in order, each tile picked by which of its corners (on the
+// centres of four grid cells) are that terrain or anything above it.
 export class TerrainTiles {
-  private readonly specs: TileSpec[] = [];
-  private readonly layer: Phaser.Tilemaps.TilemapLayer;
+  private readonly layers: Phaser.Tilemaps.TilemapLayer[] = [];
   private readonly tileset: Phaser.Tilemaps.Tileset;
   private readonly visible: Phaser.Tilemaps.Tile[] = [];
   private seasonId: string;
@@ -33,7 +35,6 @@ export class TerrainTiles {
   ) {
     this.seasonId = seasonId;
     const { range, width, height } = shape.terrain;
-    const indices = this.indexTiles(width - 1, height - 1);
     const { tileW, tileH } = grid.art;
     const map = new Phaser.Tilemaps.Tilemap(
       scene,
@@ -45,18 +46,29 @@ export class TerrainTiles {
         orientation: Phaser.Tilemaps.Orientation.ISOMETRIC,
       }),
     );
-    const key = this.bake(seasonId, 0);
-    const tileset = map.addTilesetImage(TILESET_NAME, key, tileW, tileH, TILE_GUTTER, TILE_GUTTER);
+    const key = ensureSheetFrame(scene, seasonId, 0);
+    const tileset = map.addTilesetImage(
+      TILESET_NAME,
+      key,
+      tileW,
+      tileH,
+      SHEET.gutter,
+      SHEET.gutter,
+    );
     if (!tileset) throw new Error('Terrain tileset failed to load');
     this.tileset = tileset;
     // Tile (0, 0)'s top corner is the centre of the first cell.
     const top = grid.toScreen(range.minCol + 0.5, range.minRow + 0.5);
-    const layer = map.createBlankLayer('ground', tileset, top.x - grid.tileW / 2, top.y);
-    if (!layer) throw new Error('Terrain layer failed to create');
-    this.layer = layer.setScale(PIXEL_SCALE).setDepth(TERRAIN_DEPTH.land);
-    layer.putTilesAt(indices, 0, 0, false);
-    layer.cullCallback = (_layer: unknown, camera: Phaser.Cameras.Scene2D.Camera) =>
-      this.cull(camera);
+    const data = this.indexTiles(width - 1, height - 1);
+    TERRAINS.forEach((name, code) => {
+      const layer = map.createBlankLayer(name, tileset, top.x - grid.tileW / 2, top.y);
+      if (!layer) throw new Error(`Terrain layer ${name} failed to create`);
+      layer.setScale(PIXEL_SCALE).setDepth(TERRAIN_DEPTH.land + code * LAYER_DEPTH_STEP);
+      layer.putTilesAt(data[code] ?? [], 0, 0, false);
+      layer.cullCallback = (_layer: unknown, camera: Phaser.Cameras.Scene2D.Camera) =>
+        this.cull(layer, camera);
+      this.layers.push(layer);
+    });
     scene.time.addEvent({ delay: FRAME_MS, loop: true, callback: () => this.animate() });
   }
 
@@ -65,60 +77,50 @@ export class TerrainTiles {
     this.show();
   }
 
-  /** How many distinct tiles the map uses (for tests and tuning). */
-  get tileCount(): number {
-    return this.specs.length;
-  }
-
   private animate(): void {
     if (reducedMotion(this.scene)) return;
-    this.frame = (this.frame + 1) % TILESET_FRAMES;
+    this.frame = (this.frame + 1) % SHEET_FRAMES;
     this.show();
   }
 
   private show(): void {
-    this.tileset.setImage(this.scene.textures.get(this.bake(this.seasonId, this.frame)));
+    const key = ensureSheetFrame(this.scene, this.seasonId, this.frame);
+    this.tileset.setImage(this.scene.textures.get(key));
   }
 
-  private bake(seasonId: string, frame: number): string {
-    const { tileW, tileH } = this.grid.art;
-    return bakeTileset(this.scene, this.specs, { w: tileW, h: tileH }, seasonId, frame);
-  }
-
-  private indexTiles(width: number, height: number): number[][] {
+  // Per terrain, a grid of tileset indices (EMPTY where that layer has nothing to draw).
+  private indexTiles(width: number, height: number): number[][][] {
     const { terrain, noise } = this.shape;
-    const lookup = new Map<string, number>();
-    const rows: number[][] = [];
+    const layers = TERRAINS.map(() =>
+      Array.from({ length: height }, () => new Array<number>(width).fill(EMPTY)),
+    );
     for (let y = 0; y < height; y++) {
-      const row: number[] = [];
       for (let x = 0; x < width; x++) {
         const col = terrain.range.minCol + x;
-        const r = terrain.range.minRow + y;
-        const corners = terrain.corners(col, r);
-        const variant = isUniform(corners) ? Math.floor(noise.hash(col, r) * VARIANTS) : 0;
-        const id = signature(corners, variant);
-        let index = lookup.get(id);
-        if (index === undefined) {
-          index = this.specs.length;
-          lookup.set(id, index);
-          this.specs.push({ corners, variant });
+        const row = terrain.range.minRow + y;
+        for (const { code, mask } of layersFor(terrain.corners(col, row))) {
+          const variant =
+            mask === FULL_MASK ? Math.floor(noise.hash(col, row) * SHEET.variants) : 0;
+          const cells = layers[code]?.[y];
+          if (cells) cells[x] = sheetIndex(code, mask, variant);
         }
-        row.push(index);
       }
-      rows.push(row);
     }
-    return rows;
+    return layers;
   }
 
   // Only the tiles under the camera, found from its corners instead of testing every tile.
-  private cull(camera: Phaser.Cameras.Scene2D.Camera): Phaser.Tilemaps.Tile[] {
+  private cull(
+    layer: Phaser.Tilemaps.TilemapLayer,
+    camera: Phaser.Cameras.Scene2D.Camera,
+  ): Phaser.Tilemaps.Tile[] {
     this.visible.length = 0;
     const view = camera.worldView;
     const halfW = this.grid.tileW / 2;
     const halfH = this.grid.tileH / 2;
     const toTile = (x: number, y: number) => ({
-      d: (x - this.layer.x - halfW) / halfW,
-      s: (y - this.layer.y) / halfH,
+      d: (x - layer.x - halfW) / halfW,
+      s: (y - layer.y) / halfH,
     });
     const from = toTile(view.x, view.y);
     const to = toTile(view.right, view.bottom);
@@ -126,7 +128,7 @@ export class TerrainTiles {
     const sMax = Math.ceil(to.s) + CULL_MARGIN;
     const dMin = Math.floor(from.d) - 1 - CULL_MARGIN;
     const dMax = Math.ceil(to.d) + 1 + CULL_MARGIN;
-    const data = this.layer.layer.data;
+    const data = layer.layer.data;
     for (let s = sMin; s <= sMax; s++) {
       for (let d = dMin; d <= dMax; d++) {
         if ((s + d) % 2 !== 0) continue;

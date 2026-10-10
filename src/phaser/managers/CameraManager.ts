@@ -27,7 +27,13 @@ export class CameraManager {
   private dragStart: DragStart | null = null;
   private dragged = false;
 
-  constructor(scene: Phaser.Scene, world: Bounds, focus: Point) {
+  constructor(
+    scene: Phaser.Scene,
+    world: Bounds,
+    focus: Point,
+    /** While true, drags belong to something else (e.g. sweeping across fields). */
+    private readonly locked: () => boolean = () => false,
+  ) {
     this.camera = scene.cameras.main;
     this.camera.setBounds(world.x, world.y, world.width, world.height);
     this.applyZoom();
@@ -77,7 +83,7 @@ export class CameraManager {
   }
 
   private drag(pointer: Phaser.Input.Pointer): void {
-    if (!this.dragStart || !pointer.isDown) return;
+    if (!this.dragStart || !pointer.isDown || this.locked()) return;
     const dx = pointer.x - this.dragStart.x;
     const dy = pointer.y - this.dragStart.y;
     if (!this.dragged && Math.hypot(dx, dy) < CAMERA.dragThreshold) return;

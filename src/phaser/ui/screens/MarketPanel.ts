@@ -66,6 +66,7 @@ export class MarketPanel {
   private readonly title: Phaser.GameObjects.Text;
   private readonly hint: Phaser.GameObjects.Text;
   private readonly removeTool: Button;
+  private readonly moveTool: Button;
   private category = 'crops';
 
   constructor(
@@ -99,16 +100,27 @@ export class MarketPanel {
       ROW_GAP,
       (entry, w, h) => this.renderEntry(entry, w, h),
     );
-    this.removeTool = new Button(scene, 0, this.drawer.innerHeight - FOOTER_HEIGHT, {
-      width,
+    const footerY = this.drawer.innerHeight - FOOTER_HEIGHT;
+    const half = Math.floor((width - UI_PX * 3) / 2 / UI_PX) * UI_PX;
+    this.moveTool = new Button(scene, 0, footerY, {
+      width: half,
       height: FOOTER_HEIGHT,
-      label: 'Remove things',
+      label: 'Move',
+      icon: iconKey('move'),
+      iconSize: UI_PX * 8,
+      align: 'center',
+      onClick: () => this.pick({ kind: 'move', objectId: null }),
+    });
+    this.removeTool = new Button(scene, width - half, footerY, {
+      width: half,
+      height: FOOTER_HEIGHT,
+      label: 'Remove',
       icon: iconKey('reset'),
       iconSize: UI_PX * 8,
       align: 'center',
       onClick: () => this.pick({ kind: 'remove' }),
     });
-    page.add([this.title, this.hint, this.list, this.removeTool]);
+    page.add([this.title, this.hint, this.list, this.moveTool, this.removeTool]);
 
     const refresh = () => this.refresh();
     for (const event of [
@@ -134,7 +146,8 @@ export class MarketPanel {
   }
 
   private pick(tool: Tool): void {
-    this.tools.toggle(tool);
+    if (tool.kind === 'move' && this.tools.tool.kind === 'move') this.tools.clear();
+    else this.tools.toggle(tool);
     if (this.tools.tool.kind !== 'none') this.drawer.close();
     else this.refresh();
   }
@@ -155,6 +168,7 @@ export class MarketPanel {
     );
     this.list.setItems(this.entries(this.category));
     this.removeTool.setSelected(this.tools.tool.kind === 'remove');
+    this.moveTool.setSelected(this.tools.tool.kind === 'move');
   }
 
   private entries(categoryId: string): MarketEntry[] {
@@ -217,8 +231,9 @@ export class MarketPanel {
   }
 
   private cropRow(crop: CropDef, width: number, height: number) {
-    const { plots, progression, economy, seasons, crops } = this.session;
+    const { plots, progression, economy, seasons, crops, inventory } = this.session;
     const tool: Tool = { kind: 'plant', cropId: crop.id };
+    const stock = inventory.count(crop.id);
     const rate = plots.seasonRate(crop.id);
     const locked = !progression.isUnlocked(crop.unlockLevel);
     const time = crop.regrowSec
@@ -231,10 +246,11 @@ export class MarketPanel {
         : `${crop.yield}× $${crop.sellPrice} · ${time}${paceTag(rate)}`;
     return slotRow(this.scene, width, height, {
       icon: cropIconKey(crop.id),
-      title: `${crops.plantName(crop.id)}  $${crop.seedCost}`,
+      // Sowing takes one from the barn first, so stocked crops cost nothing to plant.
+      title: `${crops.plantName(crop.id)}  ${stock > 0 ? `${stock} in barn` : `$${crop.seedCost}`}`,
       subtitle,
       subtitleColor: locked ? UI_TEXT.danger : undefined,
-      enabled: !locked && rate > 0 && economy.canAfford(crop.seedCost),
+      enabled: !locked && rate > 0 && (stock > 0 || economy.canAfford(crop.seedCost)),
       selected: this.tools.is(tool),
       onClick: () => this.pick(tool),
     });

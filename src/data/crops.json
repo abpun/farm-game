@@ -7,13 +7,22 @@
       "plantOn": "bed",
       "unlockLevel": 1,
       "xp": 2,
-      "visual": { "kind": "root", "leaf": "#5fae3a", "produce": "#f08a24" },
+      "visual": {
+        "kind": "root",
+        "leaf": "#5fae3a",
+        "produce": "#f08a24"
+      },
       "seedCost": 5,
       "sellPrice": 12,
       "growthTimeSec": 45,
       "stages": 3,
-      "yield": 1,
-      "seasonGrowth": { "spring": 1.25, "summer": 1, "autumn": 1, "winter": 0.4 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 1.25,
+        "summer": 1,
+        "autumn": 1,
+        "winter": 0.4
+      }
     },
     {
       "id": "cabbage",
@@ -22,13 +31,22 @@
       "plantOn": "bed",
       "unlockLevel": 1,
       "xp": 3,
-      "visual": { "kind": "head", "leaf": "#6a9f3a", "produce": "#c5e1a5" },
+      "visual": {
+        "kind": "head",
+        "leaf": "#6a9f3a",
+        "produce": "#c5e1a5"
+      },
       "seedCost": 8,
       "sellPrice": 22,
       "growthTimeSec": 70,
       "stages": 4,
-      "yield": 1,
-      "seasonGrowth": { "spring": 1.2, "summer": 0.7, "autumn": 1.3, "winter": 0.5 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 1.2,
+        "summer": 0.7,
+        "autumn": 1.3,
+        "winter": 0.5
+      }
     },
     {
       "id": "tomato",
@@ -37,13 +55,22 @@
       "plantOn": "bed",
       "unlockLevel": 1,
       "xp": 4,
-      "visual": { "kind": "bush", "leaf": "#3f8f2f", "produce": "#e53935" },
+      "visual": {
+        "kind": "bush",
+        "leaf": "#3f8f2f",
+        "produce": "#e53935"
+      },
       "seedCost": 10,
       "sellPrice": 28,
       "growthTimeSec": 90,
       "stages": 4,
       "yield": 2,
-      "seasonGrowth": { "spring": 0.8, "summer": 1.4, "autumn": 0.6, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 0.8,
+        "summer": 1.4,
+        "autumn": 0.6,
+        "winter": 0
+      }
     },
     {
       "id": "wheat",
@@ -52,13 +79,22 @@
       "plantOn": "bed",
       "unlockLevel": 1,
       "xp": 3,
-      "visual": { "kind": "grain", "leaf": "#7cb342", "produce": "#e8c547" },
+      "visual": {
+        "kind": "grain",
+        "leaf": "#7cb342",
+        "produce": "#e8c547"
+      },
       "seedCost": 15,
       "sellPrice": 9,
       "growthTimeSec": 150,
       "stages": 4,
-      "yield": 4,
-      "seasonGrowth": { "spring": 0.9, "summer": 1.3, "autumn": 1, "winter": 0 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 0.9,
+        "summer": 1.3,
+        "autumn": 1,
+        "winter": 0
+      }
     },
     {
       "id": "corn",
@@ -67,13 +103,22 @@
       "plantOn": "bed",
       "unlockLevel": 2,
       "xp": 3,
-      "visual": { "kind": "stalk", "leaf": "#6fae3a", "produce": "#f2d04a" },
+      "visual": {
+        "kind": "stalk",
+        "leaf": "#6fae3a",
+        "produce": "#f2d04a"
+      },
       "seedCost": 12,
       "sellPrice": 8,
       "growthTimeSec": 120,
       "stages": 4,
-      "yield": 3,
-      "seasonGrowth": { "spring": 0.9, "summer": 1.4, "autumn": 1, "winter": 0 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 0.9,
+        "summer": 1.4,
+        "autumn": 1,
+        "winter": 0
+      }
     },
     {
       "id": "potato",
@@ -82,13 +127,22 @@
       "plantOn": "bed",
       "unlockLevel": 3,
       "xp": 3,
-      "visual": { "kind": "root", "leaf": "#5b9a3a", "produce": "#c89a5a" },
+      "visual": {
+        "kind": "tuber",
+        "leaf": "#5b9a3a",
+        "produce": "#c89a5a"
+      },
       "seedCost": 8,
       "sellPrice": 10,
       "growthTimeSec": 80,
       "stages": 3,
       "yield": 2,
-      "seasonGrowth": { "spring": 1.2, "summer": 0.9, "autumn": 1.1, "winter": 0.6 }
+      "seasonGrowth": {
+        "spring": 1.2,
+        "summer": 0.9,
+        "autumn": 1.1,
+        "winter": 0.6
+      }
     },
     {
       "id": "strawberry",
@@ -97,13 +151,22 @@
       "plantOn": "bed",
       "unlockLevel": 4,
       "xp": 4,
-      "visual": { "kind": "berry", "leaf": "#4f9a3a", "produce": "#e8344a" },
+      "visual": {
+        "kind": "berry",
+        "leaf": "#4f9a3a",
+        "produce": "#e8344a"
+      },
       "seedCost": 14,
       "sellPrice": 16,
       "growthTimeSec": 100,
       "stages": 4,
       "yield": 2,
-      "seasonGrowth": { "spring": 1.4, "summer": 1.1, "autumn": 0.6, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 1.4,
+        "summer": 1.1,
+        "autumn": 0.6,
+        "winter": 0
+      }
     },
     {
       "id": "onion",
@@ -112,13 +175,22 @@
       "plantOn": "bed",
       "unlockLevel": 5,
       "xp": 3,
-      "visual": { "kind": "bulb", "leaf": "#7cbf4a", "produce": "#e3b07a" },
+      "visual": {
+        "kind": "bulb",
+        "leaf": "#7cbf4a",
+        "produce": "#e3b07a"
+      },
       "seedCost": 9,
       "sellPrice": 12,
       "growthTimeSec": 75,
       "stages": 3,
       "yield": 2,
-      "seasonGrowth": { "spring": 1, "summer": 1, "autumn": 1.2, "winter": 0.6 }
+      "seasonGrowth": {
+        "spring": 1,
+        "summer": 1,
+        "autumn": 1.2,
+        "winter": 0.6
+      }
     },
     {
       "id": "sugarcane",
@@ -127,13 +199,22 @@
       "plantOn": "bed",
       "unlockLevel": 6,
       "xp": 3,
-      "visual": { "kind": "cane", "leaf": "#7cbf4a", "produce": "#c6d86a" },
+      "visual": {
+        "kind": "cane",
+        "leaf": "#7cbf4a",
+        "produce": "#c6d86a"
+      },
       "seedCost": 12,
       "sellPrice": 7,
       "growthTimeSec": 110,
       "stages": 4,
-      "yield": 3,
-      "seasonGrowth": { "spring": 0.8, "summer": 1.4, "autumn": 1, "winter": 0 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 0.8,
+        "summer": 1.4,
+        "autumn": 1,
+        "winter": 0
+      }
     },
     {
       "id": "pumpkin",
@@ -142,13 +223,22 @@
       "plantOn": "bed",
       "unlockLevel": 7,
       "xp": 10,
-      "visual": { "kind": "vine", "leaf": "#4f8f34", "produce": "#e8822a" },
+      "visual": {
+        "kind": "vine",
+        "leaf": "#4f8f34",
+        "produce": "#e8822a"
+      },
       "seedCost": 30,
       "sellPrice": 90,
       "growthTimeSec": 240,
       "stages": 4,
-      "yield": 1,
-      "seasonGrowth": { "spring": 0.6, "summer": 1, "autumn": 1.5, "winter": 0 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 0.6,
+        "summer": 1,
+        "autumn": 1.5,
+        "winter": 0
+      }
     },
     {
       "id": "blueberry",
@@ -157,14 +247,23 @@
       "plantOn": "bed",
       "unlockLevel": 8,
       "xp": 4,
-      "visual": { "kind": "bush", "leaf": "#3f7f3a", "produce": "#4a5fc8" },
+      "visual": {
+        "kind": "shrub",
+        "leaf": "#3f7f3a",
+        "produce": "#4a5fc8"
+      },
       "seedCost": 25,
       "sellPrice": 10,
       "growthTimeSec": 160,
       "regrowSec": 90,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 1, "summer": 1.3, "autumn": 0.8, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 1,
+        "summer": 1.3,
+        "autumn": 0.8,
+        "winter": 0
+      }
     },
     {
       "id": "watermelon",
@@ -173,13 +272,22 @@
       "plantOn": "bed",
       "unlockLevel": 10,
       "xp": 12,
-      "visual": { "kind": "vine", "leaf": "#3f8f2f", "produce": "#4a9a3e" },
+      "visual": {
+        "kind": "melon",
+        "leaf": "#3f8f2f",
+        "produce": "#4a9a3e"
+      },
       "seedCost": 45,
       "sellPrice": 140,
       "growthTimeSec": 300,
       "stages": 4,
-      "yield": 1,
-      "seasonGrowth": { "spring": 0.8, "summer": 1.5, "autumn": 0.7, "winter": 0 }
+      "yield": 2,
+      "seasonGrowth": {
+        "spring": 0.8,
+        "summer": 1.5,
+        "autumn": 0.7,
+        "winter": 0
+      }
     },
     {
       "id": "grapes",
@@ -188,14 +296,23 @@
       "plantOn": "bed",
       "unlockLevel": 12,
       "xp": 5,
-      "visual": { "kind": "trellis", "leaf": "#5a9a3a", "produce": "#7a3f9a" },
+      "visual": {
+        "kind": "trellis",
+        "leaf": "#5a9a3a",
+        "produce": "#7a3f9a"
+      },
       "seedCost": 35,
       "sellPrice": 14,
       "growthTimeSec": 200,
       "regrowSec": 120,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 0.8, "summer": 1.2, "autumn": 1.4, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 0.8,
+        "summer": 1.2,
+        "autumn": 1.4,
+        "winter": 0
+      }
     },
     {
       "id": "apple",
@@ -205,14 +322,23 @@
       "plantOn": "orchard",
       "unlockLevel": 3,
       "xp": 5,
-      "visual": { "kind": "tree", "leaf": "#4f9a3a", "produce": "#d8342a" },
+      "visual": {
+        "kind": "tree",
+        "leaf": "#4f9a3a",
+        "produce": "#d8342a"
+      },
       "seedCost": 60,
       "sellPrice": 14,
       "growthTimeSec": 300,
       "regrowSec": 150,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 1.1, "summer": 1, "autumn": 1.3, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 1.1,
+        "summer": 1,
+        "autumn": 1.3,
+        "winter": 0
+      }
     },
     {
       "id": "orange",
@@ -222,14 +348,23 @@
       "plantOn": "orchard",
       "unlockLevel": 6,
       "xp": 5,
-      "visual": { "kind": "tree", "leaf": "#3f8a3a", "produce": "#f08a24" },
+      "visual": {
+        "kind": "tree",
+        "leaf": "#3f8a3a",
+        "produce": "#f08a24"
+      },
       "seedCost": 80,
       "sellPrice": 16,
       "growthTimeSec": 360,
       "regrowSec": 170,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 0.9, "summer": 1.3, "autumn": 1, "winter": 0.3 }
+      "seasonGrowth": {
+        "spring": 0.9,
+        "summer": 1.3,
+        "autumn": 1,
+        "winter": 0.3
+      }
     },
     {
       "id": "pear",
@@ -239,14 +374,24 @@
       "plantOn": "orchard",
       "unlockLevel": 9,
       "xp": 6,
-      "visual": { "kind": "tree", "leaf": "#5a9a3a", "produce": "#c8d84a" },
+      "visual": {
+        "kind": "tree",
+        "leaf": "#5a9a3a",
+        "produce": "#c8d84a",
+        "shape": "pear"
+      },
       "seedCost": 100,
       "sellPrice": 18,
       "growthTimeSec": 400,
       "regrowSec": 180,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 1.1, "summer": 1, "autumn": 1.2, "winter": 0 }
+      "seasonGrowth": {
+        "spring": 1.1,
+        "summer": 1,
+        "autumn": 1.2,
+        "winter": 0
+      }
     },
     {
       "id": "mango",
@@ -256,14 +401,24 @@
       "plantOn": "orchard",
       "unlockLevel": 11,
       "xp": 7,
-      "visual": { "kind": "tree", "leaf": "#2f7a3a", "produce": "#f2a83a" },
+      "visual": {
+        "kind": "tree",
+        "leaf": "#2f7a3a",
+        "produce": "#f2a83a",
+        "shape": "oval"
+      },
       "seedCost": 130,
       "sellPrice": 24,
       "growthTimeSec": 480,
       "regrowSec": 220,
       "stages": 4,
       "yield": 3,
-      "seasonGrowth": { "spring": 1, "summer": 1.4, "autumn": 0.8, "winter": 0.2 }
+      "seasonGrowth": {
+        "spring": 1,
+        "summer": 1.4,
+        "autumn": 0.8,
+        "winter": 0.2
+      }
     },
     {
       "id": "banana",
@@ -273,14 +428,23 @@
       "plantOn": "orchard",
       "unlockLevel": 14,
       "xp": 7,
-      "visual": { "kind": "palm", "leaf": "#5aaa3a", "produce": "#f2d84a" },
+      "visual": {
+        "kind": "palm",
+        "leaf": "#5aaa3a",
+        "produce": "#f2d84a"
+      },
       "seedCost": 160,
       "sellPrice": 22,
       "growthTimeSec": 520,
       "regrowSec": 240,
       "stages": 4,
       "yield": 4,
-      "seasonGrowth": { "spring": 1, "summer": 1.5, "autumn": 0.8, "winter": 0.2 }
+      "seasonGrowth": {
+        "spring": 1,
+        "summer": 1.5,
+        "autumn": 0.8,
+        "winter": 0.2
+      }
     }
   ]
 }

@@ -70,7 +70,9 @@ export class BuildingView {
     this.stars.setDepth(depth + 1);
 
     this.fence = isHousingArt(item.art)
-      ? addArt(scene, sprite.x, sprite.y, frontFenceKey(item.art)).setDepth(depth + 2)
+      ? addArt(scene, sprite.x, sprite.y, frontFenceKey(item.art))
+          .setFlipX(sprite.flipX)
+          .setDepth(depth + 2)
       : null;
     this.refresh();
   }
@@ -180,10 +182,12 @@ export class BuildingView {
   private addCritter(animalId: string, index: number): Critter {
     const random = seededRandom(this.object.id * 31 + index * 7);
     const span = { col: YARD.col1 - YARD.col0 - 0.5, row: YARD.row1 - YARD.row0 - 0.35 };
-    const home = {
-      col: this.object.col + YARD.col0 + 0.25 + random() * span.col,
-      row: this.object.row + YARD.row0 + 0.15 + random() * span.row,
-    };
+    const along = YARD.col0 + 0.25 + random() * span.col;
+    const across = YARD.row0 + 0.15 + random() * span.row;
+    // A turned building mirrors its yard too: columns and rows swap.
+    const home = this.object.rotated
+      ? { col: this.object.col + across, row: this.object.row + along }
+      : { col: this.object.col + along, row: this.object.row + across };
     const at = this.grid.toScreen(home.col, home.row);
     const image = addArt(this.scene, at.x, at.y, animalTextureKey(animalId), 0.5, 1)
       .setDepth(this.sprite.depth + 1)
