@@ -17,7 +17,7 @@ Idle farming sim in the browser. Phaser renders 2D, Three.js is reserved for lat
 - Time is passed in as `dt`; systems never read `Date.now()`.
 - The farm is isometric: all grid↔screen math lives in `phaser/iso/IsoGrid.ts`; depth sorts by `col + row`.
 - Art is procedural and baked to textures at boot (`phaser/art/*`), except terrain and crops, which load PNG sheets from `public/assets/` (each folder's README has the layout; `npm run art` regenerates them from the painters and overwrites edits). Crop sheets come from `art/crops/*` painters chosen by `visual.kind` in `crops.json` (a new kind = a plant painter in `bedPlants`/`orchardPlants` plus a produce painter); `CropArtist` cuts sheets into bed/tree textures and icons. Real sprites can replace a texture key without touching gameplay.
-- In dev, `window.__farm` is the live `GameSession` (e.g. `__farm.update(60)` fast-forwards a minute); `__audio`, `__settings` and `__game` are also exposed.
+- In dev, `window.__farm` is the live `GameSession` (e.g. `__farm.update(60)` fast-forwards a minute); `__audio`, `__settings` and `__game` are also exposed. `VITE_DEBUG_MODE=true` in `.env` enables debug mode (`core/debug.ts`), which also exposes these globals in production builds.
 - The save format is versioned (`core/save/saveFormat.ts`); bump `SAVE_VERSION` and add a migration when state shape changes. Never edit a shipped migration.
 - Everything on the farm is a placed object (`WorldSystem`) defined in `data/catalog.json`; garden beds also have crop state in `PlotSystem`. Paths in `farm.json` are no-build zones.
 - Edge items (`"placement": "edge"`: fences, hedges, bushes) stand on a tile's north or west edge (`PlacedObject.edge`) and never block the tile; their runs are drawn in `art/FenceArtist`. Any object can be moved (`FarmService.move`) or turned (`rotate`: `rotated` swaps the footprint and mirrors the art).
@@ -32,7 +32,7 @@ Idle farming sim in the browser. Phaser renders 2D, Three.js is reserved for lat
 - The ground is an isometric Phaser tilemap (`scenery/TerrainTiles`) drawn from tileset PNGs in `public/assets/tiles/` (one per season, layout in `art/terrain/tileSheet.ts` and that folder's README). Terrains stack as layers in `terrain.ts` order; a tile sits on the dual grid (corners on cell centres) and is picked by which corners are that terrain or higher (`layersFor`). `npm run art -- tiles` regenerates the PNGs from `art/terrain/tilePainter` (overwriting hand edits); if a PNG is missing the game paints it at boot. Sea and river animate via a second frame row.
 - Mining (`MiningService`, `data/mining.json`) and discoveries (`ExplorationService`, `data/exploration.json`) are core rules; the Mine is its own scene (the farm sleeps, the UI scene ticks the game clock). Boat fishing spots are reached through the harbor's sea chart.
 - `docs/` holds the user's design docs; don't reformat them.
-- Art direction: cozy Stardew-style isometric pixel art (see the `pixel-art` skill). One art-pixel scale (`PIXEL_SCALE`), no anti-aliasing, hue-shifted ramps.
+- Art direction: realistic isometric graphics. `PIXEL_SCALE` is 1 (no upscaling). Anti-aliasing is allowed; no pixel-snapping.
 
 ## Code style
 

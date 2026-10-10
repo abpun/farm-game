@@ -2,9 +2,9 @@ import type { SeasonDef, SeasonsConfig } from '../entities/types';
 import type { GameBus } from '../events/EventBus';
 import type { TimeSystem } from './TimeSystem';
 
-// Calendar derived from game time: fixed-length days grouped into repeating seasons.
 export class SeasonSystem {
-  private readonly seasonLengthSec: number;
+  private readonly seasonLengths: number[];
+  private readonly cycleLengthSec: number;
   private readonly offsetSec: number;
   private lastIndex: number;
   private lastDay: number;
@@ -18,8 +18,11 @@ export class SeasonSystem {
     if (config.seasons.length === 0) throw new Error('At least one season is required');
     const start = config.seasons.findIndex((season) => season.id === config.startSeason);
     if (start < 0) throw new Error(`Unknown start season: ${config.startSeason}`);
-    this.seasonLengthSec = config.daysPerSeason * dayLengthSec;
-    this.offsetSec = start * this.seasonLengthSec;
+    this.seasonLengths = config.seasons.map((s) => (s.days ?? config.daysPerSeason) * dayLengthSec);
+    this.cycleLengthSec = this.seasonLengths.reduce((a, b) => a + b, 0);
+    let offset = 0;
+    for (let i = 0; i < start; i++) offset += this.seasonLengths[i]!;
+    this.offsetSec = offset;
     this.lastIndex = this.index();
     this.lastDay = this.absoluteDay();
   }
@@ -38,15 +41,18 @@ export class SeasonSystem {
   }
 
   year(): number {
-    const seasons = Math.floor((this.time.now() + this.offsetSec) / this.seasonLengthSec);
-    return Math.floor(seasons / this.config.seasons.length) + 1;
+    const elapsed = this.time.now() + this.offsetSec;
+    return Math.floor(elapsed / this.cycleLengthSec) + 1;
   }
 
   secondsToNextSeason(): number {
-    return this.seasonLengthSec - this.elapsedInSeason();
+    return this.currentSeasonLength() - this.elapsedInSeason();
   }
 
-  /** Emits DayChanged and SeasonChanged once each when the calendar moves on. */
+  daysInCurrentSeason(): number {
+    return this.config.seasons[this.index()]?.days ?? this.config.daysPerSeason;
+  }
+
   checkForChange(): void {
     const day = this.absoluteDay();
     if (day !== this.lastDay) {
@@ -64,11 +70,31 @@ export class SeasonSystem {
   }
 
   private index(): number {
-    const seasons = Math.floor((this.time.now() + this.offsetSec) / this.seasonLengthSec);
-    return seasons % this.config.seasons.length;
+    const elapsed =
+      (((this.time.now() + this.offsetSec) % this.cycleLengthSec) + this.cycleLengthSec) %
+      this.cycleLengthSec;
+    let acc = 0;
+    for (let i = 0; i < this.seasonLengths.length; i++) {
+      acc += this.seasonLengths[i]!;
+      if (elapsed < acc) return i;
+    }
+    return this.seasonLengths.length - 1;
   }
 
   private elapsedInSeason(): number {
-    return (this.time.now() + this.offsetSec) % this.seasonLengthSec;
+    const elapsed =
+      (((this.time.now() + this.offsetSec) % this.cycleLengthSec) + this.cycleLengthSec) %
+      this.cycleLengthSec;
+    let acc = 0;
+    for (let i = 0; i < this.seasonLengths.length; i++) {
+      const len = this.seasonLengths[i]!;
+      if (elapsed < acc + len) return elapsed - acc;
+      acc += len;
+    }
+    return 0;
+  }
+
+  private currentSeasonLength(): number {
+    return this.seasonLengths[this.index()]!;
   }
 }

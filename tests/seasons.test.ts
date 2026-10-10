@@ -4,9 +4,13 @@ import type { GameConfig } from '@core/entities/types';
 import { GameSession } from '@core/GameSession';
 import { MemoryStore } from '@core/save/KeyValueStore';
 
-// Season mechanics are tested from spring, whatever the shipped start season is.
+// Season mechanics are tested from spring with uniform 5-day seasons.
 const loaded = loadConfig();
-const base: GameConfig = { ...loaded, seasons: { ...loaded.seasons, startSeason: 'spring' } };
+const uniformSeasons = loaded.seasons.seasons.map((s) => ({ ...s, days: undefined }));
+const base: GameConfig = {
+  ...loaded,
+  seasons: { ...loaded.seasons, startSeason: 'spring', seasons: uniformSeasons },
+};
 const seasonLength = base.seasons.daysPerSeason * base.farm.dayLengthSec;
 
 const withRates = (rates: Record<string, number>): GameConfig => ({

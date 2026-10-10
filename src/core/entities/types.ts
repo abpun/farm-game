@@ -48,6 +48,7 @@ export interface CropDef {
 export interface SeasonDef {
   id: string;
   name: string;
+  days?: number;
 }
 
 export interface SeasonsConfig {

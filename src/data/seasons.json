@@ -1,6 +1,6 @@
 {
   "daysPerSeason": 5,
-  "startSeason": "winter",
+  "startSeason": "summer",
   "seasons": [
     {
       "id": "spring",
@@ -16,7 +16,8 @@
     },
     {
       "id": "winter",
-      "name": "Winter"
+      "name": "Winter",
+      "days": 2
     }
   ]
 }

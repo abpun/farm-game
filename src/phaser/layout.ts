@@ -3,8 +3,7 @@ export const GAME_HEIGHT = 720;
 
 export const HUD_HEIGHT = 72;
 
-// World art is drawn at 1/PIXEL_SCALE resolution and upscaled with nearest filtering.
-export const PIXEL_SCALE = 3;
+export const PIXEL_SCALE = 1;
 
 export const ISO = {
   tileWidth: 120,

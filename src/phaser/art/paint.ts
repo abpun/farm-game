@@ -2,10 +2,6 @@ import * as Phaser from 'phaser';
 import { PIXEL_SCALE } from '../layout';
 
 export const SHADOW = { color: 0x000000, alpha: 0.4 } as const;
-const SHADOW_ALPHA = Math.round(SHADOW.alpha * 255);
-const SHADOW_ALPHA_MIN = 40;
-const SHADOW_RGB_MAX = 40;
-const SOLID_ALPHA_MIN = 128;
 
 export const hex = (value: string): number => Phaser.Display.Color.HexStringToColor(value).color;
 
@@ -46,25 +42,6 @@ export function bake(
   draw(g);
   g.generateTexture(key, Math.ceil(width), Math.ceil(height));
   g.destroy();
-  snapToPixels(scene.textures.get(key) as Phaser.Textures.CanvasTexture);
-}
-
-// Strips anti-aliasing: pixels become opaque, transparent, or a fixed-alpha black shadow.
-function snapToPixels(texture: Phaser.Textures.CanvasTexture): void {
-  const ctx = texture.getContext();
-  const image = ctx.getImageData(0, 0, texture.width, texture.height);
-  const data = image.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const alpha = data[i + 3] ?? 0;
-    if (alpha >= SOLID_ALPHA_MIN) {
-      data[i + 3] = 255;
-      continue;
-    }
-    const isShadow = [0, 1, 2].every((c) => (data[i + c] ?? 255) < SHADOW_RGB_MAX);
-    data[i + 3] = isShadow && alpha >= SHADOW_ALPHA_MIN ? SHADOW_ALPHA : 0;
-  }
-  ctx.putImageData(image, 0, 0);
-  texture.refresh();
 }
 
 export function addArt(

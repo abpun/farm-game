@@ -3,7 +3,6 @@ import { ensureSheetFrame, SHEET_FRAMES } from '../art/TerrainSheet';
 import { SHEET, sheetIndex } from '../art/terrain/tileSheet';
 import { reducedMotion } from '../fx/prefs';
 import type { IsoGrid } from '../iso/IsoGrid';
-import { PIXEL_SCALE } from '../layout';
 import { FULL_MASK, layersFor, TERRAINS } from '../map/terrain';
 import type { WorldShape } from '../map/WorldShape';
 
@@ -35,12 +34,13 @@ export class TerrainTiles {
   ) {
     this.seasonId = seasonId;
     const { range, width, height } = shape.terrain;
-    const { tileW, tileH } = grid.art;
+    const sheetTileW = SHEET.tile.w;
+    const sheetTileH = SHEET.tile.h;
     const map = new Phaser.Tilemaps.Tilemap(
       scene,
       new Phaser.Tilemaps.MapData({
-        tileWidth: tileW,
-        tileHeight: tileH,
+        tileWidth: sheetTileW,
+        tileHeight: sheetTileH,
         width: width - 1,
         height: height - 1,
         orientation: Phaser.Tilemaps.Orientation.ISOMETRIC,
@@ -50,8 +50,8 @@ export class TerrainTiles {
     const tileset = map.addTilesetImage(
       TILESET_NAME,
       key,
-      tileW,
-      tileH,
+      sheetTileW,
+      sheetTileH,
       SHEET.gutter,
       SHEET.gutter,
     );
@@ -63,7 +63,8 @@ export class TerrainTiles {
     TERRAINS.forEach((name, code) => {
       const layer = map.createBlankLayer(name, tileset, top.x - grid.tileW / 2, top.y);
       if (!layer) throw new Error(`Terrain layer ${name} failed to create`);
-      layer.setScale(PIXEL_SCALE).setDepth(TERRAIN_DEPTH.land + code * LAYER_DEPTH_STEP);
+      const tileScale = grid.tileW / sheetTileW;
+      layer.setScale(tileScale).setDepth(TERRAIN_DEPTH.land + code * LAYER_DEPTH_STEP);
       layer.putTilesAt(data[code] ?? [], 0, 0, false);
       layer.cullCallback = (_layer: unknown, camera: Phaser.Cameras.Scene2D.Camera) =>
         this.cull(layer, camera);
