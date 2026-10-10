@@ -3,9 +3,10 @@ import { addArt, seededRandom } from '../art/paint';
 import { birdKey, CLOUD_VARIANTS, cloudKey, GULL_PERCHED } from '../art/SkyLifeArtist';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { mapToScreen, WORLD } from '../map/WorldMap';
-import { HIGHLAND_DEPTH } from './Highlands';
+import { TERRAIN_DEPTH } from './TerrainTiles';
 
-const CLOUDS = { count: 9, speed: [4, 11], band: [-1480, -820], parallax: 0.92 } as const;
+/** Cloud shadows sliding over the land, under every prop. */
+const CLOUDS = { count: 10, speed: [6, 14], tint: 0x1c3040, alpha: 0.12, depthLift: 20 } as const;
 const FLOCK = {
   gapSec: [14, 32],
   max: 2,
@@ -47,7 +48,7 @@ interface Gull {
 const between = (random: () => number, [min, max]: readonly [number, number]) =>
   min + random() * (max - min);
 
-// Clouds drifting across the sky, flocks crossing whatever part of the valley is on screen,
+// Cloud shadows drifting over the valley, flocks crossing whatever part of the valley is on screen,
 // and gulls that come and go from the harbor's dock posts.
 export class SkyLife {
   private readonly random = seededRandom(97);
@@ -65,17 +66,20 @@ export class SkyLife {
   ) {
     this.west = (WORLD.bounds.west * grid.tileW) / 2;
     this.east = (WORLD.bounds.east * grid.tileW) / 2;
+    const north = (WORLD.bounds.north * grid.tileH) / 2;
+    const south = (WORLD.bounds.south * grid.tileH) / 2;
     for (let i = 0; i < CLOUDS.count; i++) {
       const image = addArt(
         scene,
         this.west + this.random() * (this.east - this.west),
-        between(this.random, CLOUDS.band),
+        between(this.random, [north, south]),
         cloudKey(i % CLOUD_VARIANTS),
         0.5,
         1,
       )
-        .setDepth(HIGHLAND_DEPTH.clouds)
-        .setScrollFactor(CLOUDS.parallax);
+        .setTint(CLOUDS.tint)
+        .setAlpha(CLOUDS.alpha)
+        .setDepth(TERRAIN_DEPTH.land + CLOUDS.depthLift);
       this.clouds.push({ image, speed: between(this.random, CLOUDS.speed) });
     }
     const harbor = WORLD.features.find((f) => f.kind === 'harbor');

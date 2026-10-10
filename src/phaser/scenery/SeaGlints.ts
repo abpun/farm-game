@@ -1,6 +1,7 @@
 import type * as Phaser from 'phaser';
 import { addArt, bake, seededRandom } from '../art/paint';
-import { TERRAIN_DEPTH, type Bounds } from '../art/TerrainArtist';
+import type { Bounds } from '../map/WorldMap';
+import { TERRAIN_DEPTH } from './TerrainTiles';
 import { PIXEL_SCALE } from '../layout';
 import { PALETTE } from '../theme';
 

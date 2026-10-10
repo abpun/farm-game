@@ -1,7 +1,7 @@
 import type * as Phaser from 'phaser';
 import { PALETTE } from '../theme';
 import { bake, SHADOW } from './paint';
-import { ROCK } from './TerrainArtist';
+import { ROCK } from './terrain/colors';
 
 export const CAVE_TEXTURES = {
   open: 'cave-entrance',
@@ -16,7 +16,7 @@ const DARK = 0x1c1614;
 const DEEPER = 0x0e0a0a;
 const LANTERN = 0xffd75e;
 
-/** Entrance at the mountain foot: rock face, timber frame, rails and a cart of ore. */
+/** Entrance in a boulder outcrop at the woods' edge: timber frame, rails and a cart of ore. */
 export function generateCaveTextures(scene: Phaser.Scene): void {
   bake(scene, CAVE_TEXTURES.open, CAVE_SIZE.width, CAVE_SIZE.height, (g) => drawCave(g, false));
   bake(scene, CAVE_TEXTURES.boarded, CAVE_SIZE.width, CAVE_SIZE.height, (g) => drawCave(g, true));

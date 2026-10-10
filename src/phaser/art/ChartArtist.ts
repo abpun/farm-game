@@ -1,9 +1,9 @@
 import type * as Phaser from 'phaser';
 import { PALETTE } from '../theme';
 import { PixelBuffer } from './PixelBuffer';
-import { FRESH } from './TerrainArtist';
+import { FRESH } from './terrain/colors';
 import { bayer, createNoise } from './terrain/noise';
-import { profileAt, type WorldData } from '../map/WorldMap';
+import { insidePolygon, profileAt, type WorldData } from '../map/WorldMap';
 
 export const CHART_KEY = 'sea-chart';
 export const CHART_SIZE = { width: 200, height: 136 } as const;
@@ -16,6 +16,8 @@ const INK = 0x6b3a18;
 const PAPER = { base: 0xf2dcac, shade: 0xe2c690 };
 const LAND = { base: 0xc8c48a, dark: 0xa8a46a };
 const SEA = { base: 0x9cc8c8, deep: 0x7ab0b8 };
+/** Map units between the inked trees. */
+const TREE_STEP = 6;
 
 /** Chart pixel of a map point. */
 export function chartPoint(u: number, v: number): { x: number; y: number } {
@@ -26,7 +28,7 @@ export function chartPoint(u: number, v: number): { x: number; y: number } {
   };
 }
 
-// A hand-inked chart of the valley: land, mountains, river and the open sea with islands.
+// A hand-inked chart of the valley: land, woods, river and the open sea with islands.
 export function bakeChart(scene: Phaser.Scene, world: WorldData): void {
   if (scene.textures.exists(CHART_KEY)) return;
   const { width, height } = CHART_SIZE;
@@ -38,11 +40,11 @@ export function bakeChart(scene: Phaser.Scene, world: WorldData): void {
       const u = west + (x / width) * (east - west);
       const v = north + (y / height) * (south - north);
       const coast = profileAt(world.coast.points, u);
-      const foot = profileAt(world.mountains.foot, u);
+      const wooded = world.forests.some((forest) => insidePolygon(forest.polygon, u, v));
       const grain = noise.hash(x, y) < 0.08;
       let color = v > coast ? SEA.base : LAND.base;
       if (v > coast + 12 && bayer(x, y) < (v - coast - 12) / 20) color = SEA.deep;
-      if (v <= coast && v < foot) color = grain ? INK : LAND.dark;
+      if (v <= coast && wooded) color = grain ? INK : LAND.dark;
       if (Math.abs(v - coast) < 0.7) color = INK;
       const island = world.islands.some((i) => Math.hypot(u - i.u, (v - i.v) / 1.6) < 2 + i.size);
       if (island) color = LAND.base;
@@ -50,7 +52,7 @@ export function bakeChart(scene: Phaser.Scene, world: WorldData): void {
     }
   }
   inkRiver(buffer, world);
-  inkMountains(buffer, world);
+  inkTrees(buffer, world);
   frame(buffer);
   buffer.toTexture(scene, CHART_KEY);
 }
@@ -76,12 +78,18 @@ function inkRiver(buffer: PixelBuffer, world: WorldData): void {
       buffer.set(Math.round(pond.x + dx), Math.round(pond.y + dy), FRESH.base);
 }
 
-function inkMountains(buffer: PixelBuffer, world: WorldData): void {
-  for (let u = -50; u <= 50; u += 7) {
-    const foot = chartPoint(u, profileAt(world.mountains.foot, u));
-    for (let row = 0; row < 6; row++) {
-      buffer.set(Math.round(foot.x - row), Math.round(foot.y - 6 + row), INK);
-      buffer.set(Math.round(foot.x + row), Math.round(foot.y - 6 + row), INK);
+// Little inked pines dotted over the woods.
+function inkTrees(buffer: PixelBuffer, world: WorldData): void {
+  const { west, east, north, south } = CHART_VIEW;
+  for (let v = north + TREE_STEP / 2; v < south; v += TREE_STEP) {
+    for (let u = west + TREE_STEP / 2; u < east; u += TREE_STEP) {
+      if (!world.forests.some((forest) => insidePolygon(forest.polygon, u, v))) continue;
+      const at = chartPoint(u, v);
+      const x = Math.round(at.x);
+      const y = Math.round(at.y);
+      buffer.set(x, y - 2, INK);
+      for (let dx = -1; dx <= 1; dx++) buffer.set(x + dx, y - 1, INK);
+      buffer.set(x, y, INK);
     }
   }
 }

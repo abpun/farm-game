@@ -2,7 +2,7 @@ import type * as Phaser from 'phaser';
 import { PALETTE } from '../theme';
 import { bake, SHADOW, shade } from './paint';
 import { SEASON_LOOKS, seasonalKey } from './seasonLooks';
-import { ROCK } from './TerrainArtist';
+import { ROCK } from './terrain/colors';
 
 export const WILD_TEXTURES = {
   chest: 'wild-chest',
