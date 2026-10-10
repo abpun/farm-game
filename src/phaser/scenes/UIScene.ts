@@ -53,7 +53,7 @@ export class UIScene extends Phaser.Scene {
     );
     const openBuilding = (objectId: number) => {
       this.closeDrawers();
-      openBuildingDialog(this, session, toasts, objectId);
+      openBuildingDialog(this, session, toasts, objectId, tools);
     };
 
     const right = drawerX('right', DRAWER.width);

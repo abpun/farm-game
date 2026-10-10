@@ -63,16 +63,16 @@
     },
     {
       "itemId": "fence",
-      "outline": {
+      "gaps": [
+        [4, 3, "n"],
+        [4, 8, "n"]
+      ],
+      "around": {
         "col": 2,
         "row": 3,
-        "cols": 6,
-        "rows": 6
-      },
-      "gaps": [
-        [4, 3],
-        [4, 8]
-      ]
+        "cols": 5,
+        "rows": 5
+      }
     },
     {
       "itemId": "maple-orange",

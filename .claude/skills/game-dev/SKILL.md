@@ -50,6 +50,14 @@ Read `CLAUDE.md` first; this skill adds the working recipes.
 - Inspect with the dev handles: `__game.scene.getScene('Farm').cameras.main` (`setZoom`,
   `centerOn(u*60, v*30)`), `scenery.shape.surface(col, row)`.
 
+## Isometric props
+
+- Draw props in the game's projection: one grid step is 20×10 art px. `art/isoPrism.fillPrism`
+  extrudes a footprint given in grid units and colours its top, west (lit) and east faces;
+  the pier and lighthouse plinth use it. Curved things (towers) use 2:1 ellipses.
+- Edge items get one texture per side (`n` runs down-right, `w` down-left) anchored on the
+  cell's top corner; seasonal ones bake `key@season`.
+
 ## Settings
 
 Add a field to `core/settings/settings.ts` (default + `normalizeSettings` repair), a

@@ -109,7 +109,7 @@ describe('watering and harvesting', () => {
     expect(session.farm.harvest(bed).ok).toBe(true);
     expect(session.progression.xp()).toBe(session.crops.get('carrot').xp);
     expect(session.farm.harvest(bed)).toEqual({ ok: false, reason: 'Nothing to harvest' });
-    expect(session.inventory.count('carrot')).toBe(1);
+    expect(session.inventory.count('carrot')).toBe(session.crops.get('carrot').yield);
   });
 
   it('leaves the crop ready when the barn is full', () => {

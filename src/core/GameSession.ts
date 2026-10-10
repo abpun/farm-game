@@ -177,8 +177,8 @@ export class GameSession {
 
   // Free placement of the starter pieces; tiles that are already taken are skipped.
   private applyStarterLayout(): void {
-    for (const { itemId, col, row } of expandLayout(this.config.farm.starterLayout)) {
-      const object = this.world.place(itemId, col, row);
+    for (const { itemId, ...spot } of expandLayout(this.config.farm.starterLayout)) {
+      const object = this.world.place(itemId, spot);
       if (object && this.catalog.get(itemId).kind === 'plot') this.plots.create(object.id);
     }
   }

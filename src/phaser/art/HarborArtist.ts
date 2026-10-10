@@ -1,6 +1,8 @@
 import type * as Phaser from 'phaser';
 import { PALETTE } from '../theme';
 import { bake, SHADOW, shade } from './paint';
+import { drawLighthouse, LIGHTHOUSE_SIZE } from './harbor/lighthouse';
+import { drawPier, pierCanvas } from './harbor/pier';
 import { ROCK } from './terrain/colors';
 
 export const HARBOR_TEXTURES = {
@@ -16,18 +18,19 @@ export const HARBOR_TEXTURES = {
 export const boatKey = (boatId: string) => `boat-${boatId}`;
 export const isletKey = (size: number) => `islet-${size}`;
 
-export const DOCK_SIZE = { width: 20, length: 76 } as const;
 const BRIDGE = { width: 64, depth: 18 } as const;
 const RED = 0xb8432a;
 const WHITE = 0xf4f0e6;
 const SAIL = 0xfff8ec;
 
 export function generateHarborTextures(scene: Phaser.Scene): void {
-  bake(scene, HARBOR_TEXTURES.dock, DOCK_SIZE.width + 16, DOCK_SIZE.length + 10, drawDock);
+  const pier = pierCanvas();
+  bake(scene, HARBOR_TEXTURES.dock, pier.width, pier.height, drawPier);
   bake(scene, HARBOR_TEXTURES.boathouse, 56, 46, drawBoathouse);
   bake(scene, HARBOR_TEXTURES.goods, 34, 18, drawGoods);
   bake(scene, HARBOR_TEXTURES.forSale, 14, 16, drawForSale);
-  bake(scene, HARBOR_TEXTURES.lighthouse, 34, 86, drawLighthouse);
+  const { width, height } = LIGHTHOUSE_SIZE;
+  bake(scene, HARBOR_TEXTURES.lighthouse, width, height, drawLighthouse);
   bake(scene, HARBOR_TEXTURES.lighthouseGlow, 18, 10, (g) => {
     g.fillStyle(0xffe89a, 0.9).fillEllipse(9, 5, 18, 8);
     g.fillStyle(0xffffff).fillEllipse(9, 5, 6, 4);
@@ -45,28 +48,6 @@ export function generateHarborTextures(scene: Phaser.Scene): void {
   bake(scene, isletKey(0), 30, 22, drawRockStack);
   bake(scene, isletKey(1), 64, 34, (g) => drawIslet(g, 64, false));
   bake(scene, isletKey(2), 96, 60, (g) => drawIslet(g, 96, true));
-}
-
-// A plank walkway running straight out to sea, with a T-head for mooring.
-function drawDock(g: Phaser.GameObjects.Graphics): void {
-  const x = 8;
-  const { width, length } = DOCK_SIZE;
-  g.fillStyle(PALETTE.woodDarker);
-  for (let y = 6; y < length; y += 14) {
-    g.fillRect(x - 1, y, 2, 9);
-    g.fillRect(x + width - 1, y, 2, 9);
-  }
-  for (let y = 0; y < length; y += 3) {
-    g.fillStyle(y % 6 === 0 ? PALETTE.wood : PALETTE.woodLight).fillRect(x, y, width, 3);
-    g.fillStyle(PALETTE.woodDark).fillRect(x, y + 2, width, 1);
-  }
-  const headY = length - 12;
-  g.fillStyle(PALETTE.wood).fillRect(0, headY, width + 16, 9);
-  g.fillStyle(PALETTE.woodLight).fillRect(0, headY, width + 16, 2);
-  g.fillStyle(PALETTE.woodDarker).fillRect(0, headY + 9, width + 16, 2);
-  for (const post of [1, width + 13])
-    g.fillStyle(PALETTE.woodDarker).fillRect(post, headY - 4, 3, 7);
-  g.fillStyle(0xd9b06a).fillCircle(4, headY - 3, 2);
 }
 
 function drawBoathouse(g: Phaser.GameObjects.Graphics): void {
@@ -101,23 +82,6 @@ function drawForSale(g: Phaser.GameObjects.Graphics): void {
   g.fillStyle(0xffd75e).fillRect(2, 2, 3, 4);
   g.fillStyle(0x3a2414).fillRect(7, 2, 5, 1);
   g.fillStyle(0x3a2414).fillRect(7, 5, 4, 1);
-}
-
-function drawLighthouse(g: Phaser.GameObjects.Graphics): void {
-  g.fillStyle(SHADOW.color, SHADOW.alpha).fillEllipse(17, 82, 32, 8);
-  g.fillStyle(ROCK.dark).fillEllipse(17, 78, 32, 12);
-  g.fillStyle(ROCK.base).fillEllipse(14, 76, 22, 8);
-  for (let y = 22; y < 76; y++) {
-    const half = 6 + Math.floor((y - 22) / 13);
-    const band = Math.floor((y - 22) / 9) % 2 === 0;
-    g.fillStyle(band ? WHITE : RED).fillRect(17 - half, y, half * 2, 1);
-    g.fillStyle(band ? 0xd6cfc2 : shade(RED, 0.75)).fillRect(17 + half - 3, y, 3, 1);
-  }
-  g.fillStyle(0x3a3434).fillRect(9, 18, 16, 4);
-  g.fillStyle(0x2a3a4a).fillRect(11, 10, 12, 8);
-  g.fillStyle(0xffe89a).fillRect(13, 11, 8, 6);
-  g.fillStyle(0x3a3434).fillTriangle(9, 10, 25, 10, 17, 2);
-  g.fillStyle(0x3b4f63).fillRect(15, 44, 4, 6);
 }
 
 function drawBridge(g: Phaser.GameObjects.Graphics): void {

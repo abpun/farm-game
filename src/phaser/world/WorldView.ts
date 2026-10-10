@@ -1,18 +1,12 @@
 import type * as Phaser from 'phaser';
 import type { PlacedObject } from '@core/entities/types';
 import type { GameSession } from '@core/GameSession';
-import { FENCE_LINK, fenceTextureKey } from '../art/FenceArtist';
 import { PlotView } from '../components/PlotView';
 import type { IsoGrid } from '../iso/IsoGrid';
 import { BuildingView } from './BuildingView';
 import { createItemImage, itemDepth, itemTexture } from './itemArt';
 
-const NEIGHBOURS: Array<[dc: number, dr: number, bit: number]> = [
-  [0, -1, FENCE_LINK.north],
-  [1, 0, FENCE_LINK.east],
-  [0, 1, FENCE_LINK.south],
-  [-1, 0, FENCE_LINK.west],
-];
+const LIFTED_ALPHA = 0.35;
 
 // Mirrors the core world: one sprite per placed object, kept in sync through bus events.
 export class WorldView {
@@ -26,13 +20,11 @@ export class WorldView {
     private readonly grid: IsoGrid,
   ) {
     for (const object of session.world.objects()) this.add(object);
-    session.bus.on('ObjectPlaced', ({ object }) => {
-      this.add(object);
-      this.refreshFencesAround(object);
-    });
-    session.bus.on('ObjectRemoved', ({ object }) => {
+    session.bus.on('ObjectPlaced', ({ object }) => this.add(object));
+    session.bus.on('ObjectRemoved', ({ object }) => this.remove(object.id));
+    session.bus.on('ObjectMoved', ({ object }) => {
       this.remove(object.id);
-      this.refreshFencesAround(object);
+      this.add(object);
     });
     session.bus.on('PlotUpdated', ({ plotId }) => this.plotViews.get(plotId)?.refresh());
     session.bus.on('SeasonChanged', ({ seasonId }) => this.applySeason(seasonId));
@@ -41,8 +33,8 @@ export class WorldView {
   private applySeason(seasonId: string): void {
     for (const object of this.session.world.objects()) {
       const item = this.session.catalog.get(object.itemId);
-      if (item.kind === 'fence' || item.kind === 'plot') continue;
-      this.sprites.get(object.id)?.setTexture(itemTexture(this.scene, item, seasonId));
+      if (item.kind === 'plot') continue;
+      this.sprites.get(object.id)?.setTexture(itemTexture(this.scene, item, seasonId, object));
     }
   }
 
@@ -59,32 +51,22 @@ export class WorldView {
     return this.plotViews.get(plotId);
   }
 
-  fenceMask(col: number, row: number): number {
-    return NEIGHBOURS.reduce((mask, [dc, dr, bit]) => {
-      const neighbour = this.session.world.objectAt(col + dc, row + dr);
-      return neighbour && this.isFence(neighbour) ? mask | bit : mask;
-    }, 0);
+  /** Fades an object while it is picked up to be moved. */
+  setLifted(objectId: number | null): void {
+    for (const [id, sprite] of this.sprites) sprite.setAlpha(id === objectId ? LIFTED_ALPHA : 1);
   }
 
   private add(object: PlacedObject): void {
     const item = this.session.catalog.get(object.itemId);
-    const mask = item.kind === 'fence' ? this.fenceMask(object.col, object.row) : 0;
-    const sprite = createItemImage(
-      this.scene,
-      this.grid,
-      item,
-      object.col,
-      object.row,
-      this.session.seasons.current().id,
-      mask,
-    );
+    const season = this.session.seasons.current().id;
+    const sprite = createItemImage(this.scene, this.grid, item, object, season);
     this.sprites.set(object.id, sprite);
     if (this.session.buildings.isBuilding(object.id)) {
       const view = new BuildingView(this.scene, this.session, this.grid, object, item, sprite);
       this.buildingViews.set(object.id, view);
     }
     if (item.kind !== 'plot') return;
-    const depth = itemDepth(this.grid, item, object.col, object.row);
+    const depth = itemDepth(this.grid, item, object);
     const view = new PlotView(
       this.scene,
       this.session,
@@ -104,18 +86,5 @@ export class WorldView {
     this.plotViews.delete(objectId);
     this.buildingViews.get(objectId)?.destroy();
     this.buildingViews.delete(objectId);
-  }
-
-  private refreshFencesAround(origin: PlacedObject): void {
-    for (const [dc, dr] of NEIGHBOURS) {
-      const neighbour = this.session.world.objectAt(origin.col + dc, origin.row + dr);
-      if (!neighbour || !this.isFence(neighbour)) continue;
-      const mask = this.fenceMask(neighbour.col, neighbour.row);
-      this.sprites.get(neighbour.id)?.setTexture(fenceTextureKey(mask));
-    }
-  }
-
-  private isFence(object: PlacedObject): boolean {
-    return this.session.catalog.get(object.itemId).kind === 'fence';
   }
 }

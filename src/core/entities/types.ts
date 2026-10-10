@@ -81,6 +81,8 @@ export interface CatalogItem {
   available: boolean;
   /** False for landmarks (like the cottage) that never appear in the market. */
   listed: boolean;
+  /** 'edge' items (fences, hedges) stand on a tile's edge instead of filling it. */
+  placement?: 'tile' | 'edge';
   /** Plots only: what can grow here (defaults to garden beds). */
   soil?: Soil;
   /** Player level needed to build it. */
@@ -106,7 +108,8 @@ export interface GridRect {
 export type LayoutEntry =
   | { itemId: string; col: number; row: number }
   | { itemId: string; area: GridRect }
-  | { itemId: string; outline: GridRect; gaps?: Array<[col: number, row: number]> };
+  | { itemId: string; outline: GridRect; gaps?: Array<[col: number, row: number]> }
+  | { itemId: string; around: GridRect; gaps?: Array<[col: number, row: number, side: EdgeSide]> };
 
 /** A walkway in grid coordinates; tiles it crosses cannot be built on. */
 export interface PathConfig {
@@ -153,11 +156,18 @@ export interface GameConfig {
   exploration: ExplorationData;
 }
 
+/** Side of a cell an edge item stands on: its north (top-right) or west (top-left) edge. */
+export type EdgeSide = 'n' | 'w';
+
 export interface PlacedObject {
   id: number;
   itemId: string;
   col: number;
   row: number;
+  /** Edge items only: the cell side they stand on. */
+  edge?: EdgeSide;
+  /** Turned a quarter: the footprint swaps columns and rows and the art is mirrored. */
+  rotated?: boolean;
 }
 
 export interface PlotCrop {

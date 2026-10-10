@@ -4,7 +4,9 @@ export type Tool =
   | { kind: 'none' }
   | { kind: 'plant'; cropId: string }
   | { kind: 'build'; itemId: string }
-  | { kind: 'remove' };
+  | { kind: 'remove' }
+  /** Move mode: tap to pick something up, then tap where it goes; `rotated` previews a turn. */
+  | { kind: 'move'; objectId: number | null; rotated?: boolean };
 
 export const NO_TOOL: Tool = { kind: 'none' };
 
@@ -14,7 +16,7 @@ export interface ToolEvents {
 
 const sameTool = (a: Tool, b: Tool) => JSON.stringify(a) === JSON.stringify(b);
 
-// What a tap on the farm does right now: inspect/harvest, plant a seed, build, or remove.
+// What a tap on the farm does right now: inspect/harvest, plant, build, move or remove.
 export class ToolState {
   readonly bus = new EventBus<ToolEvents>();
   private current: Tool = NO_TOOL;

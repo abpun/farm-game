@@ -8,7 +8,8 @@ import { formatDuration, formatMoney } from '../format';
 import { iconImage } from '../icons';
 import { itemIconKey } from '../itemIcons';
 import { slotRow } from '../rows';
-import { iconKey } from '../uiTextures';
+import { iconKey, type IconName } from '../uiTextures';
+import type { ToolState } from '../../tools';
 import { FONT_SIZE, UI_PX, UI_TEXT, uiText } from '../uiTheme';
 import { Button } from '../widgets/Button';
 import { Dialog } from '../widgets/Dialog';
@@ -41,6 +42,7 @@ export function openBuildingDialog(
   session: GameSession,
   toasts: ToastManager,
   objectId: number,
+  tools: ToolState,
 ): void {
   const object = session.world.get(objectId);
   if (!object || !session.buildings.isBuilding(objectId)) return;
@@ -59,6 +61,24 @@ export function openBuildingDialog(
     onClick: () =>
       report(ctx, session.farm.upgradeBuilding(objectId), `${name} upgraded!`, iconKey('star')),
   });
+  const handle = HEADER - UI_PX * 2;
+  const handleButton = (index: number, icon: IconName, onClick: () => void) =>
+    new Button(scene, upgrade.x - (handle + UI_PX * 2) * (index + 1), 0, {
+      width: handle,
+      height: handle,
+      icon: iconKey(icon),
+      iconSize: UI_PX * 8,
+      align: 'center',
+      onClick,
+    });
+  const move = handleButton(1, 'move', () => {
+    dialog.close();
+    tools.set({ kind: 'move', objectId, rotated: object.rotated });
+  });
+  const turn = handleButton(0, 'rotate', () =>
+    report(ctx, session.farm.rotate(objectId), `${name} turned`, iconKey('rotate')),
+  );
+  dialog.content.add([move, turn]);
   const construction = scene.add
     .text(dialog.innerWidth / 2, dialog.innerHeight / 2, '', {
       ...uiText(FONT_SIZE.title),

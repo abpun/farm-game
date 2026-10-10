@@ -1,5 +1,6 @@
 import type { Content } from '../config/Content';
 import type {
+  PlacedObject,
   AchievementState,
   AnimalState,
   BuildingState,
@@ -70,7 +71,9 @@ const emptyOrders = (): OrdersState => ({
 // content dropped, damaged records replaced. Old saves never crash the game.
 export function normalizeState(stored: StoredState, content: Content): FarmState {
   const { config } = content;
-  const objects = stored.objects.filter((object) => content.catalog.has(object.itemId));
+  const objects = stored.objects
+    .filter((object) => content.catalog.has(object.itemId))
+    .map((object) => normalizeObject(object, content));
   const kindOf = (itemId: string) => content.catalog.get(itemId).kind;
   const plotIds = new Set(
     objects.filter((o) => kindOf(o.itemId) === 'plot').map((o) => String(o.id)),
@@ -298,3 +301,12 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
+
+// Edge items always carry a side; tile items never do; only true marks a turned object.
+function normalizeObject(object: PlacedObject, content: Content): PlacedObject {
+  const { id, itemId, col, row } = object;
+  const result: PlacedObject = { id, itemId, col, row };
+  if (content.catalog.get(itemId).placement === 'edge') result.edge = object.edge ?? 'n';
+  if (object.rotated === true) result.rotated = true;
+  return result;
+}

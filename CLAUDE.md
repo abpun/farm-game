@@ -20,6 +20,9 @@ Idle farming sim in the browser. Phaser renders 2D, Three.js is reserved for lat
 - In dev, `window.__farm` is the live `GameSession` (e.g. `__farm.update(60)` fast-forwards a minute); `__audio`, `__settings` and `__game` are also exposed.
 - The save format is versioned (`core/save/saveFormat.ts`); bump `SAVE_VERSION` and add a migration when state shape changes. Never edit a shipped migration.
 - Everything on the farm is a placed object (`WorldSystem`) defined in `data/catalog.json`; garden beds also have crop state in `PlotSystem`. Paths in `farm.json` are no-build zones.
+- Edge items (`"placement": "edge"`: fences, hedges, bushes) stand on a tile's north or west edge (`PlacedObject.edge`) and never block the tile; their runs are drawn in `art/FenceArtist`. Any object can be moved (`FarmService.move`) or turned (`rotate`: `rotated` swaps the footprint and mirrors the art).
+- Planting sows one of that crop from the barn when there is one, otherwise buys the seed. A drag across the farm applies the armed action to every tile it crosses (`world/FarmSweep`: plant, harvest ripe crops, build).
+- Tab rows are `ui/widgets/ChipStrip` (via `chipRow`): they page behind chevrons when crowded and `setMarked` shows a "!" on a chip (e.g. trophy groups with something to claim).
 - Seasons (`data/seasons.json`, `SeasonSystem`) scale crop growth via `seasonGrowth` in `crops.json` (0 = dormant). `GameSession.update` never lets one step cross a season boundary.
 - Seasonal art: looks in `phaser/art/seasonLooks.ts`; season variants are baked as `key@season` and swapped on `SeasonChanged`.
 - UI is built from widgets in `phaser/ui/widgets` (pixel 9-slice frames, Button, Panel, Drawer, Modal, Toasts). Dock entries in `ui/screens/Docks.ts`; features without `onOpen` show "Coming soon".

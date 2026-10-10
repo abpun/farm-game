@@ -21,8 +21,8 @@ const COAST_V = 34;
 const GULL = { awaySec: [12, 35], staySec: [10, 28], flyMs: 2600, depthLift: 1 } as const;
 /** Dock posts gulls like to sit on, relative to the harbor feature (map units). */
 const PERCHES = [
-  { u: -0.6, v: 6.2 },
-  { u: 0.9, v: 6.2 },
+  { u: -8.6, v: 7.4 },
+  { u: -6.3, v: 9.7 },
 ];
 
 interface Bird {
