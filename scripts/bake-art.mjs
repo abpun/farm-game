@@ -1,24 +1,37 @@
-// Writes the starting terrain tilesets to public/assets/tiles/terrain-<season>.png from the
-// procedural painter. Edit the PNGs freely afterwards; rerunning this overwrites them.
+// Writes the starting art PNGs from the procedural painters: terrain tilesets
+// (public/assets/tiles/terrain-<season>.png) and crop sheets (public/assets/crops/<crop>.png).
+// Edit the PNGs freely afterwards; rerunning this overwrites them (pass "tiles" or "crops"
+// to bake only one kind).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 import { createServer } from 'vite';
 
-const OUT_DIR = 'public/assets/tiles';
+const TILES_DIR = 'public/assets/tiles';
+const CROPS_DIR = 'public/assets/crops';
+const only = process.argv[2];
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
 try {
-  const { paintSheet } = await server.ssrLoadModule('/src/phaser/art/terrain/tileSheet.ts');
-  const { SEASON_LOOKS } = await server.ssrLoadModule('/src/phaser/art/seasonLooks.ts');
-  mkdirSync(OUT_DIR, { recursive: true });
-  for (const seasonId of Object.keys(SEASON_LOOKS)) {
-    const sheet = paintSheet(seasonId);
-    const file = `${OUT_DIR}/terrain-${seasonId}.png`;
-    writeFileSync(file, encodePng(sheet.width, sheet.height, sheet.data));
-    console.log(`wrote ${file} (${sheet.width}×${sheet.height})`);
+  if (only !== 'crops') {
+    const { paintSheet } = await server.ssrLoadModule('/src/phaser/art/terrain/tileSheet.ts');
+    const { SEASON_LOOKS } = await server.ssrLoadModule('/src/phaser/art/seasonLooks.ts');
+    for (const seasonId of Object.keys(SEASON_LOOKS)) {
+      write(TILES_DIR, `terrain-${seasonId}.png`, paintSheet(seasonId));
+    }
+  }
+  if (only !== 'tiles') {
+    const { paintCropSheet } = await server.ssrLoadModule('/src/phaser/art/crops/cropSheet.ts');
+    const { default: cropData } = await server.ssrLoadModule('/src/data/crops.json');
+    for (const crop of cropData.crops) write(CROPS_DIR, `${crop.id}.png`, paintCropSheet(crop));
   }
 } finally {
   await server.close();
+}
+
+function write(dir, name, image) {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(`${dir}/${name}`, encodePng(image.width, image.height, image.data));
+  console.log(`wrote ${dir}/${name} (${image.width}×${image.height})`);
 }
 
 function encodePng(width, height, rgba) {

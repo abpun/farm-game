@@ -16,6 +16,8 @@ export interface CropVisual {
   kind: string;
   leaf: string;
   produce: string;
+  /** Orchard fruit outline (defaults to round). */
+  shape?: 'round' | 'pear' | 'oval';
 }
 
 /** Where a crop can be planted: tilled garden beds or orchard plots (trees). */

@@ -1,7 +1,7 @@
 # Terrain tilesets
 
 One PNG per season (`terrain-spring.png`, `terrain-summer.png`, ...). The game loads these at
-boot; edit them in any pixel editor and reload. `npm run tiles` regenerates them from the
+boot; edit them in any pixel editor and reload. `npm run art -- tiles` regenerates them from the
 procedural painter and **overwrites** your edits.
 
 ## Layout (800×200 px)

@@ -128,7 +128,7 @@
       "unlockLevel": 3,
       "xp": 3,
       "visual": {
-        "kind": "root",
+        "kind": "tuber",
         "leaf": "#5b9a3a",
         "produce": "#c89a5a"
       },
@@ -248,7 +248,7 @@
       "unlockLevel": 8,
       "xp": 4,
       "visual": {
-        "kind": "bush",
+        "kind": "shrub",
         "leaf": "#3f7f3a",
         "produce": "#4a5fc8"
       },
@@ -273,7 +273,7 @@
       "unlockLevel": 10,
       "xp": 12,
       "visual": {
-        "kind": "vine",
+        "kind": "melon",
         "leaf": "#3f8f2f",
         "produce": "#4a9a3e"
       },
@@ -377,7 +377,8 @@
       "visual": {
         "kind": "tree",
         "leaf": "#5a9a3a",
-        "produce": "#c8d84a"
+        "produce": "#c8d84a",
+        "shape": "pear"
       },
       "seedCost": 100,
       "sellPrice": 18,
@@ -403,7 +404,8 @@
       "visual": {
         "kind": "tree",
         "leaf": "#2f7a3a",
-        "produce": "#f2a83a"
+        "produce": "#f2a83a",
+        "shape": "oval"
       },
       "seedCost": 130,
       "sellPrice": 24,
