@@ -116,7 +116,7 @@ export class Hud {
     const icon = seasonIconKey(season.id);
     if (this.seasonIcon.texture.key === icon) return;
     this.seasonIcon.setTexture(icon);
-    this.seasonIcon.setScale(Math.floor(this.iconSize / this.seasonIcon.height));
+    this.seasonIcon.setScale(this.iconSize / Math.max(this.seasonIcon.height, 1));
   }
 
   // Quick master mute beside the menu; it mirrors the setting, wherever that changes.

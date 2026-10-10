@@ -81,23 +81,6 @@ describe('building', () => {
     );
   });
 
-  it('never builds on the farm path', () => {
-    const session = newSession();
-    session.economy.earn(1000);
-    const [col, row] = config.farm.paths[0]!.points[1]!;
-    const tile = { col: Math.floor(col), row: Math.floor(row) };
-    expect(session.world.isBlocked(tile.col, tile.row)).toBe(true);
-    expect(session.farm.build('plot', { col: tile.col, row: tile.row }).ok).toBe(false);
-    expect(session.world.isBlocked(tile.col + 1, tile.row)).toBe(false);
-  });
-
-  it('keeps every starter piece off the path', () => {
-    const session = newSession();
-    for (const object of session.world.objects()) {
-      expect(session.world.isBlocked(object.col, object.row)).toBe(false);
-    }
-  });
-
   it('blocks multi-tile footprints that overlap', () => {
     const session = newSession();
     const cottage = session.world.objects().find((o) => o.itemId === 'cottage')!;
@@ -106,14 +89,16 @@ describe('building', () => {
 
   it('demolishes with a partial refund, but keeps landmarks and planted beds', () => {
     const session = newSession();
-    session.economy.earn(100);
-    const fence = session.world.objects().find((o) => o.itemId === 'fence')!;
+    session.economy.earn(1000);
+    const tile = free(session);
+    session.farm.build('fence', { ...tile, edge: 'n' });
+    const fence = session.world.edgeAt(tile.col, tile.row, 'n')!;
     const before = session.economy.balance();
     expect(session.farm.demolish(fence.id).ok).toBe(true);
     expect(session.economy.balance()).toBe(
       before + Math.floor(session.catalog.get('fence').price * config.farm.refundRatio),
     );
-    expect(session.world.objectAt(fence.col, fence.row)).toBeUndefined();
+    expect(session.world.edgeAt(tile.col, tile.row, 'n')).toBeUndefined();
 
     const cottage = session.world.objects().find((o) => o.itemId === 'cottage')!;
     expect(session.farm.demolish(cottage.id).ok).toBe(false);

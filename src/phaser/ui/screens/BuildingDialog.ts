@@ -219,9 +219,9 @@ function buildProduction(ctx: Ctx, body: Phaser.GameObjects.Container): void {
       const output = Object.keys(session.content.recipes.get(job.recipeId).outputs)[0] ?? '';
       const key = itemIconKey(session.content, output);
       slot.icon.setTexture(key).setAlpha(1);
-      slot.icon.setScale(
-        Math.max(1, Math.floor((SLOT - UI_PX * 10) / Math.max(slot.icon.width, slot.icon.height))),
-      );
+      const targetSize = SLOT - UI_PX * 10;
+      const largest = Math.max(slot.icon.width, slot.icon.height, 1);
+      slot.icon.setScale(targetSize / largest);
       const done = job.endsAt <= now;
       const waiting = job.startsAt > now;
       slot.bar

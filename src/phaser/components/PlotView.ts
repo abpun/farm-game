@@ -4,7 +4,7 @@ import { BED_TEXTURES } from '../art/BedArtist';
 import { cropTextureKey } from '../art/CropArtist';
 import { addArt } from '../art/paint';
 import type { IsoGrid, Point } from '../iso/IsoGrid';
-import { PIXEL_SCALE } from '../layout';
+import { ICON_SCALE } from '../layout';
 import { COLORS } from '../theme';
 import { iconKey } from '../ui/uiTextures';
 import { CROP_LAYER } from '../world/itemArt';
@@ -61,7 +61,7 @@ export class PlotView {
       .setDepth(BAR_DEPTH);
     this.waterDrop = scene.add
       .image(this.centerPoint.x + grid.tileW * 0.28, this.centerPoint.y, iconKey('water'))
-      .setScale(PIXEL_SCALE)
+      .setScale(ICON_SCALE)
       .setDepth(baseDepth + CROP_LAYER + 1)
       .setVisible(false);
     this.refresh();

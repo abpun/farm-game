@@ -88,9 +88,8 @@ export class Button extends Phaser.GameObjects.Container {
     if (options.icon) {
       const icon = scene.add.image(cursor, options.height / 2, options.icon).setOrigin(0, 0.5);
       this.icon = icon;
-      icon.setScale(
-        Math.max(1, Math.floor((options.iconSize ?? options.height * 0.6) / icon.height)),
-      );
+      const targetSize = options.iconSize ?? options.height * 0.6;
+      icon.setScale(targetSize / Math.max(icon.height, 1));
       this.content.add(icon);
       cursor += icon.displayWidth + GAP;
     }

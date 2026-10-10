@@ -81,11 +81,11 @@ describe('edge items', () => {
     expect(session.farm.build('coop', tile).ok).toBe(false);
   });
 
-  it('fences the starter field with edges', () => {
-    const session = newSession();
-    expect(session.world.edgeAt(2, 3, 'n')?.itemId).toBe('fence');
-    expect(session.world.edgeAt(4, 3, 'n')).toBeUndefined();
-    expect(session.world.edgeAt(7, 4, 'w')?.itemId).toBe('fence');
+  it('places a fence on a tile edge', () => {
+    const session = richSession();
+    const tile = freeTile(session, 'fence');
+    expect(session.farm.build('fence', { ...tile, edge: 'n' }).ok).toBe(true);
+    expect(session.world.edgeAt(tile.col, tile.row, 'n')?.itemId).toBe('fence');
   });
 });
 

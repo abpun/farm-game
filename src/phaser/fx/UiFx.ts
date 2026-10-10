@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import { BARN_FULL } from '@core/FarmService';
 import type { GameSession } from '@core/GameSession';
-import { DOCK, GAME_WIDTH, PIXEL_SCALE } from '../layout';
+import { DOCK, GAME_WIDTH, ICON_SCALE } from '../layout';
 import { getUiBus } from '../session';
 import { formatMoney } from '../ui/format';
 import { itemIconKey } from '../ui/itemIcons';
@@ -127,7 +127,10 @@ export class UiFx {
     const barn = this.docks.buttons.get('barn');
     if (!barn || !this.on || this.flyers >= MAX_FLYERS) return;
     const key = itemIconKey(this.session.content, itemId);
-    const icon = this.scene.add.image(x, y, key).setDepth(FX_DEPTH).setScale(PIXEL_SCALE);
+    const icon = this.scene.add.image(x, y, key).setDepth(FX_DEPTH);
+    const largest = Math.max(icon.width, icon.height, 1);
+    const flySize = 10 * ICON_SCALE;
+    icon.setScale(flySize / largest);
     const target = { x: barn.x + DOCK.button / 2, y: barn.y + DOCK.button / 2 };
     const path = new Phaser.Curves.QuadraticBezier(
       new Phaser.Math.Vector2(x, y),
@@ -144,7 +147,8 @@ export class UiFx {
       onUpdate: () => {
         const point = path.getPoint(state.t);
         icon.setPosition(Math.round(point.x), Math.round(point.y));
-        icon.setScale(PIXEL_SCALE * (1 - state.t * UI_FX.flyShrink));
+        const baseScale = flySize / largest;
+        icon.setScale(baseScale * (1 - state.t * UI_FX.flyShrink));
       },
       onComplete: () => {
         icon.destroy();

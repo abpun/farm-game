@@ -1,9 +1,8 @@
 import type * as Phaser from 'phaser';
 import type { Point } from '../iso/IsoGrid';
-import { CAMERA, GAME_HEIGHT, GAME_WIDTH, PIXEL_SCALE } from '../layout';
+import { CAMERA, GAME_HEIGHT, GAME_WIDTH } from '../layout';
 
-// Zoom steps keep each art pixel an integer number of screen pixels.
-const ZOOM_LEVELS = [1, 2, 3, 4, 5].map((screenPixels) => screenPixels / PIXEL_SCALE);
+const ZOOM_LEVELS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3];
 const DEFAULT_ZOOM_INDEX = 2;
 const PAN_MS = 700;
 

@@ -27,7 +27,7 @@ export class CoinCounter extends Phaser.GameObjects.Container {
     this.shown = value;
     const iconSize = height - UI_PX * 6;
     this.icon = scene.add.image(UI_PX * 5 + iconSize / 2, height / 2, iconKey('coin'));
-    this.icon.setScale(Math.floor(iconSize / this.icon.height));
+    this.icon.setScale(iconSize / Math.max(this.icon.height, 1));
     this.text = scene.add
       .text(
         UI_PX * 8 + iconSize,

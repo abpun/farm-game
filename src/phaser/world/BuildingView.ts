@@ -7,7 +7,7 @@ import { animalTextureKey, EXTRA_TEXTURES } from '../art/ExtraArtist';
 import { addArt, seededRandom } from '../art/paint';
 import { reducedMotion } from '../fx/prefs';
 import type { IsoGrid } from '../iso/IsoGrid';
-import { PIXEL_SCALE } from '../layout';
+import { ICON_SCALE } from '../layout';
 import { textStyle, TEXT } from '../theme';
 import { formatDuration } from '../ui/format';
 import { itemIconKey } from '../ui/itemIcons';
@@ -49,8 +49,8 @@ export class BuildingView {
     const depth = sprite.depth;
     const top = grid.toScreen(object.col + 1, object.row + 1);
     const anchorY = top.y - grid.tileH * BUBBLE_RISE - grid.tileH;
-    const background = scene.add.image(0, 0, EXTRA_TEXTURES.bubble).setScale(PIXEL_SCALE);
-    this.bubbleIcon = scene.add.image(0, -PIXEL_SCALE, iconKey('hammer')).setScale(PIXEL_SCALE);
+    const background = scene.add.image(0, 0, EXTRA_TEXTURES.bubble).setScale(ICON_SCALE);
+    this.bubbleIcon = scene.add.image(0, -ICON_SCALE, iconKey('hammer')).setScale(ICON_SCALE);
     this.timer = scene.add
       .text(0, background.displayHeight / 2 + 4, '', textStyle(20, TEXT.base))
       .setOrigin(0.5, 0);
@@ -133,11 +133,9 @@ export class BuildingView {
     if (!icon) return;
     if (appearing) this.popBubble();
     this.bubbleIcon.setTexture(icon);
-    const scale = Math.max(
-      1,
-      Math.floor((10 * PIXEL_SCALE) / Math.max(this.bubbleIcon.width, this.bubbleIcon.height)),
-    );
-    this.bubbleIcon.setScale(Math.min(PIXEL_SCALE, scale));
+    const targetSize = 10 * ICON_SCALE;
+    const largest = Math.max(this.bubbleIcon.width, this.bubbleIcon.height, 1);
+    this.bubbleIcon.setScale(targetSize / largest);
   }
 
   // The bubble springs in when something becomes ready, so a finished batch is noticed.
@@ -158,8 +156,8 @@ export class BuildingView {
     this.stars.removeAll(true);
     for (let i = 1; i < level; i++) {
       const star = this.scene.add
-        .image(i * 8 * PIXEL_SCALE, 0, iconKey('star'))
-        .setScale(PIXEL_SCALE);
+        .image(i * 8 * ICON_SCALE, 0, iconKey('star'))
+        .setScale(ICON_SCALE);
       this.stars.add(star);
     }
   }

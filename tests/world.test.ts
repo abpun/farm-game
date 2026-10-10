@@ -55,7 +55,7 @@ describe('world map', () => {
         if (crossed) pathCells++;
       }
     }
-    expect(pathCells).toBeGreaterThan(0);
+    expect(pathCells).toBe(0);
   });
 
   it('runs the river from the pond to the sea without a gap', () => {

@@ -4,6 +4,7 @@ export const GAME_HEIGHT = 720;
 export const HUD_HEIGHT = 72;
 
 export const PIXEL_SCALE = 1;
+export const ICON_SCALE = 3;
 
 export const ISO = {
   tileWidth: 120,

@@ -44,7 +44,7 @@ export class ToastManager {
     let cursor = PADDING;
     if (options.icon) {
       const icon = scene.add.image(cursor, HEIGHT / 2, options.icon).setOrigin(0, 0.5);
-      icon.setScale(Math.max(1, Math.floor((HEIGHT - UI_PX * 6) / icon.height)));
+      icon.setScale((HEIGHT - UI_PX * 6) / Math.max(icon.height, 1));
       cursor += icon.displayWidth + UI_PX * 2;
       toast.add(icon);
     }
