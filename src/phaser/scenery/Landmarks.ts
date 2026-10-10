@@ -4,8 +4,12 @@ import { CAVE_TEXTURES } from '../art/CaveArtist';
 import { boatKey, HARBOR_TEXTURES, isletKey } from '../art/HarborArtist';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
-import { TERRAIN_DEPTH } from '../art/TerrainArtist';
-import { WATERFALL_FRAMES, waterfallFoamKey, waterfallKey } from '../art/WaterfallArtist';
+import {
+  WATERFALL_CLIFF,
+  WATERFALL_FRAMES,
+  waterfallFoamKey,
+  waterfallKey,
+} from '../art/WaterfallArtist';
 import { WILD_TEXTURES } from '../art/WildArtist';
 import { effectsEnabled, reducedMotion } from '../fx/prefs';
 import type { IsoGrid } from '../iso/IsoGrid';
@@ -13,12 +17,10 @@ import { PIXEL_SCALE } from '../layout';
 import { dressWorld } from '../map/dressing';
 import { mapToScreen, toMap, WORLD, type MapPoint, type WorldFeature } from '../map/WorldMap';
 import type { WorldShape } from '../map/WorldShape';
-import { PALETTE } from '../theme';
-import { HIGHLAND_DEPTH } from './Highlands';
+import { TERRAIN_DEPTH } from './TerrainTiles';
 
 const DEPTH_PER_V = 10;
-const MOUNTAINSIDE_DEPTH = HIGHLAND_DEPTH.near + 5;
-const ISLAND_DEPTH = TERRAIN_DEPTH.sea + 20;
+const ISLAND_DEPTH = TERRAIN_DEPTH.land + 10;
 const WATERFALL_FRAME_MS = 110;
 const BOB = { distance: PIXEL_SCALE, ms: 1400 };
 const GLOW_MS = 1200;
@@ -26,7 +28,6 @@ const SPARKLE = { everyMs: 3200, ms: 500 };
 const SAIL_MS = 1600;
 const DOCK_OFFSET = { boathouse: { u: -3.6, v: -1.2 }, goods: { u: 2.6, v: -0.4 } };
 const MOORING = { u: 1.7, v: 6.4 };
-const TRAIL_DOT = PIXEL_SCALE * 2;
 
 /** What the player tapped on the map, for the scene to act on. */
 export type LandmarkTap =
@@ -49,7 +50,7 @@ const DRESSING_TEXTURES: Record<string, string> = {
 const SEASONAL_DRESSING = new Set(['reeds', 'lily', 'hedge']);
 
 // The valley's hand-placed landmarks: cave, waterfall, harbor and boat, lighthouse, bridges,
-// islands, hidden chests and the high trail, plus riverbank and beach dressing.
+// islands and hidden discoveries, plus riverbank and beach dressing.
 export class Landmarks {
   private readonly hotspots: Hotspot[] = [];
   private readonly seasonal: Array<{ image: Phaser.GameObjects.Image; baseKey: string }> = [];
@@ -57,7 +58,6 @@ export class Landmarks {
   private cave!: Phaser.GameObjects.Image;
   private boat!: Phaser.GameObjects.Image;
   private forSale!: Phaser.GameObjects.Image;
-  private trail!: Phaser.GameObjects.Graphics;
   private boatHome = { x: 0, y: 0 };
   private boatAway: string | null = null;
 
@@ -75,7 +75,6 @@ export class Landmarks {
     WORLD.islands.forEach((island) =>
       this.image(island, isletKey(island.size), 0.5, 1).setDepth(ISLAND_DEPTH),
     );
-    this.drawTrail();
     for (const item of dressWorld(shape)) {
       const point = toMap(item.col, item.row);
       const key = DRESSING_TEXTURES[item.kind] ?? WILD_TEXTURES.shell;
@@ -116,7 +115,7 @@ export class Landmarks {
 
   pointOf(featureId: string): { x: number; y: number } | null {
     const feature = WORLD.features.find((f) => f.id === featureId);
-    return feature ? this.screen(feature, feature.lift) : null;
+    return feature ? this.screen(feature) : null;
   }
 
   private place(feature: WorldFeature): void {
@@ -141,17 +140,15 @@ export class Landmarks {
   private placeDiscovery(feature: WorldFeature): void {
     const id = feature.discovery;
     if (!id || !this.session.content.discoveries.has(id)) return;
-    const lifted = feature.lift !== undefined;
-    const key = discoveryTexture(feature.kind, false);
-    const image = this.image(feature, key, 0.5, 1, 2, feature.lift);
-    if (lifted) image.setDepth(MOUNTAINSIDE_DEPTH + 1);
+    const image = this.image(feature, discoveryTexture(feature.kind, false), 0.5, 1, 2);
     const name = this.session.content.discoveries.get(id).name;
     this.discoveryImages.set(id, image);
     this.hotspots.push({ feature, image, tap: { kind: 'discovery', id, name } });
   }
 
   private placeWaterfall(feature: WorldFeature): void {
-    const fall = this.image(feature, waterfallKey(0), 0.5, 1, 3).setDepth(MOUNTAINSIDE_DEPTH + 2);
+    this.image(feature, WATERFALL_CLIFF, 0.5, 1, 2);
+    const fall = this.image(feature, waterfallKey(0), 0.5, 1, 3);
     const foam = this.image(feature, waterfallFoamKey(0), 0.5, 0.5, 4);
     let frame = 0;
     this.scene.time.addEvent({
@@ -227,26 +224,6 @@ export class Landmarks {
     }
   }
 
-  // The high trail: a dotted path climbing the mountainside to the lookout.
-  private drawTrail(): void {
-    this.trail = this.scene.add.graphics().setDepth(MOUNTAINSIDE_DEPTH);
-    const points = WORLD.trail.map(([u, v, lift]) => this.screen({ u, v }, lift));
-    for (let i = 1; i < points.length; i++) {
-      const a = points[i - 1];
-      const b = points[i];
-      if (!a || !b) continue;
-      const steps = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / (TRAIL_DOT * 2));
-      for (let s = 0; s <= steps; s++) {
-        const x = a.x + ((b.x - a.x) * s) / steps;
-        const y = a.y + ((b.y - a.y) * s) / steps;
-        this.trail
-          .fillStyle(PALETTE.pathDark)
-          .fillRect(snap(x), snap(y) + PIXEL_SCALE, TRAIL_DOT, PIXEL_SCALE);
-        this.trail.fillStyle(PALETTE.path).fillRect(snap(x), snap(y), TRAIL_DOT, PIXEL_SCALE);
-      }
-    }
-  }
-
   private refresh(): void {
     const { mining, exploration, fishing } = this.session;
     this.cave.setTexture(mining.isUnlocked() ? CAVE_TEXTURES.open : CAVE_TEXTURES.boarded);
@@ -313,8 +290,8 @@ export class Landmarks {
     });
   }
 
-  private screen(point: MapPoint, lift = 0) {
-    return mapToScreen(this.grid.tileW, this.grid.tileH, point, lift);
+  private screen(point: MapPoint) {
+    return mapToScreen(this.grid.tileW, this.grid.tileH, point);
   }
 
   private depthAt(point: MapPoint): number {
@@ -327,16 +304,14 @@ export class Landmarks {
     originX: number,
     originY: number,
     layer = 0,
-    lift = 0,
   ): Phaser.GameObjects.Image {
-    const at = this.screen(point, lift);
+    const at = this.screen(point);
     return addArt(this.scene, at.x, at.y, key, originX, originY).setDepth(
       this.depthAt(point) + layer,
     );
   }
 }
 
-const snap = (value: number) => Math.round(value / PIXEL_SCALE) * PIXEL_SCALE;
 const offset = (point: MapPoint, by: MapPoint): MapPoint => ({
   u: point.u + by.u,
   v: point.v + by.v,

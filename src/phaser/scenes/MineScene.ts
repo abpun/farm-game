@@ -45,7 +45,7 @@ interface NodeView {
   at: { x: number; y: number };
 }
 
-// Inside the mountain: one room of deposits. Strikes and drops are core actions, so
+// Down the mine: one room of deposits. Strikes and drops are core actions, so
 // leaving, reloading or tapping fast can never pay a deposit twice.
 export class MineScene extends Phaser.Scene {
   private nodes: NodeView[] = [];

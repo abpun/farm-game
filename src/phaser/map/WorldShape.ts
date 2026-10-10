@@ -1,18 +1,35 @@
 import { polylineDistance } from '@core/config/geometry';
 import type { PathConfig } from '@core/entities/types';
 import { createNoise, type Noise } from '../art/terrain/noise';
-import { insidePolygon, profileAt, toGrid, toMap, type WorldData } from './WorldMap';
+import { CODE, TERRAINS, type Terrain, type TerrainCode } from './terrain';
+import { TerrainGrid, type CellRange } from './TerrainGrid';
+import { plantForests, type Planting } from './vegetation';
+import { profileAt, toGrid, toMap, type WorldData } from './WorldMap';
 
 export type Surface = 'grass' | 'sand' | 'water' | 'fresh' | 'rock';
 
 const COAST_WOBBLE = { frequency: 0.18, amount: 1.6 };
 const EDGE_WOBBLE = { frequency: 0.7, amount: 0.35 };
-const FOOT_WOBBLE = { frequency: 0.25, amount: 1.4 };
 const PATH_WOBBLE = { frequency: 2.2, amount: 0.07 };
 const RIVER_WOBBLE = { frequency: 0.6, amount: 0.18 };
 const POND_WOBBLE = { frequency: 0.45, amount: 1.6 };
-const BANK = { sea: [2, 6], cliff: [8, 13], fresh: [1, 2] } as const;
-const GRID_CLEARANCE = 0.4;
+/** Cells this close to the build grid stay meadow. */
+const GRID_CLEARANCE = 1;
+/** Points inside a cell tested against farm paths, matching how the farm blocks path tiles. */
+const CELL_SAMPLES = [0.2, 0.5, 0.8];
+/** Forest floor spreads this far (tiles) around each tree. */
+const CANOPY = 1.3;
+/** A trail claims a cell when it passes this close to the centre: one cell wide. */
+const TRAIL_REACH = 0.55;
+const SURFACE: Record<Terrain, Surface> = {
+  sea: 'water',
+  sand: 'sand',
+  rock: 'rock',
+  grass: 'grass',
+  woods: 'grass',
+  path: 'grass',
+  fresh: 'fresh',
+};
 const FAR = 99;
 /** Profiles are sampled this finely along u and cached. */
 const PROFILE_STEP = 0.05;
@@ -51,16 +68,21 @@ interface RiverSegment {
   wb: number;
 }
 
-// The whole map as queries in grid space: sea to the south, mountains to the north, a river
-// from the waterfall pond to the coast, and the build grid that always stays dry grass.
+// The whole map as queries in grid space: sea to the south, woods to the north, a river from
+// the waterfall pond to the coast, and the build grid that always stays dry grass. Each cell
+// gets one terrain (`terrain`), which is exactly what the tiles draw.
 export class WorldShape {
   readonly noise: Noise;
   private readonly river: RiverSegment[];
   private readonly pond: { col: number; row: number; radius: number };
   private readonly paths: Array<PathConfig & { box: Box }>;
+  private readonly farmPaths: Array<PathConfig & { box: Box }>;
+  private readonly trails: Array<PathConfig & { box: Box }>;
   private readonly riverBox: Box;
   private readonly coastCache = new Map<number, number>();
-  private readonly footCache = new Map<number, number>();
+  readonly terrain: TerrainGrid;
+  /** Every tree in the authored forests, planted once. */
+  readonly trees: Planting[];
 
   constructor(
     readonly data: WorldData,
@@ -86,15 +108,22 @@ export class WorldShape {
         return [g.col, g.row];
       }),
     }));
-    this.paths = [...farmPaths, ...worldPaths].map((path) => ({
-      ...path,
-      box: boxAround(path.points, path.width + 1),
-    }));
+    const boxed = (path: PathConfig) => ({ ...path, box: boxAround(path.points, path.width + 1) });
+    this.farmPaths = farmPaths.map(boxed);
+    this.trails = worldPaths.map(boxed);
+    this.paths = [...this.farmPaths, ...this.trails];
     const widest = Math.max(...data.river.points.map(([, , w]) => w));
     this.riverBox = boxAround(
       [...pts.map((p) => p.at), [pond.col, pond.row]],
       Math.max(widest, data.river.pond.radius) + 2,
     );
+    this.terrain = new TerrainGrid(
+      cellRange(data),
+      (col, row) => this.classify(col, row),
+      (code, col, row) => this.reach(code, col, row),
+    );
+    this.trees = plantForests(this);
+    this.shadeCanopies();
   }
 
   /** Distance in tiles from the build grid (0 inside it). */
@@ -109,14 +138,6 @@ export class WorldShape {
     return cached(this.coastCache, u, () => {
       const wobble = this.noise.fbm(u * COAST_WOBBLE.frequency + 300, 7) - 0.5;
       return profileAt(this.data.coast.points, u) + wobble * 2 * COAST_WOBBLE.amount;
-    });
-  }
-
-  /** Foot of the mountains: the v north of which everything is mountainside. */
-  footAt(u: number): number {
-    return cached(this.footCache, u, () => {
-      const wobble = this.noise.fbm(u * FOOT_WOBBLE.frequency + 500, 3) - 0.5;
-      return profileAt(this.data.mountains.foot, u) + wobble * 2 * FOOT_WOBBLE.amount;
     });
   }
 
@@ -152,26 +173,9 @@ export class WorldShape {
     return best + (wobble - 0.5) * RIVER_WOBBLE.amount;
   }
 
-  /** How far into the mountainside a point is (positive north of the foot), in v units. */
-  mountainDepth(col: number, row: number): number {
-    const { u, v } = toMap(col, row);
-    return this.footAt(u) - v;
-  }
-
+  /** What the tiles show at a fractional grid point. */
   surface(col: number, row: number): Surface {
-    if (this.gridDistance(col, row) <= GRID_CLEARANCE) return 'grass';
-    const shore = this.shoreDistance(col, row);
-    if (shore > 0) return 'water';
-    if (this.freshDistance(col, row) < 0) return 'fresh';
-    const depth = this.mountainDepth(col, row);
-    if (depth > 0) return 'rock';
-    const { u } = toMap(col, row);
-    const beach =
-      (this.data.coast.beach / 2) * (0.7 + this.noise.fbm(col * 0.5 + 9, row * 0.5) * 0.6);
-    if (shore > -beach) return this.isCliffCoast(u) ? 'rock' : 'sand';
-    const scree = this.data.mountains.scree * this.noise.fbm(col * 0.9 + 40, row * 0.9);
-    if (depth > -scree) return 'rock';
-    return 'grass';
+    return SURFACE[terrainName(this.terrain.terrainAt(col, row))];
   }
 
   isWater(col: number, row: number): boolean {
@@ -179,31 +183,85 @@ export class WorldShape {
     return surface === 'water' || surface === 'fresh';
   }
 
-  /** Height in art pixels of the bank where land drops into water. */
-  bankHeight(col: number, row: number): number {
-    const t = this.noise.fbm(col * 0.55 + 40, row * 0.55 + 40, 2);
-    const [min, max] = this.bankRange(col, row);
-    return Math.round(min + t * (max - min));
-  }
-
   isPath(col: number, row: number): boolean {
     const wobble = this.noise.value(col * PATH_WOBBLE.frequency, row * PATH_WOBBLE.frequency) - 0.5;
-    return this.paths.some(
-      (path) =>
-        inBox(path.box, col, row) &&
-        polylineDistance(path.points, col, row) < path.width / 2 + wobble * 2 * PATH_WOBBLE.amount,
+    return this.pathDistance(col, row) < wobble * 2 * PATH_WOBBLE.amount;
+  }
+
+  /** Distance past the edge of the nearest path, in tiles (negative on it). */
+  pathDistance(col: number, row: number, paths = this.paths): number {
+    let best = FAR;
+    for (const path of paths) {
+      if (!inBox(path.box, col, row)) continue;
+      best = Math.min(best, polylineDistance(path.points, col, row) - path.width / 2);
+    }
+    return best;
+  }
+
+  // The terrain of a whole cell, judged at its centre.
+  private classify(col: number, row: number): TerrainCode {
+    const x = col + 0.5;
+    const y = row + 0.5;
+    const crossed = this.pathCrosses(col, row);
+    if (this.gridDistance(x, y) < GRID_CLEARANCE) return crossed ? CODE.path : CODE.grass;
+    const shore = this.shoreDistance(x, y);
+    if (shore > 0) return CODE.sea;
+    if (this.freshDistance(x, y) < 0) return CODE.fresh;
+    if (crossed) return CODE.path;
+    const beach = (this.data.coast.beach / 2) * (0.7 + this.noise.fbm(x * 0.5 + 9, y * 0.5) * 0.6);
+    if (shore > -beach) return this.isCliffCoast(toMap(x, y).u) ? CODE.rock : CODE.sand;
+    return CODE.grass;
+  }
+
+  // The darker forest floor follows the trees that were actually planted.
+  private shadeCanopies(): void {
+    const reach = Math.ceil(CANOPY);
+    for (const tree of this.trees) {
+      const col = Math.floor(tree.col);
+      const row = Math.floor(tree.row);
+      for (let dr = -reach; dr <= reach; dr++) {
+        for (let dc = -reach; dc <= reach; dc++) {
+          const c = col + dc;
+          const r = row + dr;
+          if (Math.hypot(c + 0.5 - tree.col, r + 0.5 - tree.row) > CANOPY) continue;
+          this.terrain.repaint(c, r, CODE.grass, CODE.woods);
+        }
+      }
+    }
+  }
+
+  private pathCrosses(col: number, row: number): boolean {
+    const onFarmPath = CELL_SAMPLES.some((dy) =>
+      CELL_SAMPLES.some((dx) => this.pathDistance(col + dx, row + dy, this.farmPaths) < 0),
+    );
+    if (onFarmPath) return true;
+    return this.trails.some(
+      (trail) =>
+        inBox(trail.box, col, row) &&
+        polylineDistance(trail.points, col + 0.5, row + 0.5) < TRAIL_REACH,
     );
   }
 
-  inForest(col: number, row: number): boolean {
-    const { u, v } = toMap(col, row);
-    return this.data.forests.some((forest) => insidePolygon(forest.polygon, u, v));
+  // How readily a cell joins a diagonal river or path; the farm's own cells never do.
+  private reach(code: TerrainCode, col: number, row: number): number {
+    if (this.gridDistance(col + 0.5, row + 0.5) < GRID_CLEARANCE) return Infinity;
+    const x = col + 0.5;
+    const y = row + 0.5;
+    return code === CODE.fresh ? this.freshDistance(x, y) : this.pathDistance(x, y);
   }
+}
 
-  private bankRange(col: number, row: number): readonly [number, number] {
-    if (this.freshDistance(col, row) < 1) return BANK.fresh;
-    return this.isCliffCoast(toMap(col, row).u) ? BANK.cliff : BANK.sea;
-  }
+const terrainName = (code: TerrainCode): Terrain => TERRAINS[code] ?? 'sea';
+
+// Every cell under the map bounds, plus a one-cell rim.
+function cellRange(data: WorldData): CellRange {
+  const { west, east, north, south } = data.bounds;
+  return {
+    minCol: Math.floor((north + west) / 2) - 1,
+    minRow: Math.floor((north - east) / 2) - 1,
+    maxCol: Math.ceil((south + east) / 2) + 1,
+    maxRow: Math.ceil((south - west) / 2) + 1,
+  };
 }
 
 function segmentDistance(a: [number, number], b: [number, number], x: number, y: number) {

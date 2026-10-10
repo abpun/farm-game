@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { polylineDistance } from '@core/config/geometry';
 import { loadConfig } from '@core/config/loadConfig';
 import { dressWorld } from '@game/map/dressing';
+import { CODE } from '@game/map/terrain';
 import { plantForests } from '@game/map/vegetation';
 import { toGrid, WORLD } from '@game/map/WorldMap';
 import { WorldShape } from '@game/map/WorldShape';
@@ -27,12 +29,33 @@ describe('world map', () => {
     }
   });
 
-  it('puts the sea only in the south and mountains only in the north', () => {
+  it('puts the sea only in the south and dry land along the north edge', () => {
     for (let u = WORLD.bounds.west; u <= WORLD.bounds.east; u += 4) {
       expect(surfaceAt(u, WORLD.bounds.south - 1)).toBe('water');
-      expect(surfaceAt(u, WORLD.bounds.north + 1)).toBe('rock');
-      expect(shape.coastAt(u)).toBeGreaterThan(shape.footAt(u) + 30);
+      expect(
+        shape.isWater(at(u, WORLD.bounds.north + 1).col, at(u, WORLD.bounds.north + 1).row),
+      ).toBe(false);
     }
+  });
+
+  it('draws the farm paths on exactly the tiles the farm keeps clear', () => {
+    const { columns, rows } = config.farm.world;
+    const farmOnly = new WorldShape({ ...WORLD, paths: [] }, columns, rows, config.farm.paths);
+    let pathCells = 0;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns; col++) {
+        const crossed = [0.2, 0.5, 0.8].some((dy) =>
+          [0.2, 0.5, 0.8].some((dx) =>
+            config.farm.paths.some(
+              (p) => polylineDistance(p.points, col + dx, row + dy) < p.width / 2,
+            ),
+          ),
+        );
+        expect(farmOnly.terrain.at(col, row) === CODE.path, `${col},${row}`).toBe(crossed);
+        if (crossed) pathCells++;
+      }
+    }
+    expect(pathCells).toBeGreaterThan(0);
   });
 
   it('runs the river from the pond to the sea without a gap', () => {

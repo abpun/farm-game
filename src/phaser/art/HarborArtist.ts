@@ -1,7 +1,7 @@
 import type * as Phaser from 'phaser';
 import { PALETTE } from '../theme';
 import { bake, SHADOW, shade } from './paint';
-import { ROCK } from './TerrainArtist';
+import { ROCK } from './terrain/colors';
 
 export const HARBOR_TEXTURES = {
   dock: 'harbor-dock',

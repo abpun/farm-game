@@ -38,8 +38,15 @@ Read `CLAUDE.md` first; this skill adds the working recipes.
   forests stay outside it, and the coast stays south of v≈46.
 - Place deliberately: features at specific landmarks, forests as polygons with clearings,
   dressing (reeds, shells, hedges, signposts) generated from the geography, never sprinkled.
-- Run `npx vitest run tests/world.test.ts`; it checks the grid stays dry, the river is
-  continuous, bridges sit on path-over-river and features sit on land or by the water.
+- The map is drawn as tiles, one terrain per grid cell. Rivers and trails are classified
+  per cell (a trail claims cells within ~0.55 tiles of its line; diagonal-only links are
+  widened automatically), so a river narrower than ~1.2 tiles may break up: widen it.
+- Forest floor (`woods`) is painted around planted trees, not the whole polygon.
+- To change how a ground looks, edit its colour function in `art/terrain/tilePainter.ts`;
+  edges, banks and foam come from the corner blend margin, so keep them in that file.
+- Run `npx vitest run tests/world.test.ts tests/terrainTiles.test.ts`; they check the grid
+  stays dry, farm paths match blocked tiles, the river is continuous, bridges sit on
+  path-over-river and features sit on land or by the water.
 - Inspect with the dev handles: `__game.scene.getScene('Farm').cameras.main` (`setZoom`,
   `centerOn(u*60, v*30)`), `scenery.shape.surface(col, row)`.
 

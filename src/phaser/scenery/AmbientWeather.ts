@@ -1,5 +1,5 @@
 import type * as Phaser from 'phaser';
-import type { Bounds } from '../art/TerrainArtist';
+import type { Bounds } from '../map/WorldMap';
 import { addArt, bake, seededRandom } from '../art/paint';
 import type { AmbientKind, SeasonLook } from '../art/seasonLooks';
 

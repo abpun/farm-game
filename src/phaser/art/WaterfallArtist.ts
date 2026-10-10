@@ -1,9 +1,12 @@
 import type * as Phaser from 'phaser';
+import { bake, SHADOW } from './paint';
 import { PixelBuffer } from './PixelBuffer';
-import { FRESH } from './TerrainArtist';
+import { FRESH, ROCK } from './terrain/colors';
 
 export const WATERFALL_FRAMES = 3;
-export const WATERFALL_SIZE = { width: 26, height: 100 } as const;
+export const WATERFALL_SIZE = { width: 26, height: 46 } as const;
+export const WATERFALL_CLIFF = 'waterfall-cliff';
+const CLIFF_SIZE = { width: 84, height: 58 } as const;
 export const FOAM_SIZE = { width: 48, height: 14 } as const;
 
 export const waterfallKey = (frame: number) => `waterfall-${frame}`;
@@ -11,9 +14,11 @@ export const waterfallFoamKey = (frame: number) => `waterfall-foam-${frame}`;
 
 const WHITE = 0xf4fbff;
 const STREAK_GAP = 7;
+const MOSS = 0x4f8a3a;
 
 // Falling water as a few frames of streaks that slide down a column each frame.
 export function generateWaterfallTextures(scene: Phaser.Scene): void {
+  bake(scene, WATERFALL_CLIFF, CLIFF_SIZE.width, CLIFF_SIZE.height, drawCliff);
   for (let frame = 0; frame < WATERFALL_FRAMES; frame++) {
     const fall = new PixelBuffer(WATERFALL_SIZE.width, WATERFALL_SIZE.height);
     const { width, height } = WATERFALL_SIZE;
@@ -48,4 +53,26 @@ export function generateWaterfallTextures(scene: Phaser.Scene): void {
     }
     foam.toTexture(scene, waterfallFoamKey(frame));
   }
+}
+
+// A mossy stone ledge the stream spills over, heaped from boulders lit from the upper left.
+function drawCliff(g: Phaser.GameObjects.Graphics): void {
+  const { width, height } = CLIFF_SIZE;
+  g.fillStyle(SHADOW.color, SHADOW.alpha).fillEllipse(width / 2, height - 5, width - 4, 12);
+  const boulders: Array<[number, number, number, number]> = [
+    [42, 22, 50, 36],
+    [18, 34, 32, 34],
+    [66, 34, 32, 34],
+    [12, 48, 22, 18],
+    [72, 48, 22, 18],
+  ];
+  for (const [x, y, w, h] of boulders) {
+    g.fillStyle(ROCK.deep).fillEllipse(x, y, w, h);
+    g.fillStyle(ROCK.dark).fillEllipse(x - 1, y - 1, w - 4, h - 4);
+    g.fillStyle(ROCK.base).fillEllipse(x - 4, y - 4, w * 0.6, h * 0.55);
+    g.fillStyle(ROCK.light).fillEllipse(x - 7, y - 7, w * 0.25, h * 0.2);
+  }
+  // Moss along the lip and a dark notch where the water pours out.
+  g.fillStyle(MOSS).fillEllipse(30, 7, 22, 6).fillEllipse(56, 8, 18, 5);
+  g.fillStyle(ROCK.deep).fillRect(width / 2 - 13, 6, 26, 6);
 }

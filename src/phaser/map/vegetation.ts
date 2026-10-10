@@ -12,8 +12,8 @@ const GRID_CLEARANCE = 1.6;
 const JITTER = 0.42;
 const EDGE_KEEP = 0.45;
 const GAP_NOISE = { frequency: 0.35, threshold: 0.32 };
-/** Pines this close to the mountain foot grow tall. */
-const HIGHLAND_DEPTH = -5;
+/** Pines this far north (map v) grow tall: the old woods at the valley's head. */
+const OLD_WOODS_V = -14;
 
 // Trees on a jittered lattice inside each authored forest. Noise opens natural gaps,
 // edges thin out, and nothing lands on paths, water, beaches or the farm.
@@ -40,7 +40,7 @@ function plantForest(shape: WorldShape, forest: Forest, index: number): Planting
       const gap = shape.noise.fbm(col * GAP_NOISE.frequency + 200, row * GAP_NOISE.frequency);
       if (gap < GAP_NOISE.threshold) continue;
       if (nearEdge(forest, pu, pv, step) && roll > EDGE_KEEP) continue;
-      plantings.push({ col, row, kind: chooseKind(shape, forest, col, row, random) });
+      plantings.push({ col, row, kind: chooseKind(forest, col, row, random) });
     }
   }
   return plantings;
@@ -48,8 +48,7 @@ function plantForest(shape: WorldShape, forest: Forest, index: number): Planting
 
 function canGrow(shape: WorldShape, col: number, row: number): boolean {
   if (shape.gridDistance(col, row) < GRID_CLEARANCE) return false;
-  const surface = shape.surface(col, row);
-  if (surface !== 'grass' && surface !== 'rock') return false;
+  if (shape.surface(col, row) !== 'grass') return false;
   if (shape.freshDistance(col, row) < 0.6) return false;
   return !shape.isPath(col, row) && !shape.isPath(col + 0.3, row + 0.3);
 }
@@ -62,15 +61,9 @@ const nearEdge = (forest: Forest, u: number, v: number, step: number) =>
     [0, -step],
   ].some(([du = 0, dv = 0]) => !insidePolygon(forest.polygon, u + du, v + dv));
 
-function chooseKind(
-  shape: WorldShape,
-  forest: Forest,
-  col: number,
-  row: number,
-  random: () => number,
-): string {
+function chooseKind(forest: Forest, col: number, row: number, random: () => number): string {
   const kind = forest.kinds[Math.floor(random() * forest.kinds.length)] ?? 'bush';
-  if (kind === 'pine' && shape.mountainDepth(col, row) > HIGHLAND_DEPTH) return 'pineTall';
+  if (kind === 'pine' && toMap(col, row).v < OLD_WOODS_V) return 'pineTall';
   return kind;
 }
 

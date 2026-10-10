@@ -26,8 +26,6 @@ export type FeatureKind =
 export interface WorldFeature extends MapPoint {
   id: string;
   kind: FeatureKind;
-  /** Screen pixels above the ground, for things up on the mountainside. */
-  lift?: number;
   discovery?: string;
   spot?: string;
 }
@@ -47,19 +45,10 @@ export interface WorldPath {
   points: Array<[number, number]>;
 }
 
-export interface RangeData {
-  layer: 'near' | 'mid' | 'far';
-  baseLift: number;
-  seed: number;
-  cliffs: Array<[number, number]>;
-  peaks: Array<{ u: number; height: number; spread: number }>;
-}
-
 export interface WorldData {
   bounds: { west: number; east: number; north: number; south: number };
   seed: number;
   coast: { beach: number; points: Array<[number, number]>; cliffs: Array<[number, number]> };
-  mountains: { foot: Array<[number, number]>; scree: number; ranges: RangeData[] };
   river: {
     pond: MapPoint & { radius: number };
     /** [u, v, width in tiles] from the pond to the sea. */
@@ -69,8 +58,6 @@ export interface WorldData {
   bridges: MapPoint[];
   forests: Forest[];
   features: WorldFeature[];
-  /** [u, v, lift] points of the high trail drawn up the mountainside. */
-  trail: Array<[number, number, number]>;
   islands: Array<MapPoint & { size: number }>;
   /** Where the boat anchors out at sea for each boat fishing spot. */
   seaSpots: Record<string, MapPoint>;
@@ -111,8 +98,15 @@ export function insidePolygon(
   return inside;
 }
 
+export interface Bounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 /** World-space rectangle of the whole map. */
-export function mapBounds(tileW: number, tileH: number, data: WorldData = WORLD) {
+export function mapBounds(tileW: number, tileH: number, data: WorldData = WORLD): Bounds {
   const { west, east, north, south } = data.bounds;
   return {
     x: (west * tileW) / 2,
@@ -122,7 +116,7 @@ export function mapBounds(tileW: number, tileH: number, data: WorldData = WORLD)
   };
 }
 
-/** World-space point of a map location, optionally lifted up the screen. */
-export function mapToScreen(tileW: number, tileH: number, point: MapPoint, lift = 0) {
-  return { x: (point.u * tileW) / 2, y: (point.v * tileH) / 2 - lift };
+/** World-space point of a map location. */
+export function mapToScreen(tileW: number, tileH: number, point: MapPoint) {
+  return { x: (point.u * tileW) / 2, y: (point.v * tileH) / 2 };
 }
