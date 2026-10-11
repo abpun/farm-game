@@ -3,7 +3,7 @@ import type { CatalogItem } from '@core/entities/types';
 import type { Spot } from '@core/systems/WorldSystem';
 import { BED_TEXTURES } from '../art/BedArtist';
 import { EXTRA_TEXTURES } from '../art/ExtraArtist';
-import { fenceShape } from '../art/FenceArtist';
+import { fenceHalfKey, fencePostKey, fenceShape } from '../art/FenceArtist';
 import { houseShape, type HouseFootprint } from '../art/HouseArtist';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
@@ -72,6 +72,42 @@ export function createItemImage(
     }
   })();
   return image.setFlipX(Boolean(spot.rotated)).setDepth(itemDepth(grid, item, spot));
+}
+
+/**
+ * A fence as it autotiles: a centre post plus the rail halves pointing at neighbouring fences.
+ * `hasFenceNeighbor` reports whether the given cell holds a fence (existing ones for the live
+ * farm, or for the build ghost so the placeholder previews how it will connect).
+ */
+export function createFenceView(
+  scene: Phaser.Scene,
+  grid: IsoGrid,
+  item: CatalogItem,
+  spot: Spot,
+  seasonId: string,
+  hasFenceNeighbor: (col: number, row: number) => boolean,
+): Phaser.GameObjects.Container {
+  const shape = fenceShape(grid);
+  const center = grid.tileCenter(spot.col, spot.row);
+  const ox = shape.center.x / shape.width;
+  const oy = shape.center.y / shape.height;
+  const container = scene.add.container(center.x, center.y);
+  const piece = (key: string, flip: boolean): void => {
+    container.add(
+      scene.add
+        .image(0, 0, seasonalTexture(scene.textures, key, seasonId))
+        .setOrigin(ox, oy)
+        .setFlipX(flip),
+    );
+  };
+  // Rails first (behind), then the post caps the centre. Flipping a half on X swaps it from
+  // the col axis to the row axis. A fence with no fence neighbours is just a post.
+  if (hasFenceNeighbor(spot.col - 1, spot.row)) piece(fenceHalfKey(item.art, 'neg'), false);
+  if (hasFenceNeighbor(spot.col + 1, spot.row)) piece(fenceHalfKey(item.art, 'pos'), false);
+  if (hasFenceNeighbor(spot.col, spot.row + 1)) piece(fenceHalfKey(item.art, 'pos'), true);
+  if (hasFenceNeighbor(spot.col, spot.row - 1)) piece(fenceHalfKey(item.art, 'neg'), true);
+  piece(fencePostKey(item.art), false);
+  return container.setDepth(itemDepth(grid, item, spot));
 }
 
 /** The world texture for an item in the given season. */

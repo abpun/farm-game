@@ -167,8 +167,13 @@ export class UiFx {
     const width = Math.ceil((label.width + UI_PX * 40) / UI_PX) * UI_PX;
     const height = UI_PX * 22;
     const frame = createFrame(this.scene, -width / 2, -height / 2, width, height, 'plaque');
-    const left = this.scene.add.image(-width / 2 + UI_PX * 10, 0, star).setScale(UI_PX);
-    const right = this.scene.add.image(width / 2 - UI_PX * 10, 0, star).setScale(UI_PX);
+    const starSize = UI_PX * 10;
+    const left = this.scene.add
+      .image(-width / 2 + UI_PX * 10, 0, star)
+      .setDisplaySize(starSize, starSize);
+    const right = this.scene.add
+      .image(width / 2 - UI_PX * 10, 0, star)
+      .setDisplaySize(starSize, starSize);
     const banner = this.scene.add
       .container(GAME_WIDTH / 2, UI_FX.bannerY, [frame, label, left, right])
       .setDepth(FX_DEPTH)

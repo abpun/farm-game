@@ -24,8 +24,12 @@ export function createGame(
     type: Phaser.AUTO,
     parent,
     backgroundColor: COLORS.background,
-    pixelArt: true,
-    roundPixels: true,
+    // Realistic art direction: smooth (linear) filtering, no pixel snapping. The canvas
+    // backing store is sized to the device so FIT upscaling stays crisp instead of blurry.
+    pixelArt: false,
+    roundPixels: false,
+    antialias: true,
+    autoRound: false,
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,

@@ -7,6 +7,17 @@ import { createNoise } from './terrain/noise';
 
 export const FENCE_TEXTURES = { wood: 'fence', white: 'fence-white', hedge: 'hedge' } as const;
 
+/** Texture key for a lone fence: a single post/bush, drawn when no fence adjoins it. */
+export const fencePostKey = (artKey: string) => `${artKey}-post`;
+
+/**
+ * Texture key for one half of a fence run, from the tile centre out to a grid edge. A fence
+ * is assembled from a centre post plus the halves that point at its neighbours, so runs join
+ * up like a real fence (and corners turn). `pos` is the down-right half (toward col+1), `neg`
+ * the up-left half (toward col-1); flipping either on X reuses it for the row axis.
+ */
+export const fenceHalfKey = (artKey: string, dir: 'pos' | 'neg') => `${artKey}-half-${dir}`;
+
 const POST_HEIGHT_RATIO = 0.22;
 const HEDGE_HEIGHT_RATIO = 0.15;
 const RAIL_HEIGHTS = [0.4, 0.78] as const;
@@ -62,41 +73,69 @@ export function generateFenceTextures(scene: Phaser.Scene, grid: IsoGrid): void 
     x: shape.anchor.x + i,
     y: shape.anchor.y + Math.floor(i / 2),
   });
-  bake(scene, FENCE_TEXTURES.wood, shape.width, shape.height, (g) =>
-    drawWoodFence(g, at, run, postHeight, px),
-  );
-  bake(scene, FENCE_TEXTURES.white, shape.width, shape.height, (g) =>
-    drawPicket(g, at, run, postHeight, px),
-  );
-  bake(scene, FENCE_TEXTURES.hedge, shape.width, shape.height, (g) =>
-    drawHedge(g, at, run, HEDGE_SUMMER, px, hedgeH),
-  );
+  const mid = Math.round(run / 2);
+  const w = shape.width;
+  const h = shape.height;
+
+  type Parts = {
+    full: (g: Phaser.GameObjects.Graphics) => void;
+    post: (g: Phaser.GameObjects.Graphics) => void;
+    half: (g: Phaser.GameObjects.Graphics, i0: number, i1: number) => void;
+  };
+  const bakeType = (key: string, p: Parts): void => {
+    bake(scene, key, w, h, p.full);
+    bake(scene, fencePostKey(key), w, h, p.post);
+    bake(scene, fenceHalfKey(key, 'neg'), w, h, (g) => p.half(g, 0, mid));
+    bake(scene, fenceHalfKey(key, 'pos'), w, h, (g) => p.half(g, mid, run));
+  };
+
+  bakeType(FENCE_TEXTURES.wood, {
+    full: (g) => {
+      woodRails(g, at, 0, run, postHeight, px);
+      for (const i of [0, run]) drawPost(g, at(i), postHeight, px);
+    },
+    post: (g) => drawPost(g, at(mid), postHeight, px),
+    half: (g, i0, i1) => woodRails(g, at, i0, i1, postHeight, px),
+  });
+  bakeType(FENCE_TEXTURES.white, {
+    full: (g) => {
+      picketRails(g, at, 0, run, postHeight, px);
+      for (const i of [0, run]) drawPicketPost(g, at(i), postHeight, px);
+    },
+    post: (g) => drawPicketPost(g, at(mid), postHeight, px),
+    half: (g, i0, i1) => picketRails(g, at, i0, i1, postHeight, px),
+  });
+  const hedgeParts = (colors: HedgeColors): Parts => ({
+    full: (g) => drawHedge(g, at, 0, run, colors, px, hedgeH, run),
+    post: (g) => drawHedgePost(g, at(mid), colors, px, hedgeH),
+    half: (g, i0, i1) => drawHedge(g, at, i0, i1, colors, px, hedgeH, null),
+  });
+  bakeType(FENCE_TEXTURES.hedge, hedgeParts(HEDGE_SUMMER));
   for (const seasonId of Object.keys(SEASON_LOOKS)) {
     const colors = HEDGE[seasonId];
     if (!colors) continue;
-    const key = seasonalKey(FENCE_TEXTURES.hedge, seasonId);
-    bake(scene, key, shape.width, shape.height, (g) => drawHedge(g, at, run, colors, px, hedgeH));
+    bakeType(seasonalKey(FENCE_TEXTURES.hedge, seasonId), hedgeParts(colors));
   }
 }
 
 type Along = (i: number) => Point;
 
-function drawWoodFence(
+function woodRails(
   g: Phaser.GameObjects.Graphics,
   at: Along,
-  run: number,
+  i0: number,
+  i1: number,
   height: number,
   px: number,
 ) {
   for (const ratio of RAIL_HEIGHTS) {
     const lift = Math.round(height * ratio);
-    for (let i = 0; i <= run; i++) {
+    for (let i = Math.ceil(i0); i <= Math.floor(i1); i++) {
       const p = at(i);
       g.fillStyle(PALETTE.woodLight).fillRect(p.x, p.y - lift - px, px, px);
       g.fillStyle(PALETTE.woodDark).fillRect(p.x, p.y - lift, px, px);
     }
   }
-  for (const i of [0, run]) drawPost(g, at(i), height, px);
 }
 
 function drawPost(g: Phaser.GameObjects.Graphics, base: Point, height: number, px: number): void {
@@ -106,46 +145,73 @@ function drawPost(g: Phaser.GameObjects.Graphics, base: Point, height: number, p
   g.fillStyle(PALETTE.woodLight).fillRect(base.x - px, base.y - height, w - px, px);
 }
 
-function drawPicket(
+function picketRails(
   g: Phaser.GameObjects.Graphics,
   at: Along,
-  run: number,
+  i0: number,
+  i1: number,
   height: number,
   px: number,
 ) {
   const rail = Math.round(height * RAIL_HEIGHTS[0]);
   const gap = Math.max(2, px * 2);
-  for (let i = 0; i <= run; i++) {
+  for (let i = Math.ceil(i0); i <= Math.floor(i1); i++) {
     const p = at(i);
     g.fillStyle(PICKET.rail).fillRect(p.x, p.y - rail - px, px, px * 2);
   }
-  for (let i = px; i < run; i += gap) {
+  // Pickets are placed on a global cadence so they line up across adjoining halves.
+  for (let i = Math.ceil(i0); i <= Math.floor(i1); i++) {
+    if (i < px || (i - px) % gap !== 0) continue;
     const p = at(i);
     const board = Math.floor(i / gap) % 2 < 1 ? PICKET.white : PICKET.shade;
     g.fillStyle(PICKET.outline).fillRect(p.x, p.y - height + px, px, height);
     g.fillStyle(board).fillRect(p.x, p.y - height + px * 2, px, height - px * 3);
   }
-  for (const i of [0, run]) {
-    const p = at(i);
-    const w = px * 3;
-    g.fillStyle(PICKET.outline).fillRect(p.x - px, p.y - height - px, w, height + px * 2);
-    g.fillStyle(PICKET.white).fillRect(p.x - px, p.y - height, w - px, height);
+}
+
+function drawPicketPost(
+  g: Phaser.GameObjects.Graphics,
+  p: Point,
+  height: number,
+  px: number,
+): void {
+  const w = px * 3;
+  g.fillStyle(PICKET.outline).fillRect(p.x - px, p.y - height - px, w, height + px * 2);
+  g.fillStyle(PICKET.white).fillRect(p.x - px, p.y - height, w - px, height);
+  g.fillStyle(PICKET.shade).fillRect(p.x - px + (w - px), p.y - height, px, height);
+}
+
+// A single rounded bush: a short dome of leaf columns tapering on both sides.
+function drawHedgePost(
+  g: Phaser.GameObjects.Graphics,
+  p: Point,
+  colors: HedgeColors,
+  px: number,
+  hedgeH: number,
+): void {
+  const spread = 2;
+  for (let k = -spread; k <= spread; k++) {
+    const column = { x: p.x + k * px, y: p.y + Math.floor(Math.abs(k) / 2) * px };
+    const falloff = Math.abs(k);
+    hedgeColumn(g, column, spread - falloff, spread * 2, k >= 0, colors, px, hedgeH);
   }
 }
 
 function drawHedge(
   g: Phaser.GameObjects.Graphics,
   at: Along,
-  run: number,
+  i0: number,
+  i1: number,
   [dark, base, light, top]: HedgeColors,
   px: number,
   hedgeH: number,
+  taperRun: number | null,
 ) {
   for (const k of HEDGE_LAYERS) {
-    for (let i = 0; i <= run; i++) {
+    for (let i = Math.ceil(i0); i <= Math.floor(i1); i++) {
       const edge = at(i);
       const p = { x: edge.x - 2 * k * px, y: edge.y + k * px };
-      hedgeColumn(g, p, i, run, k === 1, [dark, base, light, top], px, hedgeH);
+      hedgeColumn(g, p, i, taperRun, k === 1, [dark, base, light, top], px, hedgeH);
     }
   }
 }
@@ -154,13 +220,15 @@ function hedgeColumn(
   g: Phaser.GameObjects.Graphics,
   p: Point,
   i: number,
-  run: number,
+  taperRun: number | null,
   front: boolean,
   [dark, base, light, top]: HedgeColors,
   px: number,
   hedgeH: number,
 ) {
-  const fromEnd = Math.min(i, run - i);
+  // Halves keep full height so they meet the neighbouring tile flush; only a full run (icon)
+  // rounds off at its ends.
+  const fromEnd = taperRun === null ? HEDGE_ROUND : Math.min(i, taperRun - i);
   const round = Math.round(HEDGE_ROUND * px);
   const height = hedgeH - Math.max(0, round - fromEnd) * px;
   for (let dy = 0; dy <= height; dy += px) {

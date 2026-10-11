@@ -6,8 +6,9 @@ import { BED_TEXTURES } from '../art/BedArtist';
 import { addArt } from '../art/paint';
 import type { IsoGrid } from '../iso/IsoGrid';
 import type { Tool } from '../tools';
-import { createItemImage } from './itemArt';
+import { createFenceView, createItemImage } from './itemArt';
 import { pickObject, spotUnder, type GridPoint } from './spots';
+import type { WorldView } from './WorldView';
 
 const CURSOR_DEPTH = 20000;
 const GHOST_ALPHA = 0.7;
@@ -21,13 +22,14 @@ export interface Cell {
 // Hover feedback: a tile outline, or a ghost of the item being built or moved, tinted by
 // whether it fits.
 export class BuildCursor {
-  private ghost: Phaser.GameObjects.Image | null = null;
+  private ghost: Phaser.GameObjects.GameObject | null = null;
   private readonly outlines: Phaser.GameObjects.Image[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly session: GameSession,
     private readonly grid: IsoGrid,
+    private readonly world: WorldView,
   ) {}
 
   show(point: GridPoint | null, tool: Tool): void {
@@ -60,10 +62,23 @@ export class BuildCursor {
   private showGhost(item: CatalogItem, spot: Spot, valid: boolean): void {
     const tint = valid ? TINT.valid : TINT.invalid;
     const season = this.session.seasons.current().id;
-    this.ghost = createItemImage(this.scene, this.grid, item, spot, season)
-      .setAlpha(GHOST_ALPHA)
-      .setTint(tint)
-      .setDepth(CURSOR_DEPTH);
+    if (item.kind === 'fence') {
+      // Preview exactly as it will autotile: a lone post, or rails joining existing fences.
+      // Also grow the matching rail on those neighbours so the two visibly meet.
+      const ghost = createFenceView(this.scene, this.grid, item, spot, season, (col, row) => {
+        const object = this.session.world.objectAt(col, row);
+        return object !== undefined && this.session.catalog.get(object.itemId).kind === 'fence';
+      }).setAlpha(GHOST_ALPHA);
+      ghost.setDepth(CURSOR_DEPTH);
+      ghost.list.forEach((child) => (child as Phaser.GameObjects.Image).setTint(tint));
+      this.ghost = ghost;
+      if (valid) this.world.previewFenceAt(spot);
+    } else {
+      this.ghost = createItemImage(this.scene, this.grid, item, spot, season)
+        .setAlpha(GHOST_ALPHA)
+        .setTint(tint)
+        .setDepth(CURSOR_DEPTH);
+    }
     this.outline(this.session.world.cellsFor(item.id, spot.col, spot.row, spot.rotated), tint);
   }
 
@@ -92,6 +107,7 @@ export class BuildCursor {
   private clear(): void {
     this.ghost?.destroy();
     this.ghost = null;
+    this.world.clearFencePreview();
     this.outlines.splice(0).forEach((image) => image.destroy());
   }
 }

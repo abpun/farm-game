@@ -61,7 +61,7 @@ export class PlotView {
       .setDepth(BAR_DEPTH);
     this.waterDrop = scene.add
       .image(this.centerPoint.x + grid.tileW * 0.28, this.centerPoint.y, iconKey('water'))
-      .setScale(ICON_SCALE)
+      .setDisplaySize(ICON_SCALE * 8, ICON_SCALE * 8)
       .setDepth(baseDepth + CROP_LAYER + 1)
       .setVisible(false);
     this.refresh();

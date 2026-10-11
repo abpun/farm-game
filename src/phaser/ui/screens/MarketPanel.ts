@@ -145,6 +145,14 @@ export class MarketPanel {
     this.show(this.category);
   }
 
+  /** Opens the drawer, optionally jumping straight to a category (e.g. seeds for a bed). */
+  open(category?: string): void {
+    if (category && this.session.catalog.categories().some((c) => c.id === category)) {
+      this.show(category);
+    }
+    if (!this.drawer.isOpen) this.drawer.toggle();
+  }
+
   private pick(tool: Tool): void {
     if (tool.kind === 'move' && this.tools.tool.kind === 'move') this.tools.clear();
     else this.tools.toggle(tool);

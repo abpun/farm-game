@@ -83,12 +83,21 @@ export const TEXT = {
   success: '#d4f59a',
 } as const;
 
-export const FONT = '"VT323", "Courier New", monospace';
+export const FONT = '"Nunito", "Segoe UI", system-ui, sans-serif';
+
+// Text is rasterised to a texture then stretched by the FIT scaler, so render it at a
+// higher resolution to stay crisp on high-DPI and upscaled displays.
+export const TEXT_RESOLUTION = Math.min(
+  typeof window === 'undefined' ? 2 : Math.max(window.devicePixelRatio || 1, 2),
+  3,
+);
 
 export const textStyle = (size: number, color: string = TEXT.base) => ({
   fontFamily: FONT,
   fontSize: `${size}px`,
+  fontStyle: '700',
   color,
   stroke: '#3a2414',
-  strokeThickness: 4,
+  strokeThickness: 3,
+  resolution: TEXT_RESOLUTION,
 });

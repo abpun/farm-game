@@ -44,6 +44,7 @@ export class Hud {
     createFrame(scene, dayX, margin, dayWidth, height, 'plaque');
     this.seasonIcon = scene.add
       .image(dayX + UI_PX * 5 + iconSize / 2, margin + height / 2, iconKey('clock'))
+      .setDisplaySize(iconSize, iconSize)
       .setDepth(1);
     this.iconSize = iconSize;
     this.dayText = scene.add
@@ -58,7 +59,7 @@ export class Hud {
     scene.add
       .image(levelX + UI_PX * 5, margin + height / 2 - UI_PX * 2, iconKey('star'))
       .setOrigin(0, 0.5)
-      .setScale(UI_PX)
+      .setDisplaySize(UI_PX * 8, UI_PX * 8)
       .setDepth(1);
     this.levelText = scene.add
       .text(levelX + UI_PX * 15, margin + height / 2 - UI_PX * 2, '', uiTextOnWood(FONT_SIZE.title))
@@ -77,7 +78,7 @@ export class Hud {
     this.saveIcon = scene.add
       .image(levelX + levelWidth + margin, margin + height / 2, iconKey('save'))
       .setOrigin(0, 0.5)
-      .setScale(UI_PX)
+      .setDisplaySize(UI_PX * 8, UI_PX * 8)
       .setAlpha(0);
 
     new Button(scene, GAME_WIDTH - margin - height, margin, {

@@ -148,7 +148,7 @@ function buildProduction(ctx: Ctx, body: Phaser.GameObjects.Container): void {
     const frame = createFrame(scene, x, 0, SLOT, SLOT, 'slot');
     const icon = scene.add
       .image(x + SLOT / 2, SLOT / 2 - UI_PX * 2, iconKey('plus'))
-      .setScale(UI_PX);
+      .setDisplaySize(UI_PX * 8, UI_PX * 8);
     const bar = new ProgressBar(
       scene,
       x + UI_PX * 3,
@@ -211,7 +211,10 @@ function buildProduction(ctx: Ctx, body: Phaser.GameObjects.Container): void {
       [slot.frame, slot.icon, slot.bar, slot.time].forEach((o) => o.setVisible(visible));
       if (!visible) return;
       if (!job) {
-        slot.icon.setTexture(iconKey('plus')).setScale(UI_PX).setAlpha(0.35);
+        slot.icon
+          .setTexture(iconKey('plus'))
+          .setDisplaySize(UI_PX * 8, UI_PX * 8)
+          .setAlpha(0.35);
         slot.bar.setVisible(false);
         slot.time.setText('Empty');
         return;

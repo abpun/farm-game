@@ -71,10 +71,8 @@ export class UIScene extends Phaser.Scene {
     const fishing = new FishingPanel(this, session, toasts, right, DOCK.top, chart);
     const orders = new OrdersPanel(this, session, toasts, right, DOCK.top);
     const trophies = new TrophiesPanel(this, session, toasts, left, DOCK.top);
-    this.drawers.set(
-      'market',
-      new MarketPanel(this, session, tools, toasts, right, DOCK.top).drawer,
-    );
+    const market = new MarketPanel(this, session, tools, toasts, right, DOCK.top);
+    this.drawers.set('market', market.drawer);
     this.drawers.set('barn', new BarnPanel(this, session, toasts, right, DOCK.top).drawer);
     this.drawers.set(
       'crafting',
@@ -106,6 +104,10 @@ export class UIScene extends Phaser.Scene {
     new UiFx(this, session, this.hud, docks);
 
     uiBus.on('OpenBuilding', ({ objectId }) => openBuilding(objectId));
+    uiBus.on('OpenMarket', ({ category }) => {
+      this.drawers.forEach((drawer, id) => id !== 'market' && drawer.close());
+      market.open(category);
+    });
     uiBus.on('OpenFishing', ({ spotId }) => {
       fishing.focusSpot(spotId);
       if (!fishing.drawer.isOpen) this.toggleDrawer('fishing');

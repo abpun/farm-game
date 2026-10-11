@@ -77,7 +77,7 @@ export class Docks {
         scene.add
           .image(x + DOCK.button - UI_PX * 2, y + DOCK.button - UI_PX * 2, iconKey('lock'))
           .setOrigin(1)
-          .setScale(LOCK_SCALE)
+          .setDisplaySize(LOCK_SCALE * 8, LOCK_SCALE * 8)
           .setDepth(DOCK_DEPTH + 1);
       }
       this.buttons.set(entry.id, button);

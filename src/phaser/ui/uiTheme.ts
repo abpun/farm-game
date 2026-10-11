@@ -1,4 +1,4 @@
-import { FONT } from '../theme';
+import { FONT, TEXT_RESOLUTION } from '../theme';
 
 // UI art pixels are upscaled by this factor; keep widget sizes multiples of it.
 export const UI_PX = 3;
@@ -32,12 +32,16 @@ export const UI_TEXT = {
   good: '#3f7a1e',
 } as const;
 
-export const FONT_SIZE = { small: 24, body: 28, title: 32, big: 40 } as const;
+// Nunito renders wider and taller than the old monospace font, so sizes are pulled down to
+// keep labels inside their rows and panels.
+export const FONT_SIZE = { small: 18, body: 21, title: 26, big: 32 } as const;
 
 export const uiText = (size: number, color: string = UI_TEXT.dark) => ({
   fontFamily: FONT,
   fontSize: `${size}px`,
+  fontStyle: '700',
   color,
+  resolution: TEXT_RESOLUTION,
 });
 
 // Light text over wood gets a one-art-pixel drop shadow instead of a soft stroke.

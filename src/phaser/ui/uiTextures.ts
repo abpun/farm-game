@@ -1,9 +1,12 @@
 import type * as Phaser from 'phaser';
-import { maskSize, paintTexture, type MaskPalette, type PixelPainter } from './pixelPaint';
+import { drawIcon } from './iconArt';
+import { paintTexture, type PixelPainter } from './pixelPaint';
 import { UI_COLORS as C } from './uiTheme';
 
 export const FRAME_SIZE = 12;
 export const FRAME_SLICE = 4;
+/** Vector icons are baked onto a canvas this many pixels square, then scaled down in the UI. */
+const ICON_SIZE = 128;
 
 interface FrameColors {
   outline: number;
@@ -113,29 +116,8 @@ const FRAMES = {
 export type FrameName = keyof typeof FRAMES;
 export const frameKey = (name: FrameName) => `ui-frame-${name}`;
 
-const ICON_PALETTE: MaskPalette = {
-  o: C.outline,
-  y: 0xf6c544,
-  Y: 0xfff3c0,
-  h: 0xd08a1e,
-  w: 0xfff1d0,
-  W: 0xffffff,
-  g: 0xc9b9a0,
-  b: 0x8a5a32,
-  B: 0xd9b06a,
-  r: 0xb8432a,
-  R: 0xe0603a,
-  u: 0x3b6fb6,
-  U: 0x7fa8de,
-  k: 0xcfd8e3,
-  n: 0x5e9a34,
-  N: 0xa6d65e,
-  p: 0xf4b6c8,
-  l: 0xe07b2a,
-  L: 0xb85a1c,
-  s: 0xe2eaf3,
-};
-
+// The names registered here are the UI's icon set; each is drawn as smooth vector art by
+// `iconArt`. The old pixel-mask rows are kept only as the source of these names.
 const ICONS = {
   coin: [
     '..oooo..',
@@ -480,38 +462,23 @@ export const iconKey = (name: IconName) => `ui-icon-${name}`;
 export const seasonIconKey = (seasonId: string) =>
   seasonId in ICONS ? `ui-icon-${seasonId}` : iconKey('clock');
 
-const UI_DIR = 'assets/ui';
-const pngSheetKey = (name: string) => `ui-png-${name}`;
-
-export function loadUiIcons(scene: Phaser.Scene): void {
-  for (const name of Object.keys(ICONS)) {
-    scene.load.image(pngSheetKey(name), `${UI_DIR}/${name}.png`);
-  }
-}
-
 export function generateUiTextures(scene: Phaser.Scene): void {
   for (const [name, colors] of Object.entries(FRAMES)) {
     paintTexture(scene, frameKey(name as FrameName), FRAME_SIZE, FRAME_SIZE, (p) =>
       drawFrame(p, colors),
     );
   }
-  for (const [name, rows] of Object.entries(ICONS)) {
+  for (const name of Object.keys(ICONS)) {
     const key = iconKey(name as IconName);
-    const { width, height } = maskSize(rows);
-    const png = pngSheetKey(name);
-    if (scene.textures.exists(png)) {
-      const source = scene.textures.get(png).getSourceImage() as HTMLImageElement;
-      const texture = scene.textures.createCanvas(key, width, height);
-      if (texture) {
-        const ctx = texture.getContext();
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(source, 0, 0, width, height);
-        texture.refresh();
-      }
-      continue;
-    }
-    paintTexture(scene, key, width, height, (p) => p.mask(rows, ICON_PALETTE));
+    if (scene.textures.exists(key)) continue;
+    const texture = scene.textures.createCanvas(key, ICON_SIZE, ICON_SIZE);
+    if (!texture) continue;
+    const ctx = texture.getContext();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.scale(ICON_SIZE / 100, ICON_SIZE / 100);
+    drawIcon(ctx, name as IconName);
+    texture.refresh();
   }
 }
 

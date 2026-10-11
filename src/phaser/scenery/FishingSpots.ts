@@ -113,7 +113,7 @@ export class FishingSpots {
       .setDepth(LABEL_DEPTH);
     const lock = this.scene.add
       .image(at.x + label.width / 2 + 10, at.y - LABEL_RISE - label.height / 2, iconKey('lock'))
-      .setScale(LOCK_SCALE)
+      .setDisplaySize(LOCK_SCALE * 8, LOCK_SCALE * 8)
       .setDepth(LABEL_DEPTH);
     return { spotId, feature, at, label, lock };
   }

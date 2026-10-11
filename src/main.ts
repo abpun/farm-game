@@ -1,4 +1,5 @@
-import '@fontsource/vt323/400.css';
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/700.css';
 import music from '@data/music.json';
 import { createAudio } from '@audio/createAudio';
 import { pickTrack } from '@audio/musicDirector';
@@ -13,8 +14,11 @@ import { createBrowserStore } from './platform/browserStore';
 import { prefersReducedMotion } from './platform/motion';
 
 async function main(): Promise<void> {
-  // Phaser rasterises text once, so the pixel font must be ready before the first scene.
-  await document.fonts.load(`20px ${FONT}`).catch(() => undefined);
+  // Phaser rasterises text once, so the UI font (regular and bold) must be ready first.
+  await Promise.all([
+    document.fonts.load(`400 20px ${FONT}`),
+    document.fonts.load(`700 20px ${FONT}`),
+  ]).catch(() => undefined);
   const store = createBrowserStore();
   // Settings load first so the very first sound already respects volume and mutes.
   const settings = new SettingsStore(store, { reducedMotion: prefersReducedMotion() });

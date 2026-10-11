@@ -59,7 +59,7 @@ export class FarmScene extends Phaser.Scene {
     new LandView(this, session, this.grid);
     this.fishingSpots = new FishingSpots(this, session, this.grid);
     this.world = new WorldView(this, session, this.grid);
-    this.cursor = new BuildCursor(this, session, this.grid);
+    this.cursor = new BuildCursor(this, session, this.grid, this.world);
     this.sweep = new FarmSweep(session, (message, at) =>
       this.say(this.cellOf(at), message, TEXT.error),
     );
@@ -266,7 +266,8 @@ export class FarmScene extends Phaser.Scene {
 
   // Ready: harvest. Growing: water once, then show time left. Empty: plant the armed seed.
   private tapPlot(plotId: number, seed: string | null, say: Say): void {
-    const { farm, plots, crops } = getSession(this);
+    const session = getSession(this);
+    const { farm, plots, crops } = session;
     if (plots.isReady(plotId)) {
       const result = farm.harvest(plotId);
       if (!result.ok) say(result.reason, TEXT.error);
@@ -282,7 +283,9 @@ export class FarmScene extends Phaser.Scene {
       return;
     }
     if (!seed) {
-      say('Pick a seed in the Market', TEXT.muted);
+      // Empty bed with nothing armed: open the Market straight to the seeds for this plot.
+      const soil = session.catalog.get(session.world.get(plotId)?.itemId ?? '').soil;
+      getUiBus(this).emit('OpenMarket', { category: soil === 'orchard' ? 'orchard' : 'crops' });
       return;
     }
     const result = farm.plant(plotId, seed);

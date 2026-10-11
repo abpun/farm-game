@@ -3,6 +3,8 @@ import { EventBus } from '@core/events/EventBus';
 /** Requests from the farm view to the UI layer (opening panels for things tapped on the map). */
 export interface UiEvents {
   OpenBuilding: { objectId: number };
+  /** Open the Market drawer, optionally jumping to the seeds for a kind of plot. */
+  OpenMarket: { category?: string };
   OpenFishing: { spotId: string };
   /** An unowned tile was tapped; col/row pick out which expansion plot to show. */
   OpenLand: { col: number; row: number };

@@ -50,7 +50,9 @@ export class BuildingView {
     const top = grid.toScreen(object.col + 1, object.row + 1);
     const anchorY = top.y - grid.tileH * BUBBLE_RISE - grid.tileH;
     const background = scene.add.image(0, 0, EXTRA_TEXTURES.bubble).setScale(ICON_SCALE);
-    this.bubbleIcon = scene.add.image(0, -ICON_SCALE, iconKey('hammer')).setScale(ICON_SCALE);
+    this.bubbleIcon = scene.add
+      .image(0, -ICON_SCALE, iconKey('hammer'))
+      .setDisplaySize(ICON_SCALE * 8, ICON_SCALE * 8);
     this.timer = scene.add
       .text(0, background.displayHeight / 2 + 4, '', textStyle(20, TEXT.base))
       .setOrigin(0.5, 0);
@@ -157,7 +159,7 @@ export class BuildingView {
     for (let i = 1; i < level; i++) {
       const star = this.scene.add
         .image(i * 8 * ICON_SCALE, 0, iconKey('star'))
-        .setScale(ICON_SCALE);
+        .setDisplaySize(ICON_SCALE * 8, ICON_SCALE * 8);
       this.stars.add(star);
     }
   }

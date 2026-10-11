@@ -107,7 +107,7 @@ export class MineScene extends Phaser.Scene {
     const pips = this.add.graphics().setDepth(at.y + 1);
     const lock = this.add
       .image(at.x + UI_PX * 9, at.y - UI_PX * 18, iconKey('lock'))
-      .setScale(2)
+      .setDisplaySize(UI_PX * 7, UI_PX * 7)
       .setDepth(at.y + 2);
     return { id: nodeId, image, pips, lock, at };
   }
