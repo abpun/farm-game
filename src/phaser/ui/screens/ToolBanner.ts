@@ -84,8 +84,7 @@ export class ToolBanner {
       }
       case 'build': {
         const item = catalog.get(tool.itemId);
-        const where = item.placement === 'edge' ? 'tile edges' : 'tiles';
-        return `Placing ${item.name} ($${formatMoney(item.price)}) · tap or drag along ${where}`;
+        return `Placing ${item.name} ($${formatMoney(item.price)}) · tap or drag along tiles`;
       }
       case 'move': {
         const object = tool.objectId === null ? undefined : world.get(tool.objectId);

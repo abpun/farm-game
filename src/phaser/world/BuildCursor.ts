@@ -5,14 +5,12 @@ import type { Spot } from '@core/systems/WorldSystem';
 import { BED_TEXTURES } from '../art/BedArtist';
 import { addArt } from '../art/paint';
 import type { IsoGrid } from '../iso/IsoGrid';
-import { PIXEL_SCALE } from '../layout';
 import type { Tool } from '../tools';
 import { createItemImage } from './itemArt';
 import { pickObject, spotUnder, type GridPoint } from './spots';
 
 const CURSOR_DEPTH = 20000;
 const GHOST_ALPHA = 0.7;
-const EDGE_LINE = PIXEL_SCALE;
 const TINT = { valid: 0xb6ff9e, invalid: 0xff8a80, neutral: 0xffffff } as const;
 
 export interface Cell {
@@ -21,19 +19,16 @@ export interface Cell {
 }
 
 // Hover feedback: a tile outline, or a ghost of the item being built or moved, tinted by
-// whether it fits. Edge items snap to the nearest tile edge.
+// whether it fits.
 export class BuildCursor {
   private ghost: Phaser.GameObjects.Image | null = null;
   private readonly outlines: Phaser.GameObjects.Image[] = [];
-  private readonly edgeLine: Phaser.GameObjects.Graphics;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly session: GameSession,
     private readonly grid: IsoGrid,
-  ) {
-    this.edgeLine = scene.add.graphics().setDepth(CURSOR_DEPTH - 1);
-  }
+  ) {}
 
   show(point: GridPoint | null, tool: Tool): void {
     this.clear();
@@ -42,7 +37,7 @@ export class BuildCursor {
     const { world, catalog, economy } = this.session;
     if (tool.kind === 'build') {
       const item = catalog.get(tool.itemId);
-      const spot = spotUnder(point, world.isEdgeItem(item.id));
+      const spot = spotUnder(point);
       const valid = world.canPlace(item.id, spot) && economy.canAfford(item.price);
       this.showGhost(item, spot, valid);
       return;
@@ -51,7 +46,7 @@ export class BuildCursor {
       const object = world.get(tool.objectId);
       if (!object) return;
       const item = catalog.get(object.itemId);
-      const spot = spotUnder(point, world.isEdgeItem(item.id), tool.rotated);
+      const spot = spotUnder(point, tool.rotated);
       this.showGhost(item, spot, world.canMove(object.id, spot));
       return;
     }
@@ -69,8 +64,7 @@ export class BuildCursor {
       .setAlpha(GHOST_ALPHA)
       .setTint(tint)
       .setDepth(CURSOR_DEPTH);
-    if (spot.edge) this.drawEdge(spot, tint);
-    else this.outline(this.session.world.cellsFor(item.id, spot.col, spot.row, spot.rotated), tint);
+    this.outline(this.session.world.cellsFor(item.id, spot.col, spot.row, spot.rotated), tint);
   }
 
   private showTarget(point: GridPoint, removing: boolean): void {
@@ -82,17 +76,7 @@ export class BuildCursor {
       : catalog.get(target.itemId).removable
         ? TINT.invalid
         : TINT.neutral;
-    if (target.edge) this.drawEdge(target, tint);
-    else this.outline(world.cellsOf(target), tint);
-  }
-
-  private drawEdge(spot: Spot, tint: number): void {
-    const from = this.grid.toScreen(spot.col, spot.row);
-    const to =
-      spot.edge === 'w'
-        ? this.grid.toScreen(spot.col, spot.row + 1)
-        : this.grid.toScreen(spot.col + 1, spot.row);
-    this.edgeLine.lineStyle(EDGE_LINE, tint).lineBetween(from.x, from.y, to.x, to.y);
+    this.outline(world.cellsOf(target), tint);
   }
 
   private outline(cells: Array<[number, number]>, tint: number): void {
@@ -108,7 +92,6 @@ export class BuildCursor {
   private clear(): void {
     this.ghost?.destroy();
     this.ghost = null;
-    this.edgeLine.clear();
     this.outlines.splice(0).forEach((image) => image.destroy());
   }
 }

@@ -1,7 +1,7 @@
 import { fail, ok, type ActionResult } from './actions';
 import { DEBUG_MODE } from './debug';
 import type { ItemCategory } from './entities/content';
-import type { BlockExpansion, LandBlock, LandExpansion } from './entities/types';
+import type { BlockExpansion } from './entities/types';
 import type { Spot } from './systems/WorldSystem';
 import type { GameContext } from './services/GameContext';
 import { payCost } from './services/rewards';
@@ -15,8 +15,7 @@ export class FarmService {
   constructor(
     private readonly ctx: GameContext,
     private readonly refundRatio: number,
-    private readonly expansions: readonly LandExpansion[],
-    private readonly blockExpansions: readonly BlockExpansion[] = [],
+    private readonly expansionBlocks: readonly BlockExpansion[],
   ) {}
 
   plant(plotId: number, cropId: string): ActionResult {
@@ -170,13 +169,6 @@ export class FarmService {
     const { world, bus } = this.ctx;
     const object = world.get(objectId);
     if (!object) return fail('Nothing there');
-    if (world.isEdgeItem(object.itemId)) {
-      const edge = object.edge === 'w' ? 'n' : 'w';
-      const from = world.move(objectId, { col: object.col, row: object.row, edge });
-      if (!from) return fail('No room to turn it');
-      bus.emit('ObjectMoved', { object, from });
-      return ok;
-    }
     const spot = { col: object.col, row: object.row, rotated: !object.rotated };
     const from = world.move(objectId, spot);
     if (!from) return fail('No room to turn it');
@@ -204,68 +196,54 @@ export class FarmService {
     return ok;
   }
 
-  nextExpansion(): LandExpansion | undefined {
-    return this.expansions.find((expansion) => expansion.size > this.ctx.state.landSize);
+  /** Every fixed plot not yet bought, stone-bordered on the map until it is. */
+  pendingBlocks(): readonly BlockExpansion[] {
+    const claimed = new Set(this.ctx.state.claimedBlocks);
+    return this.expansionBlocks.filter((b) => !claimed.has(b.id));
   }
 
-  expandLand(): ActionResult {
-    const { economy, progression, state, bus } = this.ctx;
-    const next = this.nextExpansion();
-    if (!next) return fail('All land is yours');
-    if (!progression.isUnlocked(next.unlockLevel))
-      return fail(`Unlocks at level ${next.unlockLevel}`);
-    if (!economy.spend(next.price)) return fail('Not enough money');
-    state.landSize = next.size;
-    state.ownedBlocks = [{ col: 0, row: 0, cols: next.size, rows: next.size }];
-    bus.emit('LandExpanded', { size: next.size });
-    return ok;
+  /** The not-yet-bought plot covering this tile, if any. */
+  blockAt(col: number, row: number): BlockExpansion | undefined {
+    return this.pendingBlocks().find(
+      (b) => col >= b.col && col < b.col + b.cols && row >= b.row && row < b.row + b.rows,
+    );
   }
 
-  availableBlocks(): readonly BlockExpansion[] {
+  /** The cheapest plot the player could buy right now (unlocked and touching owned land). */
+  cheapestAvailableBlock(): BlockExpansion | undefined {
     const { progression } = this.ctx;
-    return this.blockExpansions.filter((b) => progression.isUnlocked(b.unlockLevel));
+    return this.pendingBlocks()
+      .filter((b) => progression.isUnlocked(b.unlockLevel) && this.touchesOwned(b))
+      .sort((a, b) => a.price - b.price)[0];
   }
 
-  canPlaceBlock(block: BlockExpansion, col: number, row: number): boolean {
+  /** True once a plot shares an edge with land the player already owns. */
+  touchesOwned(block: Pick<BlockExpansion, 'col' | 'row' | 'cols' | 'rows'>): boolean {
     const { world } = this.ctx;
-    if (
-      col < 0 ||
-      row < 0 ||
-      col + block.cols > world.size.columns ||
-      row + block.rows > world.size.rows
-    )
-      return false;
-    for (let r = row; r < row + block.rows; r++)
-      for (let c = col; c < col + block.cols; c++) if (world.isOwned(c, r)) return false;
-    return this.isAdjacentToOwned(col, row, block.cols, block.rows);
-  }
-
-  expandBlock(block: BlockExpansion, col: number, row: number): ActionResult {
-    const { economy, progression, state, bus } = this.ctx;
-    if (!progression.isUnlocked(block.unlockLevel))
-      return fail(`Unlocks at level ${block.unlockLevel}`);
-    if (!this.canPlaceBlock(block, col, row)) return fail('Cannot place block here');
-    if (!economy.spend(block.price)) return fail('Not enough money');
-    const newBlock: LandBlock = { col, row, cols: block.cols, rows: block.rows };
-    state.ownedBlocks.push(newBlock);
-    const maxCol = Math.max(...state.ownedBlocks.map((b) => b.col + b.cols));
-    const maxRow = Math.max(...state.ownedBlocks.map((b) => b.row + b.rows));
-    state.landSize = Math.max(maxCol, maxRow);
-    bus.emit('LandExpanded', { size: state.landSize });
-    return ok;
-  }
-
-  private isAdjacentToOwned(col: number, row: number, cols: number, rows: number): boolean {
-    const { world } = this.ctx;
-    for (let c = col; c < col + cols; c++) {
-      if (world.isOwned(c, row - 1)) return true;
-      if (world.isOwned(c, row + rows)) return true;
+    for (let c = block.col; c < block.col + block.cols; c++) {
+      if (world.isOwned(c, block.row - 1)) return true;
+      if (world.isOwned(c, block.row + block.rows)) return true;
     }
-    for (let r = row; r < row + rows; r++) {
-      if (world.isOwned(col - 1, r)) return true;
-      if (world.isOwned(col + cols, r)) return true;
+    for (let r = block.row; r < block.row + block.rows; r++) {
+      if (world.isOwned(block.col - 1, r)) return true;
+      if (world.isOwned(block.col + block.cols, r)) return true;
     }
     return false;
+  }
+
+  claimBlock(id: string): ActionResult {
+    const { economy, progression, state, bus } = this.ctx;
+    const block = this.expansionBlocks.find((b) => b.id === id);
+    if (!block) return fail('Unknown plot');
+    if (state.claimedBlocks.includes(id)) return fail('Already yours');
+    if (!progression.isUnlocked(block.unlockLevel))
+      return fail(`Unlocks at level ${block.unlockLevel}`);
+    if (!DEBUG_MODE && !this.touchesOwned(block)) return fail('Clear the land next to it first');
+    if (!economy.spend(block.price)) return fail('Not enough money');
+    state.ownedBlocks.push({ col: block.col, row: block.row, cols: block.cols, rows: block.rows });
+    state.claimedBlocks.push(id);
+    bus.emit('LandExpanded', { block });
+    return ok;
   }
 
   upgradeStorage(): ActionResult {

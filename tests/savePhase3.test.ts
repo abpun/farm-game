@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MemoryStore } from '@core/save/KeyValueStore';
 import { SAVE_KEYS } from '@core/save/SaveSystem';
-import { buildReady, config, FakeClock, newSession, richSession } from './helpers';
+import { buildReady, config, FakeClock, freeTile, newSession, richSession } from './helpers';
 
 describe('Phase 3 save data', () => {
   it('migrates a v4 save into v5 defaults, keeping progress', () => {
@@ -21,7 +21,7 @@ describe('Phase 3 save data', () => {
     expect(session.inventory.count('carrot')).toBe(3);
     expect(session.state.inventory.retired).toBeUndefined();
     expect(session.progression.level()).toBe(1);
-    expect(session.state.landSize).toBe(config.farm.land.startSize);
+    expect(session.state.ownedBlocks).toEqual([config.farm.land.start]);
     expect(session.state.fishing.rodId).toBe('bamboo-rod');
     expect(session.plots.progress(1)).toBeCloseTo(0.5);
     expect(session.plots.isWatered(1)).toBe(false);
@@ -80,7 +80,7 @@ describe('Phase 3 save data', () => {
     const store = new MemoryStore();
     const clock = new FakeClock();
     const first = richSession(20, { store, clock });
-    const { col, row } = { col: 8, row: 8 };
+    const { col, row } = freeTile(first, 'dairy');
     first.farm.build('dairy', { col, row });
     const dairy = first.world.objectAt(col, row)!.id;
     first.save();

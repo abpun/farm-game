@@ -61,11 +61,10 @@
         "rows": 1
       },
       "art": "fence",
-      "description": "Stands on tile edges and joins up",
+      "description": "A simple wooden fence",
       "removable": true,
       "available": true,
-      "listed": true,
-      "placement": "edge"
+      "listed": true
     },
     {
       "id": "white-fence",
@@ -78,11 +77,10 @@
         "rows": 1
       },
       "art": "fence-white",
-      "description": "A crisp white picket fence for tile edges",
+      "description": "A crisp white picket fence",
       "removable": true,
       "available": true,
       "listed": true,
-      "placement": "edge",
       "unlockLevel": 2
     },
     {
@@ -160,25 +158,23 @@
         "rows": 1
       },
       "art": "bush-autumn",
-      "description": "A cosy red shrub; sits on a tile edge",
+      "description": "A cosy red shrub",
       "removable": true,
       "available": true,
-      "listed": true,
-      "placement": "edge"
+      "listed": true
     },
     {
       "id": "hedge",
       "name": "Box Hedge",
       "category": "plants",
-      "kind": "decor",
-      "placement": "edge",
+      "kind": "fence",
       "price": 8,
       "footprint": {
         "cols": 1,
         "rows": 1
       },
       "art": "hedge",
-      "description": "A clipped hedge that lines tile edges",
+      "description": "A clipped box hedge",
       "removable": true,
       "available": true,
       "listed": true

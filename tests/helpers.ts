@@ -43,8 +43,8 @@ export function richSession(level = 20, options: TestSessionOptions = {}): GameS
 }
 
 export function freeTile(session: GameSession, itemId: string): { col: number; row: number } {
-  for (let row = 0; row < session.state.landSize; row++) {
-    for (let col = 0; col < session.state.landSize; col++) {
+  for (let row = 0; row < session.world.size.rows; row++) {
+    for (let col = 0; col < session.world.size.columns; col++) {
       if (session.world.canPlace(itemId, { col, row })) return { col, row };
     }
   }

@@ -1,6 +1,6 @@
 import type { FarmState, PlacedObject, PlotCrop } from '../entities/types';
 
-export const SAVE_VERSION = 8;
+export const SAVE_VERSION = 10;
 
 export interface SaveFile {
   version: number;
@@ -28,6 +28,9 @@ type Migration = (file: RawFile) => RawFile;
 const V2_BED_SLOTS: Array<[number, number]> = [3, 5, 6, 8, 9, 10].flatMap((col) =>
   [4, 5, 6, 7].map((row): [number, number] => [col, row]),
 );
+
+/** Shape the frozen v6→v7 step still emits; `edge` only ever existed in stored JSON. */
+type LegacyEdgeObject = PlacedObject & { edge?: 'n' | 'w' };
 
 // Each entry upgrades a save from version N to N + 1. Never edit a shipped migration.
 const MIGRATIONS: Record<number, Migration> = {
@@ -73,21 +76,22 @@ const MIGRATIONS: Record<number, Migration> = {
   5: (file) => ({ ...file, version: 6 }),
   // v7 stands fences and bushes on tile edges. A fence tile becomes edges toward its fence
   // neighbours east and south (the ring shifts half a tile); a lone piece keeps its north edge.
+  // (v10 later retires the edge concept; `edge` here just rides through as raw JSON until then.)
   6: (file) => {
     const state = isRecord(file.state) ? file.state : {};
-    const objects = Array.isArray(state.objects) ? (state.objects as PlacedObject[]) : [];
+    const objects = Array.isArray(state.objects) ? (state.objects as LegacyEdgeObject[]) : [];
     const fenceAt = new Set(
       objects.filter((o) => o.itemId === 'fence').map((o) => `${o.col},${o.row}`),
     );
     let nextId = isFiniteNumber(state.nextObjectId) ? state.nextObjectId : objects.length + 1;
-    const migrated = objects.flatMap((object): PlacedObject[] => {
+    const migrated = objects.flatMap((object): LegacyEdgeObject[] => {
       if (object.itemId === 'bush-autumn') return [{ ...object, edge: 'n' }];
       if (object.itemId !== 'fence') return [object];
       const { col, row } = object;
       const east = fenceAt.has(`${col + 1},${row}`);
       const south = fenceAt.has(`${col},${row + 1}`);
       if (!east && !south) return [{ ...object, edge: 'n' }];
-      const pieces: PlacedObject[] = [];
+      const pieces: LegacyEdgeObject[] = [];
       if (east) pieces.push({ ...object, edge: 'n' });
       if (south) pieces.push({ ...object, id: east ? nextId++ : object.id, edge: 'w' });
       return pieces;
@@ -99,6 +103,44 @@ const MIGRATIONS: Record<number, Migration> = {
     const landSize = isFiniteNumber(state.landSize) ? state.landSize : 12;
     const ownedBlocks = [{ col: 0, row: 0, cols: landSize, rows: landSize }];
     return { ...file, version: 8, state: { ...state, ownedBlocks } };
+  },
+  // v9 re-centers the build grid: the starting plot moves from (0,0) to (4,4) so land can be
+  // bought on every side instead of only growing right and down. Everything placed shifts with it.
+  8: (file) => {
+    const state = isRecord(file.state) ? file.state : {};
+    const OFFSET = 4;
+    const objects = Array.isArray(state.objects) ? (state.objects as PlacedObject[]) : [];
+    const shifted = objects.map((o) => ({ ...o, col: o.col + OFFSET, row: o.row + OFFSET }));
+    const oldBlocks = Array.isArray(state.ownedBlocks)
+      ? (state.ownedBlocks as Array<{ col: number; row: number; cols: number; rows: number }>)
+      : [];
+    const ownedBlocks =
+      oldBlocks.length > 0
+        ? oldBlocks.map((b) => ({ ...b, col: b.col + OFFSET, row: b.row + OFFSET }))
+        : [{ col: OFFSET, row: OFFSET, cols: 12, rows: 12 }];
+    return {
+      ...file,
+      version: 9,
+      state: { ...state, objects: shifted, ownedBlocks, claimedBlocks: [] },
+    };
+  },
+  // v10 retires edge placement: fences and hedges become ordinary tile objects. A corner that
+  // used to be two edge pieces on one cell (e.g. a fence's north and west sides) collapses to
+  // the one tile object that cell can now hold.
+  9: (file) => {
+    const state = isRecord(file.state) ? file.state : {};
+    const objects = Array.isArray(state.objects) ? (state.objects as LegacyEdgeObject[]) : [];
+    const seenCells = new Set<string>();
+    const migrated: PlacedObject[] = [];
+    for (const { edge, ...object } of objects) {
+      if (edge !== undefined) {
+        const key = `${object.col},${object.row}`;
+        if (seenCells.has(key)) continue;
+        seenCells.add(key);
+      }
+      migrated.push(object);
+    }
+    return { ...file, version: 10, state: { ...state, objects: migrated } };
   },
 };
 
@@ -141,8 +183,7 @@ function isPlacedObject(value: unknown): value is PlacedObject {
     isFiniteNumber(value.id) &&
     typeof value.itemId === 'string' &&
     isFiniteNumber(value.col) &&
-    isFiniteNumber(value.row) &&
-    (value.edge === undefined || value.edge === 'n' || value.edge === 'w')
+    isFiniteNumber(value.row)
   );
 }
 

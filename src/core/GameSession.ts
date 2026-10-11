@@ -2,6 +2,7 @@ import { Content } from './config/Content';
 import type { Catalog } from './config/Catalog';
 import type { CropRegistry } from './config/CropRegistry';
 import { expandLayout } from './config/expandLayout';
+import { generateExpansionBlocks } from './config/expandBlocks';
 import type { FarmState, GameConfig } from './entities/types';
 import { EventBus, type GameBus } from './events/EventBus';
 import type { GameEvents } from './events/GameEvents';
@@ -119,8 +120,7 @@ export class GameSession {
     this.farm = new FarmService(
       ctx,
       farm.refundRatio,
-      farm.land.expansions,
-      farm.land.blockExpansions ?? [],
+      generateExpansionBlocks(farm.land, farm.world),
     );
     this.production = new ProductionService(ctx);
     this.ranch = new RanchService(ctx, farm.dayLengthSec);

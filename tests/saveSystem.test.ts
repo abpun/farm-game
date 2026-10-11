@@ -57,7 +57,8 @@ describe('save system', () => {
     const loaded = session(store);
     const beds = loaded.world.objects().filter((o) => o.itemId === 'plot');
     const carrotBed = beds.find((o) => loaded.plots.cropOf(o.id) === 'carrot');
-    expect(carrotBed).toMatchObject({ col: 3, row: 4 });
+    // v9 shifts the whole build grid by (4,4) so land can be bought on every side.
+    expect(carrotBed).toMatchObject({ col: 7, row: 8 });
     expect(loaded.plots.isReady(carrotBed!.id)).toBe(true);
     expect(loaded.world.objects().some((o) => o.itemId === 'cottage')).toBe(true);
     expect(loaded.economy.balance()).toBe(70);

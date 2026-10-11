@@ -10,26 +10,28 @@ export function openLandDialog(
   scene: Phaser.Scene,
   session: GameSession,
   toasts: ToastManager,
+  col: number,
+  row: number,
 ): void {
-  const next = session.farm.nextExpansion();
-  if (!next) {
-    toasts.show('The whole island is already yours', { icon: iconKey('land') });
+  const block = session.farm.blockAt(col, row);
+  if (!block) {
+    toasts.show("That land isn't for sale", { icon: iconKey('land') });
     return;
   }
-  const size = session.state.landSize;
-  const locked = !session.progression.isUnlocked(next.unlockLevel);
+  const locked = !session.progression.isUnlocked(block.unlockLevel);
+  const reachable = session.farm.touchesOwned(block);
   Modal.open(scene, {
     title: 'Expand your land',
     message:
-      `Grow your farm from ${size}×${size} to ${next.size}×${next.size} tiles for ` +
-      `$${formatMoney(next.price)}.` +
-      (locked ? ` Needs level ${next.unlockLevel}.` : ''),
+      `Clear this ${block.cols}×${block.rows} plot for $${formatMoney(block.price)}.` +
+      (locked ? ` Needs level ${block.unlockLevel}.` : '') +
+      (!locked && !reachable ? ' Clear the land next to it first.' : ''),
     actions: [
       {
-        label: `Buy for $${formatMoney(next.price)}`,
+        label: `Buy for $${formatMoney(block.price)}`,
         icon: iconKey('land'),
         onClick: () => {
-          const result = session.farm.expandLand();
+          const result = session.farm.claimBlock(block.id);
           toasts.show(result.ok ? 'Your farm grew! New land is ready.' : result.reason, {
             icon: iconKey('land'),
             color: result.ok ? UI_TEXT.gold : UI_TEXT.danger,

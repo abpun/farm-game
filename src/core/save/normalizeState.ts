@@ -10,6 +10,7 @@ import type {
   FishingState,
   FishRecord,
   GameConfig,
+  GridRect,
   LandBlock,
   MineNodeState,
   MiningState,
@@ -31,10 +32,8 @@ export function createEmptyState(config: GameConfig): FarmState {
     plots: {},
     xp: 0,
     level: 1,
-    landSize: config.farm.land.startSize,
-    ownedBlocks: [
-      { col: 0, row: 0, cols: config.farm.land.startSize, rows: config.farm.land.startSize },
-    ],
+    ownedBlocks: [{ ...config.farm.land.start }],
+    claimedBlocks: [],
     storageLevel: 1,
     stats: {},
     buildings: {},
@@ -77,7 +76,7 @@ export function normalizeState(stored: StoredState, content: Content): FarmState
   const { config } = content;
   const objects = stored.objects
     .filter((object) => content.catalog.has(object.itemId))
-    .map((object) => normalizeObject(object, content));
+    .map(normalizeObject);
   const kindOf = (itemId: string) => content.catalog.get(itemId).kind;
   const plotIds = new Set(
     objects.filter((o) => kindOf(o.itemId) === 'plot').map((o) => String(o.id)),
@@ -98,7 +97,6 @@ export function normalizeState(stored: StoredState, content: Content): FarmState
   const levels = config.progression.levels.length;
   const storageLevels = config.buildings.storage.length;
   const land = config.farm.land;
-  const validSizes = [land.startSize, ...land.expansions.map((e) => e.size)];
 
   return {
     money: stored.money,
@@ -113,10 +111,10 @@ export function normalizeState(stored: StoredState, content: Content): FarmState
     plots,
     xp: nonNegative(stored.xp, 0),
     level: clampInt(stored.level, 1, levels, 1),
-    landSize: validSizes.includes(stored.landSize ?? -1)
-      ? (stored.landSize as number)
-      : land.startSize,
-    ownedBlocks: toOwnedBlocks(stored.ownedBlocks, land.startSize),
+    ownedBlocks: toOwnedBlocks(stored.ownedBlocks, land.start),
+    claimedBlocks: Array.isArray(stored.claimedBlocks)
+      ? stored.claimedBlocks.filter((id): id is string => typeof id === 'string')
+      : [],
     storageLevel: clampInt(stored.storageLevel, 1, storageLevels, 1),
     stats: numberRecord(stored.stats),
     buildings,
@@ -307,9 +305,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
 
-function toOwnedBlocks(raw: unknown, startSize: number): LandBlock[] {
-  if (!Array.isArray(raw) || raw.length === 0)
-    return [{ col: 0, row: 0, cols: startSize, rows: startSize }];
+function toOwnedBlocks(raw: unknown, start: GridRect): LandBlock[] {
+  if (!Array.isArray(raw) || raw.length === 0) return [{ ...start }];
   return raw.filter(
     (b): b is LandBlock =>
       isRecord(b) &&
@@ -320,11 +317,10 @@ function toOwnedBlocks(raw: unknown, startSize: number): LandBlock[] {
   );
 }
 
-// Edge items always carry a side; tile items never do; only true marks a turned object.
-function normalizeObject(object: PlacedObject, content: Content): PlacedObject {
+// Only true marks a turned object.
+function normalizeObject(object: PlacedObject): PlacedObject {
   const { id, itemId, col, row } = object;
   const result: PlacedObject = { id, itemId, col, row };
-  if (content.catalog.get(itemId).placement === 'edge') result.edge = object.edge ?? 'n';
   if (object.rotated === true) result.rotated = true;
   return result;
 }

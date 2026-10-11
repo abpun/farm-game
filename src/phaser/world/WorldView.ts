@@ -34,7 +34,7 @@ export class WorldView {
     for (const object of this.session.world.objects()) {
       const item = this.session.catalog.get(object.itemId);
       if (item.kind === 'plot') continue;
-      this.sprites.get(object.id)?.setTexture(itemTexture(this.scene, item, seasonId, object));
+      this.sprites.get(object.id)?.setTexture(itemTexture(this.scene, item, seasonId));
     }
   }
 

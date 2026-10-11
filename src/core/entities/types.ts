@@ -84,8 +84,6 @@ export interface CatalogItem {
   available: boolean;
   /** False for landmarks (like the cottage) that never appear in the market. */
   listed: boolean;
-  /** 'edge' items (fences, hedges) stand on a tile's edge instead of filling it. */
-  placement?: 'tile' | 'edge';
   /** Plots only: what can grow here (defaults to garden beds). */
   soil?: Soil;
   /** Player level needed to build it. */
@@ -111,8 +109,7 @@ export interface GridRect {
 export type LayoutEntry =
   | { itemId: string; col: number; row: number }
   | { itemId: string; area: GridRect }
-  | { itemId: string; outline: GridRect; gaps?: Array<[col: number, row: number]> }
-  | { itemId: string; around: GridRect; gaps?: Array<[col: number, row: number, side: EdgeSide]> };
+  | { itemId: string; outline: GridRect; gaps?: Array<[col: number, row: number]> };
 
 /** A walkway in grid coordinates; tiles it crosses cannot be built on. */
 export interface PathConfig {
@@ -120,25 +117,35 @@ export interface PathConfig {
   width: number;
 }
 
-export interface LandExpansion {
-  /** Owned square side length after buying this expansion. */
-  size: number;
-  price: number;
-  unlockLevel: number;
-}
-
-export interface BlockExpansion {
+/** A band of fixed-size plots tiling one side of the ring around the owned land. */
+export interface RingBand {
   cols: number;
   rows: number;
   price: number;
   unlockLevel: number;
 }
 
+export interface LandConfig {
+  /** The starting owned rectangle, placed with room to grow on every side. */
+  start: GridRect;
+  top: RingBand;
+  bottom: RingBand;
+  left: RingBand;
+  right: RingBand;
+}
+
+/** A single purchasable plot generated around the owned land, stone-bordered until bought. */
+export interface BlockExpansion extends LandBlock {
+  id: string;
+  price: number;
+  unlockLevel: number;
+}
+
 export interface FarmConfig {
   startingMoney: number;
-  /** The whole buildable grid; only the owned square (see land) can be used. */
+  /** The whole buildable grid; only owned tiles (see land) can be used. */
   world: { columns: number; rows: number };
-  land: { startSize: number; expansions: LandExpansion[]; blockExpansions: BlockExpansion[] };
+  land: LandConfig;
   paths: PathConfig[];
   starterLayout: LayoutEntry[];
   refundRatio: number;
@@ -166,16 +173,11 @@ export interface GameConfig {
   exploration: ExplorationData;
 }
 
-/** Side of a cell an edge item stands on: its north (top-right) or west (top-left) edge. */
-export type EdgeSide = 'n' | 'w';
-
 export interface PlacedObject {
   id: number;
   itemId: string;
   col: number;
   row: number;
-  /** Edge items only: the cell side they stand on. */
-  edge?: EdgeSide;
   /** Turned a quarter: the footprint swaps columns and rows and the art is mirrored. */
   rotated?: boolean;
 }
@@ -316,8 +318,9 @@ export interface FarmState {
   plots: Record<string, PlotCrop>;
   xp: number;
   level: number;
-  landSize: number;
   ownedBlocks: LandBlock[];
+  /** Ids of fixed expansion blocks already bought, so the same plot can't be bought twice. */
+  claimedBlocks: string[];
   storageLevel: number;
   /** Lifetime counters that drive achievements. */
   stats: Record<string, number>;

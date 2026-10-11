@@ -5,35 +5,11 @@
     "rows": 20
   },
   "land": {
-    "startSize": 12,
-    "expansions": [
-      {
-        "size": 14,
-        "price": 1500,
-        "unlockLevel": 5
-      },
-      {
-        "size": 16,
-        "price": 5000,
-        "unlockLevel": 9
-      },
-      {
-        "size": 18,
-        "price": 12000,
-        "unlockLevel": 13
-      },
-      {
-        "size": 20,
-        "price": 25000,
-        "unlockLevel": 16
-      }
-    ],
-    "blockExpansions": [
-      { "cols": 4, "rows": 2, "price": 800, "unlockLevel": 3 },
-      { "cols": 4, "rows": 4, "price": 1500, "unlockLevel": 5 },
-      { "cols": 5, "rows": 2, "price": 1200, "unlockLevel": 7 },
-      { "cols": 5, "rows": 4, "price": 2500, "unlockLevel": 9 }
-    ]
+    "start": { "col": 4, "row": 4, "cols": 12, "rows": 12 },
+    "top": { "cols": 4, "rows": 4, "price": 600, "unlockLevel": 2 },
+    "bottom": { "cols": 4, "rows": 4, "price": 700, "unlockLevel": 3 },
+    "left": { "cols": 4, "rows": 3, "price": 900, "unlockLevel": 4 },
+    "right": { "cols": 4, "rows": 3, "price": 900, "unlockLevel": 4 }
   },
   "paths": [],
   "refundRatio": 0.5,
@@ -41,52 +17,52 @@
   "starterLayout": [
     {
       "itemId": "cottage",
-      "col": 4,
-      "row": 1
+      "col": 8,
+      "row": 5
     },
     {
       "itemId": "plot",
       "area": {
-        "col": 5,
-        "row": 5,
+        "col": 9,
+        "row": 9,
         "cols": 2,
         "rows": 2
       }
     },
     {
       "itemId": "maple-orange",
-      "col": 1,
-      "row": 1
+      "col": 5,
+      "row": 5
     },
     {
       "itemId": "maple-amber",
-      "col": 8,
-      "row": 1
+      "col": 12,
+      "row": 5
     },
     {
       "itemId": "maple-red",
-      "col": 0,
-      "row": 6
-    },
-    {
-      "itemId": "bush-autumn",
-      "col": 9,
-      "row": 6
-    },
-    {
-      "itemId": "bush-autumn",
-      "col": 7,
-      "row": 2
-    },
-    {
-      "itemId": "rock",
-      "col": 9,
+      "col": 4,
       "row": 10
     },
     {
-      "itemId": "rock",
-      "col": 1,
+      "itemId": "bush-autumn",
+      "col": 13,
       "row": 10
+    },
+    {
+      "itemId": "bush-autumn",
+      "col": 11,
+      "row": 6
+    },
+    {
+      "itemId": "rock",
+      "col": 13,
+      "row": 14
+    },
+    {
+      "itemId": "rock",
+      "col": 5,
+      "row": 14
     }
   ],
   "autosaveIntervalSec": 30,

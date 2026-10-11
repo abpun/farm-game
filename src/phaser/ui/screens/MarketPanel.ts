@@ -411,15 +411,19 @@ export class MarketPanel {
   }
 
   private landRow(width: number, height: number) {
-    const next = this.session.farm.nextExpansion();
+    const next = this.session.farm.cheapestAvailableBlock();
+    const pending = this.session.farm.pendingBlocks().length > 0;
     return slotRow(this.scene, width, height, {
       icon: iconKey('land'),
       title: next ? `Expand land  $${formatMoney(next.price)}` : 'All land owned',
       subtitle: next
-        ? `Grow to ${next.size}×${next.size} tiles · level ${next.unlockLevel}`
-        : 'The whole island is yours',
+        ? `Clear a ${next.cols}×${next.rows} plot · level ${next.unlockLevel}`
+        : pending
+          ? 'Tap the stone-marked plots around your farm'
+          : 'The whole island is yours',
       enabled: Boolean(next),
-      onClick: () => openLandDialog(this.scene, this.session, this.toasts),
+      onClick: () =>
+        next && openLandDialog(this.scene, this.session, this.toasts, next.col, next.row),
     });
   }
 

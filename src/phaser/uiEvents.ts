@@ -4,7 +4,8 @@ import { EventBus } from '@core/events/EventBus';
 export interface UiEvents {
   OpenBuilding: { objectId: number };
   OpenFishing: { spotId: string };
-  OpenLand: Record<string, never>;
+  /** An unowned tile was tapped; col/row pick out which expansion plot to show. */
+  OpenLand: { col: number; row: number };
   OpenMine: Record<string, never>;
   LeaveMine: Record<string, never>;
   OpenHarbor: Record<string, never>;

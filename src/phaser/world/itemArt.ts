@@ -3,7 +3,7 @@ import type { CatalogItem } from '@core/entities/types';
 import type { Spot } from '@core/systems/WorldSystem';
 import { BED_TEXTURES } from '../art/BedArtist';
 import { EXTRA_TEXTURES } from '../art/ExtraArtist';
-import { edgeKey, edgeShape, isEdgeArt } from '../art/FenceArtist';
+import { fenceShape } from '../art/FenceArtist';
 import { houseShape, type HouseFootprint } from '../art/HouseArtist';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
@@ -17,15 +17,8 @@ const STANDING_ORIGIN = { x: 0.5, y: 0.95 };
 const LAYER = { plot: 0, fence: 3, decor: 5, building: 5 } as const;
 export const CROP_LAYER = 2;
 
-const isEdge = (item: CatalogItem) => item.placement === 'edge';
-
-/** Grid point an object is centred on: its footprint middle, or the middle of its edge. */
+/** Grid point an object is centred on: its footprint middle. */
 export function spotCenter(item: CatalogItem, spot: Spot): { col: number; row: number } {
-  if (isEdge(item)) {
-    return spot.edge === 'w'
-      ? { col: spot.col, row: spot.row + 0.5 }
-      : { col: spot.col + 0.5, row: spot.row };
-  }
   const { cols, rows } = item.footprint;
   return spot.rotated
     ? { col: spot.col + rows / 2, row: spot.row + cols / 2 }
@@ -37,7 +30,7 @@ export function itemDepth(grid: IsoGrid, item: CatalogItem, spot: Spot): number 
   return grid.depthOf(center.col, center.row) + LAYER[item.kind];
 }
 
-// World sprite for a placed item, anchored on its footprint or edge and depth-sorted.
+// World sprite for a placed item, anchored on its footprint and depth-sorted.
 export function createItemImage(
   scene: Phaser.Scene,
   grid: IsoGrid,
@@ -45,13 +38,9 @@ export function createItemImage(
   spot: Spot,
   seasonId: string,
 ): Phaser.GameObjects.Image {
-  const art = itemTexture(scene, item, seasonId, spot);
+  const art = itemTexture(scene, item, seasonId);
   const top = grid.tileTop(spot.col, spot.row);
   const image = (() => {
-    if (isEdge(item) && isEdgeArt(item.art)) {
-      const anchor = edgeShape(grid).anchor[spot.edge ?? 'n'];
-      return addArt(scene, top.x - anchor.x * PIXEL_SCALE, top.y - anchor.y * PIXEL_SCALE, art);
-    }
     switch (item.kind) {
       case 'plot':
         return addArt(scene, top.x - grid.tileW / 2, top.y, plotTexture(item));
@@ -60,6 +49,20 @@ export function createItemImage(
         const corner = grid.toScreen(spot.col, spot.row + COTTAGE_ROW_INSET);
         const x = corner.x - anchor.x * PIXEL_SCALE;
         return addArt(scene, x, corner.y - anchor.y * PIXEL_SCALE, art);
+      }
+      case 'fence': {
+        // Centred on the tile, diagonal (an origin fraction so turning it flips cleanly
+        // onto the other grid-edge direction).
+        const shape = fenceShape(grid);
+        const center = grid.tileCenter(spot.col, spot.row);
+        return addArt(
+          scene,
+          center.x,
+          center.y,
+          art,
+          shape.center.x / shape.width,
+          shape.center.y / shape.height,
+        );
       }
       default: {
         const center = spotCenter(item, spot);
@@ -71,17 +74,9 @@ export function createItemImage(
   return image.setFlipX(Boolean(spot.rotated)).setDepth(itemDepth(grid, item, spot));
 }
 
-/** The world texture for an item in the given season (edge runs depend on their side). */
-export function itemTexture(
-  scene: Phaser.Scene,
-  item: CatalogItem,
-  seasonId: string,
-  spot?: Spot,
-): string {
+/** The world texture for an item in the given season. */
+export function itemTexture(scene: Phaser.Scene, item: CatalogItem, seasonId: string): string {
   if (item.kind === 'plot') return plotTexture(item);
-  if (isEdgeArt(item.art)) {
-    return seasonalTexture(scene.textures, edgeKey(item.art, spot?.edge ?? 'n'), seasonId);
-  }
   return seasonalTexture(scene.textures, item.art, seasonId);
 }
 
@@ -89,7 +84,6 @@ export function itemTexture(
 export function itemIconKey(scene: Phaser.Scene, item: CatalogItem): string {
   const uiIcon = `ui-icon-${item.id}`;
   if (scene.textures.exists(uiIcon)) return uiIcon;
-  if (isEdgeArt(item.art)) return seasonalTexture(scene.textures, edgeKey(item.art, 'n'), 'summer');
   return scene.textures.exists(item.art) ? item.art : 'ui-icon-lock';
 }
 

@@ -63,34 +63,26 @@ describe('moving and turning objects', () => {
   });
 });
 
-describe('edge items', () => {
-  it('stand on tile edges without blocking the tile', () => {
+describe('fences and hedges', () => {
+  it('occupy their own tile like any other object', () => {
     const session = richSession();
-    const tile = freeTile(session, 'plot');
-    expect(session.farm.build('white-fence', { ...tile, edge: 'n' }).ok).toBe(true);
-    expect(session.world.edgeAt(tile.col, tile.row, 'n')?.itemId).toBe('white-fence');
-    expect(session.farm.build('hedge', { ...tile, edge: 'n' }).ok).toBe(false);
-    expect(session.farm.build('hedge', { ...tile, edge: 'w' }).ok).toBe(true);
-    expect(session.farm.build('plot', tile).ok).toBe(true);
+    const tile = freeTile(session, 'white-fence');
+    expect(session.farm.build('white-fence', tile).ok).toBe(true);
+    expect(session.world.objectAt(tile.col, tile.row)?.itemId).toBe('white-fence');
+    expect(session.farm.build('hedge', tile).ok).toBe(false);
+    expect(session.farm.build('plot', tile).ok).toBe(false);
   });
 
-  it('keeps fences out of a building and buildings off fences', () => {
+  it('keeps buildings off a tile a fence already occupies', () => {
     const session = richSession();
     const tile = freeTile(session, 'coop');
-    session.farm.build('fence', { col: tile.col + 1, row: tile.row, edge: 'w' });
+    session.farm.build('fence', tile);
     expect(session.farm.build('coop', tile).ok).toBe(false);
-  });
-
-  it('places a fence on a tile edge', () => {
-    const session = richSession();
-    const tile = freeTile(session, 'fence');
-    expect(session.farm.build('fence', { ...tile, edge: 'n' }).ok).toBe(true);
-    expect(session.world.edgeAt(tile.col, tile.row, 'n')?.itemId).toBe('fence');
   });
 });
 
-describe('save v7', () => {
-  it('turns tile fences into edge fences and keeps bushes', () => {
+describe('save migration to tile fences', () => {
+  it('collapses an old edge-corner fence onto the one tile object it can now be', () => {
     const store = new MemoryStore();
     const objects = [
       { id: 1, itemId: 'fence', col: 2, row: 2 },
@@ -101,13 +93,13 @@ describe('save v7', () => {
     const state = { money: 5, time: 0, inventory: {}, nextObjectId: 5, objects, plots: {} };
     store.setItem(SAVE_KEYS.main, JSON.stringify({ version: 6, savedAt: null, state }));
     const session = newSession({ store });
-    expect(session.world.edgeAt(2, 2, 'n')?.itemId).toBe('fence');
-    expect(session.world.edgeAt(2, 2, 'w')?.itemId).toBe('fence');
-    expect(session.world.edgeAt(3, 2, 'n')?.itemId).toBe('fence');
-    expect(session.world.edgeAt(2, 3, 'n')?.itemId).toBe('fence');
-    expect(session.world.edgeAt(9, 9, 'n')?.itemId).toBe('bush-autumn');
-    expect(new Set(session.world.objects().map((o) => o.id)).size).toBe(
-      session.world.objects().length,
-    );
+    // v9 shifts the whole build grid by (4,4); v10 then collapses the old edge-corner
+    // duplicate (a fence that stood on both the north and west edges of one cell).
+    expect(session.world.objectAt(6, 6)?.itemId).toBe('fence');
+    expect(session.world.objectAt(7, 6)?.itemId).toBe('fence');
+    expect(session.world.objectAt(6, 7)?.itemId).toBe('fence');
+    expect(session.world.objectAt(13, 13)?.itemId).toBe('bush-autumn');
+    expect(session.world.objects()).toHaveLength(4);
+    expect(new Set(session.world.objects().map((o) => o.id)).size).toBe(4);
   });
 });

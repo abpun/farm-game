@@ -84,18 +84,32 @@ const SCARECROW = [
   '...obbo...',
 ];
 
+/** Standing decor (statues, scarecrows) should read at roughly this fraction of a tile's width. */
+const DECOR_WIDTH_RATIO = 0.45;
+
 export function generateExtraTextures(scene: Phaser.Scene, grid: IsoGrid): void {
   const { tileW: w, tileH: h } = grid.art;
   for (const [id, rows] of Object.entries(ANIMALS)) {
     const { width, height } = maskSize(rows);
     paintTexture(scene, animalTextureKey(id), width, height, (p) => p.mask(rows, ANIMAL_PALETTE));
   }
+  const decorScale = Math.max(1, Math.round((w * DECOR_WIDTH_RATIO) / 10));
   const statuePalette = { ...ANIMAL_PALETTE, y: 0xf6c544 };
-  paintTexture(scene, EXTRA_TEXTURES.fishStatue, 10, FISH_STATUE.length, (p) =>
-    p.mask(FISH_STATUE, statuePalette),
+  paintTexture(
+    scene,
+    EXTRA_TEXTURES.fishStatue,
+    10,
+    FISH_STATUE.length,
+    (p) => p.mask(FISH_STATUE, statuePalette),
+    decorScale,
   );
-  paintTexture(scene, EXTRA_TEXTURES.scarecrow, 10, SCARECROW.length, (p) =>
-    p.mask(SCARECROW, ANIMAL_PALETTE),
+  paintTexture(
+    scene,
+    EXTRA_TEXTURES.scarecrow,
+    10,
+    SCARECROW.length,
+    (p) => p.mask(SCARECROW, ANIMAL_PALETTE),
+    decorScale,
   );
 
   // Orchard plot: grass ring with a mulched, mounded circle for a tree.

@@ -1,5 +1,5 @@
 import type { DiscoveryKind, Quantities } from '../entities/content';
-import type { Order, PlacedObject } from '../entities/types';
+import type { BlockExpansion, Order, PlacedObject } from '../entities/types';
 
 export type MoneySource = 'sale' | 'order' | 'reward' | 'refund' | 'spend';
 
@@ -23,7 +23,7 @@ export interface GameEvents {
   SaveFailed: Record<string, never>;
   XpGained: { amount: number; xp: number };
   LevelUp: { level: number; coins: number };
-  LandExpanded: { size: number };
+  LandExpanded: { block: BlockExpansion };
   StorageUpgraded: { capacity: number };
   BuildingCompleted: { objectId: number };
   BuildingUpgraded: { objectId: number; level: number };

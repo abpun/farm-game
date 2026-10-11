@@ -110,7 +110,7 @@ export class UIScene extends Phaser.Scene {
       fishing.focusSpot(spotId);
       if (!fishing.drawer.isOpen) this.toggleDrawer('fishing');
     });
-    uiBus.on('OpenLand', () => openLandDialog(this, session, toasts));
+    uiBus.on('OpenLand', ({ col, row }) => openLandDialog(this, session, toasts, col, row));
     uiBus.on('OpenHarbor', () => chart());
     uiBus.on('Discover', ({ id }) => exploreDiscovery(session, toasts, id));
     uiBus.on('OpenMine', () => {

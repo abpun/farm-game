@@ -10,7 +10,9 @@ const newSession = () => new GameSession(config, new MemoryStore());
 const free = (session: GameSession) => {
   for (let row = 0; row < config.farm.world.rows; row++) {
     for (let col = 0; col < config.farm.world.columns; col++) {
-      if (!session.world.objectAt(col, row)) return { col, row };
+      if (session.world.isOwned(col, row) && !session.world.objectAt(col, row)) {
+        return { col, row };
+      }
     }
   }
   throw new Error('no free tile');
@@ -63,7 +65,7 @@ describe('building', () => {
     const cottage = session.world.objects().find((o) => o.itemId === 'cottage')!;
     session.economy.earn(1000);
     expect(session.farm.build('plot', { col: cottage.col, row: cottage.row }).ok).toBe(false);
-    const inside = { col: cottage.col + 1, row: cottage.row, edge: 'w' as const };
+    const inside = { col: cottage.col + 1, row: cottage.row };
     expect(session.farm.build('fence', inside).ok).toBe(false);
     expect(session.farm.build('fence', { col: -1, row: 0 }).ok).toBe(false);
     expect(
@@ -91,14 +93,14 @@ describe('building', () => {
     const session = newSession();
     session.economy.earn(1000);
     const tile = free(session);
-    session.farm.build('fence', { ...tile, edge: 'n' });
-    const fence = session.world.edgeAt(tile.col, tile.row, 'n')!;
+    session.farm.build('fence', tile);
+    const fence = session.world.objectAt(tile.col, tile.row)!;
     const before = session.economy.balance();
     expect(session.farm.demolish(fence.id).ok).toBe(true);
     expect(session.economy.balance()).toBe(
       before + Math.floor(session.catalog.get('fence').price * config.farm.refundRatio),
     );
-    expect(session.world.edgeAt(tile.col, tile.row, 'n')).toBeUndefined();
+    expect(session.world.objectAt(tile.col, tile.row)).toBeUndefined();
 
     const cottage = session.world.objects().find((o) => o.itemId === 'cottage')!;
     expect(session.farm.demolish(cottage.id).ok).toBe(false);

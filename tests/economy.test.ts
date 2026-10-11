@@ -84,11 +84,30 @@ describe('market', () => {
     expect(session.inventory.add('carrot', 1)).toBe(true);
   });
 
-  it('expands land so new tiles become buildable', () => {
+  it('buys a stone-bordered plot so its tiles become buildable', () => {
     const session = richSession(20);
-    const edge = session.state.landSize;
-    expect(session.world.canPlace('fence', { col: edge, row: 0 })).toBe(false);
-    expect(session.farm.expandLand().ok).toBe(true);
-    expect(session.world.canPlace('fence', { col: edge, row: 0 })).toBe(true);
+    const block = session.farm.cheapestAvailableBlock();
+    expect(block).toBeDefined();
+    expect(session.world.canPlace('fence', { col: block!.col, row: block!.row })).toBe(false);
+    expect(session.farm.claimBlock(block!.id).ok).toBe(true);
+    expect(session.world.canPlace('fence', { col: block!.col, row: block!.row })).toBe(true);
+  });
+
+  it('refuses a plot that is locked by level', () => {
+    const session = richSession(1);
+    const locked = session.farm.pendingBlocks().find((b) => b.unlockLevel > 1);
+    expect(locked).toBeDefined();
+    expect(session.farm.claimBlock(locked!.id)).toEqual({
+      ok: false,
+      reason: `Unlocks at level ${locked!.unlockLevel}`,
+    });
+  });
+
+  it('refuses to buy the same plot twice', () => {
+    const session = richSession(20);
+    const cheap = session.farm.cheapestAvailableBlock();
+    expect(cheap).toBeDefined();
+    expect(session.farm.claimBlock(cheap!.id).ok).toBe(true);
+    expect(session.farm.claimBlock(cheap!.id)).toEqual({ ok: false, reason: 'Already yours' });
   });
 });

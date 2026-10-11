@@ -40,7 +40,7 @@ export class FarmSweep {
     this.active = {
       kind,
       tool,
-      start: this.keyOf(kind, tool, point),
+      start: this.keyOf(point),
       last: point,
       visited: new Set(),
       moved: false,
@@ -53,7 +53,7 @@ export class FarmSweep {
     const sweep = this.active;
     if (!sweep) return;
     if (!sweep.moved) {
-      if (this.keyOf(sweep.kind, sweep.tool, point) === sweep.start) return;
+      if (this.keyOf(point) === sweep.start) return;
       sweep.moved = true;
       this.apply(sweep, sweep.last);
     }
@@ -83,17 +83,16 @@ export class FarmSweep {
     if (tool.kind === 'plant' && isPlot) return 'plant';
     if (tool.kind === 'none' && isPlot && plots.isReady(target.id)) return 'harvest';
     if (tool.kind !== 'build') return null;
-    const spot = spotUnder(point, world.isEdgeItem(tool.itemId));
+    const spot = spotUnder(point);
     return world.canPlace(tool.itemId, spot) ? 'build' : null;
   }
 
-  private keyOf(kind: SweepKind, tool: Tool, point: GridPoint): string {
-    const onEdge = tool.kind === 'build' && this.session.world.isEdgeItem(tool.itemId);
-    return kind === 'build' ? spotKey(spotUnder(point, onEdge)) : spotKey(spotUnder(point, false));
+  private keyOf(point: GridPoint): string {
+    return spotKey(spotUnder(point));
   }
 
   private apply(sweep: Active, point: GridPoint): void {
-    const key = this.keyOf(sweep.kind, sweep.tool, point);
+    const key = this.keyOf(point);
     if (sweep.visited.has(key)) return;
     sweep.visited.add(key);
     const reason = this.act(sweep, point);
@@ -106,7 +105,7 @@ export class FarmSweep {
   private act({ kind, tool }: Active, point: GridPoint): string | null {
     const { world, plots, farm } = this.session;
     if (kind === 'build' && tool.kind === 'build') {
-      const result = farm.build(tool.itemId, spotUnder(point, world.isEdgeItem(tool.itemId)));
+      const result = farm.build(tool.itemId, spotUnder(point));
       return result.ok ? null : result.reason;
     }
     const target = world.objectAt(Math.floor(point.col), Math.floor(point.row));

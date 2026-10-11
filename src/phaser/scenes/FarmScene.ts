@@ -182,7 +182,7 @@ export class FarmScene extends Phaser.Scene {
       return;
     }
     if (tool.kind === 'build') {
-      const spot = spotUnder(point, session.world.isEdgeItem(tool.itemId));
+      const spot = spotUnder(point);
       const result = session.farm.build(tool.itemId, spot);
       if (!result.ok) say(result.reason, TEXT.error);
       return;
@@ -199,7 +199,7 @@ export class FarmScene extends Phaser.Scene {
     }
     const target = session.world.objectAt(cell.col, cell.row);
     if (!session.world.isOwned(cell.col, cell.row)) {
-      if (tool.kind === 'none') getUiBus(this).emit('OpenLand', {});
+      if (tool.kind === 'none') getUiBus(this).emit('OpenLand', { col: cell.col, row: cell.row });
       return;
     }
     if (!target) return;
@@ -225,7 +225,7 @@ export class FarmScene extends Phaser.Scene {
       tools.set({ kind: 'move', objectId: null });
       return;
     }
-    const spot = spotUnder(point, session.world.isEdgeItem(object.itemId), tool.rotated);
+    const spot = spotUnder(point, tool.rotated);
     const result = session.farm.move(object.id, spot);
     if (!result.ok) {
       say(result.reason, TEXT.error);

@@ -53,6 +53,7 @@ function makeIcon(scene: Phaser.Scene, crop: CropDef, spec: CropSheetSpec, sourc
   texture.refresh();
 }
 
+// A tree stands at the tile's centre, like the mulched circle its orchard plot is drawn around.
 function copyFrame(
   scene: Phaser.Scene,
   key: string,
@@ -68,10 +69,11 @@ function copyFrame(
   const dh = Math.round(spec.frame.h * scale);
   const texture = scene.textures.createCanvas(key, w, h + headroom);
   if (!texture) throw new Error(`Could not create ${key}`);
+  const at = diamondPoint(0.5, 0.5, w, h);
   const gx = Math.round(spec.ground.x * scale);
   const gy = Math.round(spec.ground.y * scale);
-  const x = Math.round(w / 2 - gx);
-  const y = headroom - gy;
+  const x = Math.round(at.x - gx);
+  const y = Math.round(at.y + headroom - gy);
   texture.getContext().drawImage(source, frameX, 0, spec.frame.w, spec.frame.h, x, y, dw, dh);
   texture.refresh();
 }
