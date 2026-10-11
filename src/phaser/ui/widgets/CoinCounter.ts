@@ -12,8 +12,10 @@ const BUMP_MS = 90;
 export class CoinCounter extends Phaser.GameObjects.Container {
   private readonly text: Phaser.GameObjects.Text;
   private readonly icon: Phaser.GameObjects.Image;
+  private readonly baseIconScale: number;
   private shown: number;
   private counter: Phaser.Tweens.Tween | null = null;
+  private bump: Phaser.Tweens.Tween | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -27,7 +29,8 @@ export class CoinCounter extends Phaser.GameObjects.Container {
     this.shown = value;
     const iconSize = height - UI_PX * 6;
     this.icon = scene.add.image(UI_PX * 5 + iconSize / 2, height / 2, iconKey('coin'));
-    this.icon.setScale(iconSize / Math.max(this.icon.height, 1));
+    this.baseIconScale = iconSize / Math.max(this.icon.height, 1);
+    this.icon.setScale(this.baseIconScale);
     this.text = scene.add
       .text(
         UI_PX * 8 + iconSize,
@@ -51,13 +54,14 @@ export class CoinCounter extends Phaser.GameObjects.Container {
       onUpdate: (tween) => this.render(Math.round(tween.getValue() ?? value)),
       onComplete: () => this.render(value),
     });
-    const baseScale = this.icon.scaleX;
-    this.scene.tweens.add({
+    this.bump?.stop();
+    this.icon.setScale(this.baseIconScale);
+    this.bump = this.scene.tweens.add({
       targets: this.icon,
-      scale: baseScale * BUMP_SCALE,
+      scale: this.baseIconScale * BUMP_SCALE,
       duration: BUMP_MS,
       yoyo: true,
-      onComplete: () => this.icon.setScale(baseScale),
+      onComplete: () => this.icon.setScale(this.baseIconScale),
     });
   }
 

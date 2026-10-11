@@ -1,4 +1,5 @@
 import { fail, ok, type ActionResult } from '../actions';
+import { DEBUG_MODE } from '../debug';
 import type {
   BaitDef,
   BoatDef,
@@ -115,6 +116,7 @@ export class FishingService {
   }
 
   spotBlocker(spotId: string): string | null {
+    if (DEBUG_MODE) return null;
     const spot = this.ctx.content.spots.find(spotId);
     if (!spot) return 'Unknown fishing spot';
     if (!this.ctx.progression.isUnlocked(spot.unlockLevel)) {
@@ -134,7 +136,7 @@ export class FishingService {
     if (blocker) return fail(blocker);
     const bait = baitId ? this.data.baits.find((b) => b.item === baitId) : undefined;
     if (baitId && !bait) return fail('Unknown bait');
-    if (bait && bait.fishingLevel > this.level()) {
+    if (!DEBUG_MODE && bait && bait.fishingLevel > this.level()) {
       return fail(`Bait needs fishing level ${bait.fishingLevel}`);
     }
     if (!inventory.canFit(1)) return fail(BARN_FULL);

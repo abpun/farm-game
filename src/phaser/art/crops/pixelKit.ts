@@ -29,65 +29,99 @@ export function ramp(color: number): Ramp {
   return [step(0), step(1), step(2), step(3), step(4)];
 }
 
-/** A drawing surface in art pixels with the shaping tools the crop painters share. */
+/**
+ * A drawing surface whose painters work in logical coordinates while the
+ * underlying buffer is `scale`× larger. Every primitive draws individual
+ * physical pixels (not blocky blocks), so a scale-3 surface gives 3× the
+ * detail with smooth shading.
+ */
 export class Pixels {
   readonly buffer: PixelBuffer;
+  /** Logical dimensions (what painters see). */
+  readonly width: number;
+  readonly height: number;
   private readonly s: number;
+  private readonly pw: number;
+  private readonly ph: number;
 
-  constructor(
-    readonly width: number,
-    readonly height: number,
-    scale = 1,
-  ) {
+  constructor(width: number, height: number, scale = 1) {
+    this.width = width;
+    this.height = height;
     this.s = scale;
-    this.buffer = new PixelBuffer(width * scale, height * scale);
+    this.pw = width * scale;
+    this.ph = height * scale;
+    this.buffer = new PixelBuffer(this.pw, this.ph);
   }
 
-  set(x: number, y: number, color: number): void {
-    const s = this.s;
-    const px = Math.round(x) * s;
-    const py = Math.round(y) * s;
-    for (let dy = 0; dy < s; dy++)
-      for (let dx = 0; dx < s; dx++) this.buffer.set(px + dx, py + dy, color);
+  // --- raw physical-pixel helpers (no scaling) ---
+
+  private rawSet(px: number, py: number, color: number): void {
+    this.buffer.set(px, py, color);
   }
 
-  isSet(x: number, y: number): boolean {
-    const px = Math.round(x) * this.s;
-    const py = Math.round(y) * this.s;
-    if (px < 0 || py < 0 || px >= this.buffer.width || py >= this.buffer.height) return false;
-    return (this.buffer.data[(py * this.buffer.width + px) * 4 + 3] ?? 0) > 0;
+  private rawIsSet(px: number, py: number): boolean {
+    if (px < 0 || py < 0 || px >= this.pw || py >= this.ph) return false;
+    return (this.buffer.data[(py * this.pw + px) * 4 + 3] ?? 0) > 0;
   }
 
-  colorAt(x: number, y: number): number {
-    const px = Math.round(x) * this.s;
-    const py = Math.round(y) * this.s;
-    const i = (py * this.buffer.width + px) * 4;
+  private rawColorAt(px: number, py: number): number {
+    const i = (py * this.pw + px) * 4;
     const d = this.buffer.data;
     return ((d[i] ?? 0) << 16) | ((d[i + 1] ?? 0) << 8) | (d[i + 2] ?? 0);
   }
 
+  // --- public API in logical coordinates ---
+
+  set(x: number, y: number, color: number): void {
+    this.rawSet(Math.round(x * this.s), Math.round(y * this.s), color);
+  }
+
+  isSet(x: number, y: number): boolean {
+    return this.rawIsSet(Math.round(x * this.s), Math.round(y * this.s));
+  }
+
+  colorAt(x: number, y: number): number {
+    return this.rawColorAt(Math.round(x * this.s), Math.round(y * this.s));
+  }
+
   rect(x: number, y: number, w: number, h: number, color: number): void {
-    for (let dy = 0; dy < h; dy++) for (let dx = 0; dx < w; dx++) this.set(x + dx, y + dy, color);
+    const s = this.s;
+    const px = Math.round(x * s);
+    const py = Math.round(y * s);
+    const pw = Math.round(w * s);
+    const ph = Math.round(h * s);
+    for (let dy = 0; dy < ph; dy++)
+      for (let dx = 0; dx < pw; dx++) this.rawSet(px + dx, py + dy, color);
   }
 
   line(x0: number, y0: number, x1: number, y1: number, color: number | ((t: number) => number)) {
-    const steps = Math.max(1, Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))));
+    const s = this.s;
+    const sx0 = x0 * s;
+    const sy0 = y0 * s;
+    const sx1 = x1 * s;
+    const sy1 = y1 * s;
+    const steps = Math.max(1, Math.ceil(Math.max(Math.abs(sx1 - sx0), Math.abs(sy1 - sy0))));
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
-      this.set(
-        x0 + (x1 - x0) * t,
-        y0 + (y1 - y0) * t,
+      this.rawSet(
+        Math.round(sx0 + (sx1 - sx0) * t),
+        Math.round(sy0 + (sy1 - sy0) * t),
         typeof color === 'number' ? color : color(t),
       );
     }
   }
 
-  /** A shaded ellipsoid: each pixel's ramp step comes from its surface normal and the light. */
+  /** A shaded ellipsoid at full physical resolution for smooth gradients. */
   ball(cx: number, cy: number, rx: number, ry: number, shades: Ramp, rim = true): void {
-    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) {
-      for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
-        const nx = (x + 0.5 - cx) / rx;
-        const ny = (y + 0.5 - cy) / ry;
+    const s = this.s;
+    const scx = cx * s;
+    const scy = cy * s;
+    const srx = rx * s;
+    const sry = ry * s;
+    for (let py = Math.floor(scy - sry); py <= Math.ceil(scy + sry); py++) {
+      for (let px = Math.floor(scx - srx); px <= Math.ceil(scx + srx); px++) {
+        const nx = (px + 0.5 - scx) / srx;
+        const ny = (py + 0.5 - scy) / sry;
         const d = nx * nx + ny * ny;
         if (d > 1) continue;
         const nz = Math.sqrt(1 - d);
@@ -95,7 +129,7 @@ export class Pixels {
         let step: number =
           lit > 0.82 ? SHINE : lit > 0.55 ? LIGHT : lit > 0.2 ? BASE : lit > -0.15 ? SHADE : DEEP;
         if (rim && d > 0.8 && step > SHADE && nx > 0.3) step = SHADE;
-        this.set(x, y, shades[step] ?? shades[BASE]);
+        this.rawSet(px, py, shades[step] ?? shades[BASE]);
       }
     }
   }
@@ -105,17 +139,27 @@ export class Pixels {
    * `width` mid-way, lit on the upper side, with a midrib.
    */
   leaf(x: number, y: number, angle: number, length: number, width: number, shades: Ramp): void {
+    const s = this.s;
+    const sx = x * s;
+    const sy = y * s;
+    const sl = length * s;
+    const sw = width * s;
     const ux = Math.cos(angle);
     const uy = Math.sin(angle);
-    const px = -uy;
-    const py = ux;
-    for (let a = 0; a <= length; a += 0.5) {
-      const t = a / length;
-      const half = width * Math.sin(Math.PI * Math.min(1, t * 1.15)) * 0.5;
+    const perpX = -uy;
+    const perpY = ux;
+    for (let a = 0; a <= sl; a += 0.5) {
+      const t = a / sl;
+      const half = sw * Math.sin(Math.PI * Math.min(1, t * 1.15)) * 0.5;
       for (let b = -half; b <= half; b += 0.5) {
-        const upper = b * py < 0;
-        const step = Math.abs(b) < 0.5 ? SHADE : upper ? LIGHT : BASE;
-        this.set(x + ux * a + px * b, y + uy * a + py * b, shades[t > 0.85 ? LIGHT : step]);
+        const upper = b * perpY < 0;
+        const midrib = Math.abs(b) < 0.5 * s;
+        const step = midrib ? SHADE : upper ? LIGHT : BASE;
+        this.rawSet(
+          Math.round(sx + ux * a + perpX * b),
+          Math.round(sy + uy * a + perpY * b),
+          shades[t > 0.85 ? LIGHT : step],
+        );
       }
     }
   }
@@ -123,54 +167,59 @@ export class Pixels {
   /** Dark outline on the shadow side and below, lighter elsewhere (selective outline). */
   outline(): void {
     const marks: Array<[number, number, number]> = [];
-    for (let y = 0; y < this.height; y++) {
-      for (let x = 0; x < this.width; x++) {
-        if (this.isSet(x, y)) continue;
+    for (let py = 0; py < this.ph; py++) {
+      for (let px = 0; px < this.pw; px++) {
+        if (this.rawIsSet(px, py)) continue;
         const neighbours: Array<[number, number]> = [
-          [x + 1, y],
-          [x - 1, y],
-          [x, y + 1],
-          [x, y - 1],
+          [px + 1, py],
+          [px - 1, py],
+          [px, py + 1],
+          [px, py - 1],
         ];
-        const from = neighbours.find(([nx, ny]) => this.isSet(nx, ny));
+        const from = neighbours.find(([nx, ny]) => this.rawIsSet(nx, ny));
         if (!from) continue;
         const [nx, ny] = from;
-        const shadowSide = nx < x || ny < y;
-        marks.push([x, y, darken(this.colorAt(nx, ny), shadowSide ? OUTLINE_DARKEN : 0.62)]);
+        const shadowSide = nx < px || ny < py;
+        marks.push([px, py, darken(this.rawColorAt(nx, ny), shadowSide ? OUTLINE_DARKEN : 0.62)]);
       }
     }
-    for (const [x, y, color] of marks) this.set(x, y, color);
+    for (const [px, py, color] of marks) this.rawSet(px, py, color);
   }
 
   /** A soft ground shadow (drawn after the outline so it is not outlined). */
   shadow(cx: number, cy: number, rx: number, alpha = SHADOW_ALPHA): void {
     const s = this.s;
-    for (let lx = Math.ceil(cx - rx); lx <= Math.floor(cx + rx); lx++) {
-      for (const dy of [0, 1]) {
-        if (this.isSet(lx, cy + dy)) continue;
-        if (dy === 1 && Math.abs(lx - cx) > rx - 1) continue;
-        const px = Math.round(lx) * s;
-        const py = Math.round(cy + dy) * s;
-        for (let sy = 0; sy < s; sy++)
-          for (let sx = 0; sx < s; sx++) this.buffer.set(px + sx, py + sy, SHADOW_COLOR, alpha);
+    const scx = cx * s;
+    const scy = cy * s;
+    const srx = rx * s;
+    const sHeight = s;
+    for (let px = Math.ceil(scx - srx); px <= Math.floor(scx + srx); px++) {
+      for (let dy = 0; dy < sHeight * 2; dy++) {
+        const py = Math.round(scy) + dy;
+        if (this.rawIsSet(px, py)) continue;
+        if (dy >= sHeight && Math.abs(px - scx) > srx - s) continue;
+        this.buffer.set(px, py, SHADOW_COLOR, alpha);
       }
     }
   }
 
   /** Copies another surface onto this one at an offset, optionally mirrored. */
   stamp(source: Pixels, ox: number, oy: number, mirror = false): void {
-    const pw = source.buffer.width;
-    const ph = source.buffer.height;
-    for (let py = 0; py < ph; py++) {
-      for (let px = 0; px < pw; px++) {
-        const sx = mirror ? pw - 1 - px : px;
-        const i = (py * pw + sx) * 4;
+    const s = this.s;
+    const spw = source.buffer.width;
+    const sph = source.buffer.height;
+    const dox = Math.round(ox * s);
+    const doy = Math.round(oy * s);
+    for (let py = 0; py < sph; py++) {
+      for (let px = 0; px < spw; px++) {
+        const sx = mirror ? spw - 1 - px : px;
+        const i = (py * spw + sx) * 4;
         if ((source.buffer.data[i + 3] ?? 0) === 0) continue;
         const color =
           ((source.buffer.data[i] ?? 0) << 16) |
           ((source.buffer.data[i + 1] ?? 0) << 8) |
           (source.buffer.data[i + 2] ?? 0);
-        this.buffer.set(ox * this.s + px, oy * this.s + py, color);
+        this.rawSet(dox + px, doy + py, color);
       }
     }
   }

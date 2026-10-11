@@ -48,13 +48,6 @@
       "name": "Falls Overlook",
       "requires": {},
       "reward": { "xp": 20 }
-    },
-    {
-      "id": "lighthouse",
-      "kind": "viewpoint",
-      "name": "Harbor Lighthouse",
-      "requires": { "level": 2 },
-      "reward": { "coins": 60, "xp": 20 }
     }
   ]
 }

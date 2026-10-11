@@ -1,3 +1,4 @@
+import { DEBUG_MODE } from '../debug';
 import type { LevelDef } from '../entities/content';
 import type { FarmState } from '../entities/types';
 import type { GameBus } from '../events/EventBus';
@@ -33,7 +34,7 @@ export class ProgressionSystem {
   }
 
   isUnlocked(requiredLevel = 1): boolean {
-    return this.state.level >= requiredLevel;
+    return DEBUG_MODE || this.state.level >= requiredLevel;
   }
 
   addXp(amount: number): void {

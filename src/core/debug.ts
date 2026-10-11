@@ -1,1 +1,2 @@
-export const DEBUG_MODE = import.meta.env.VITE_DEBUG_MODE === 'true';
+export const DEBUG_MODE =
+  import.meta.env.VITE_DEBUG_MODE === 'true' && import.meta.env.MODE !== 'test';

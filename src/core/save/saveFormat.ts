@@ -1,6 +1,6 @@
 import type { FarmState, PlacedObject, PlotCrop } from '../entities/types';
 
-export const SAVE_VERSION = 7;
+export const SAVE_VERSION = 8;
 
 export interface SaveFile {
   version: number;
@@ -93,6 +93,12 @@ const MIGRATIONS: Record<number, Migration> = {
       return pieces;
     });
     return { ...file, version: 7, state: { ...state, objects: migrated, nextObjectId: nextId } };
+  },
+  7: (file) => {
+    const state = isRecord(file.state) ? file.state : {};
+    const landSize = isFiniteNumber(state.landSize) ? state.landSize : 12;
+    const ownedBlocks = [{ col: 0, row: 0, cols: landSize, rows: landSize }];
+    return { ...file, version: 8, state: { ...state, ownedBlocks } };
   },
 };
 

@@ -10,6 +10,7 @@ import type {
   FishingState,
   FishRecord,
   GameConfig,
+  LandBlock,
   MineNodeState,
   MiningState,
   Order,
@@ -31,6 +32,9 @@ export function createEmptyState(config: GameConfig): FarmState {
     xp: 0,
     level: 1,
     landSize: config.farm.land.startSize,
+    ownedBlocks: [
+      { col: 0, row: 0, cols: config.farm.land.startSize, rows: config.farm.land.startSize },
+    ],
     storageLevel: 1,
     stats: {},
     buildings: {},
@@ -112,6 +116,7 @@ export function normalizeState(stored: StoredState, content: Content): FarmState
     landSize: validSizes.includes(stored.landSize ?? -1)
       ? (stored.landSize as number)
       : land.startSize,
+    ownedBlocks: toOwnedBlocks(stored.ownedBlocks, land.startSize),
     storageLevel: clampInt(stored.storageLevel, 1, storageLevels, 1),
     stats: numberRecord(stored.stats),
     buildings,
@@ -301,6 +306,19 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value);
+
+function toOwnedBlocks(raw: unknown, startSize: number): LandBlock[] {
+  if (!Array.isArray(raw) || raw.length === 0)
+    return [{ col: 0, row: 0, cols: startSize, rows: startSize }];
+  return raw.filter(
+    (b): b is LandBlock =>
+      isRecord(b) &&
+      isFiniteNumber(b.col) &&
+      isFiniteNumber(b.row) &&
+      isFiniteNumber(b.cols) &&
+      isFiniteNumber(b.rows),
+  );
+}
 
 // Edge items always carry a side; tile items never do; only true marks a turned object.
 function normalizeObject(object: PlacedObject, content: Content): PlacedObject {

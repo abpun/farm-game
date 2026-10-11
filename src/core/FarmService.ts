@@ -1,6 +1,7 @@
 import { fail, ok, type ActionResult } from './actions';
+import { DEBUG_MODE } from './debug';
 import type { ItemCategory } from './entities/content';
-import type { LandExpansion } from './entities/types';
+import type { BlockExpansion, LandBlock, LandExpansion } from './entities/types';
 import type { Spot } from './systems/WorldSystem';
 import type { GameContext } from './services/GameContext';
 import { payCost } from './services/rewards';
@@ -15,6 +16,7 @@ export class FarmService {
     private readonly ctx: GameContext,
     private readonly refundRatio: number,
     private readonly expansions: readonly LandExpansion[],
+    private readonly blockExpansions: readonly BlockExpansion[] = [],
   ) {}
 
   plant(plotId: number, cropId: string): ActionResult {
@@ -32,7 +34,7 @@ export class FarmService {
     }
     if (!progression.isUnlocked(crop.unlockLevel))
       return fail(`Unlocks at level ${crop.unlockLevel}`);
-    if (plots.seasonRate(cropId) <= 0) {
+    if (!DEBUG_MODE && plots.seasonRate(cropId) <= 0) {
       return fail(`${crop.name} won't grow in ${seasons.current().name}`);
     }
     // Sow one from the barn when there is one; otherwise buy the seed.
@@ -127,11 +129,13 @@ export class FarmService {
     const { content, world, progression, state } = this.ctx;
     if (!content.catalog.has(itemId)) return 'Unknown item';
     const item = content.catalog.get(itemId);
-    if (!item.available) return 'Coming soon';
-    if (item.rewardOnly && !state.unlocks.includes(itemId)) return 'Earned from a trophy';
-    if (!progression.isUnlocked(item.unlockLevel)) return `Unlocks at level ${item.unlockLevel}`;
-    if (item.maxCount !== undefined && world.countOf(itemId) >= item.maxCount) {
-      return item.maxCount === 1 ? 'Already built' : `Limit of ${item.maxCount}`;
+    if (!DEBUG_MODE) {
+      if (!item.available) return 'Coming soon';
+      if (item.rewardOnly && !state.unlocks.includes(itemId)) return 'Earned from a trophy';
+      if (!progression.isUnlocked(item.unlockLevel)) return `Unlocks at level ${item.unlockLevel}`;
+      if (item.maxCount !== undefined && world.countOf(itemId) >= item.maxCount) {
+        return item.maxCount === 1 ? 'Already built' : `Limit of ${item.maxCount}`;
+      }
     }
     return null;
   }
@@ -212,8 +216,56 @@ export class FarmService {
       return fail(`Unlocks at level ${next.unlockLevel}`);
     if (!economy.spend(next.price)) return fail('Not enough money');
     state.landSize = next.size;
+    state.ownedBlocks = [{ col: 0, row: 0, cols: next.size, rows: next.size }];
     bus.emit('LandExpanded', { size: next.size });
     return ok;
+  }
+
+  availableBlocks(): readonly BlockExpansion[] {
+    const { progression } = this.ctx;
+    return this.blockExpansions.filter((b) => progression.isUnlocked(b.unlockLevel));
+  }
+
+  canPlaceBlock(block: BlockExpansion, col: number, row: number): boolean {
+    const { world } = this.ctx;
+    if (
+      col < 0 ||
+      row < 0 ||
+      col + block.cols > world.size.columns ||
+      row + block.rows > world.size.rows
+    )
+      return false;
+    for (let r = row; r < row + block.rows; r++)
+      for (let c = col; c < col + block.cols; c++) if (world.isOwned(c, r)) return false;
+    return this.isAdjacentToOwned(col, row, block.cols, block.rows);
+  }
+
+  expandBlock(block: BlockExpansion, col: number, row: number): ActionResult {
+    const { economy, progression, state, bus } = this.ctx;
+    if (!progression.isUnlocked(block.unlockLevel))
+      return fail(`Unlocks at level ${block.unlockLevel}`);
+    if (!this.canPlaceBlock(block, col, row)) return fail('Cannot place block here');
+    if (!economy.spend(block.price)) return fail('Not enough money');
+    const newBlock: LandBlock = { col, row, cols: block.cols, rows: block.rows };
+    state.ownedBlocks.push(newBlock);
+    const maxCol = Math.max(...state.ownedBlocks.map((b) => b.col + b.cols));
+    const maxRow = Math.max(...state.ownedBlocks.map((b) => b.row + b.rows));
+    state.landSize = Math.max(maxCol, maxRow);
+    bus.emit('LandExpanded', { size: state.landSize });
+    return ok;
+  }
+
+  private isAdjacentToOwned(col: number, row: number, cols: number, rows: number): boolean {
+    const { world } = this.ctx;
+    for (let c = col; c < col + cols; c++) {
+      if (world.isOwned(c, row - 1)) return true;
+      if (world.isOwned(c, row + rows)) return true;
+    }
+    for (let r = row; r < row + rows; r++) {
+      if (world.isOwned(col - 1, r)) return true;
+      if (world.isOwned(col + cols, r)) return true;
+    }
+    return false;
   }
 
   upgradeStorage(): ActionResult {

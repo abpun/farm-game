@@ -480,6 +480,15 @@ export const iconKey = (name: IconName) => `ui-icon-${name}`;
 export const seasonIconKey = (seasonId: string) =>
   seasonId in ICONS ? `ui-icon-${seasonId}` : iconKey('clock');
 
+const UI_DIR = 'assets/ui';
+const pngSheetKey = (name: string) => `ui-png-${name}`;
+
+export function loadUiIcons(scene: Phaser.Scene): void {
+  for (const name of Object.keys(ICONS)) {
+    scene.load.image(pngSheetKey(name), `${UI_DIR}/${name}.png`);
+  }
+}
+
 export function generateUiTextures(scene: Phaser.Scene): void {
   for (const [name, colors] of Object.entries(FRAMES)) {
     paintTexture(scene, frameKey(name as FrameName), FRAME_SIZE, FRAME_SIZE, (p) =>
@@ -487,10 +496,22 @@ export function generateUiTextures(scene: Phaser.Scene): void {
     );
   }
   for (const [name, rows] of Object.entries(ICONS)) {
+    const key = iconKey(name as IconName);
     const { width, height } = maskSize(rows);
-    paintTexture(scene, iconKey(name as IconName), width, height, (p) =>
-      p.mask(rows, ICON_PALETTE),
-    );
+    const png = pngSheetKey(name);
+    if (scene.textures.exists(png)) {
+      const source = scene.textures.get(png).getSourceImage() as HTMLImageElement;
+      const texture = scene.textures.createCanvas(key, width, height);
+      if (texture) {
+        const ctx = texture.getContext();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(source, 0, 0, width, height);
+        texture.refresh();
+      }
+      continue;
+    }
+    paintTexture(scene, key, width, height, (p) => p.mask(rows, ICON_PALETTE));
   }
 }
 

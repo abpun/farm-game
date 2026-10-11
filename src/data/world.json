@@ -313,13 +313,6 @@
       "v": 47.5
     },
     {
-      "id": "lighthouse",
-      "kind": "lighthouse",
-      "u": -25,
-      "v": 51,
-      "discovery": "lighthouse"
-    },
-    {
       "id": "falls-chest",
       "kind": "chest",
       "u": 29.3,

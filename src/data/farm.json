@@ -27,6 +27,12 @@
         "price": 25000,
         "unlockLevel": 16
       }
+    ],
+    "blockExpansions": [
+      { "cols": 4, "rows": 2, "price": 800, "unlockLevel": 3 },
+      { "cols": 4, "rows": 4, "price": 1500, "unlockLevel": 5 },
+      { "cols": 5, "rows": 2, "price": 1200, "unlockLevel": 7 },
+      { "cols": 5, "rows": 4, "price": 2500, "unlockLevel": 9 }
     ]
   },
   "paths": [],

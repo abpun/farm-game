@@ -116,7 +116,12 @@ export class GameSession {
       plots: this.plots,
       buildings: this.buildings,
     };
-    this.farm = new FarmService(ctx, farm.refundRatio, farm.land.expansions);
+    this.farm = new FarmService(
+      ctx,
+      farm.refundRatio,
+      farm.land.expansions,
+      farm.land.blockExpansions ?? [],
+    );
     this.production = new ProductionService(ctx);
     this.ranch = new RanchService(ctx, farm.dayLengthSec);
     this.fishing = new FishingService(ctx);

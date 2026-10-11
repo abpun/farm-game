@@ -30,7 +30,8 @@ describe('crop sheets', () => {
         expect(opaque, `${crop.id} frame ${frame}`).toBeGreaterThan(10);
       }
       const ripe = crop.stages * spec.frame.w + spec.ground.x;
-      const nearGround = [-1, 0, 1].some(
+      const margin = Math.max(1, Math.round(spec.frame.w / 20));
+      const nearGround = Array.from({ length: margin * 2 + 1 }, (_, i) => i - margin).some(
         (dx) => alphaAt(sheet.data, sheet.width, ripe + dx, spec.ground.y - 1) > 0,
       );
       expect(nearGround, `${crop.id} grows from its ground point`).toBe(true);

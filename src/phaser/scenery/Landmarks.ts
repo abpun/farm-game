@@ -2,7 +2,6 @@ import type * as Phaser from 'phaser';
 import type { GameSession } from '@core/GameSession';
 import { CAVE_TEXTURES } from '../art/CaveArtist';
 import { boatKey, HARBOR_TEXTURES, isletKey } from '../art/HarborArtist';
-import { LANTERN_Y, LIGHTHOUSE_GROUND, LIGHTHOUSE_SIZE } from '../art/harbor/lighthouse';
 import { pierCanvas } from '../art/harbor/pier';
 import { addArt } from '../art/paint';
 import { seasonalTexture } from '../art/seasonLooks';
@@ -25,10 +24,9 @@ const DEPTH_PER_V = 10;
 const ISLAND_DEPTH = TERRAIN_DEPTH.land + 10;
 const WATERFALL_FRAME_MS = 110;
 const BOB = { distance: PIXEL_SCALE, ms: 1400 };
-const GLOW_MS = 1200;
 const SPARKLE = { everyMs: 3200, ms: 500 };
 const SAIL_MS = 1600;
-const DOCK_OFFSET = { boathouse: { u: -3.6, v: -1.2 }, goods: { u: 2.6, v: -0.4 } };
+const DOCK_OFFSET = { goods: { u: 2.6, v: -0.4 } };
 /** Beside the pier head, which sits eight tiles out along the row axis. */
 const MOORING = { u: -5, v: 9.8 };
 
@@ -131,8 +129,6 @@ export class Landmarks {
         return this.placeWaterfall(feature);
       case 'harbor':
         return this.placeHarbor(feature);
-      case 'lighthouse':
-        return this.placeLighthouse(feature);
       case 'spot':
         return;
       default:
@@ -176,13 +172,6 @@ export class Landmarks {
       1,
     );
     dock.setDepth(this.depthAt(feature) - 1);
-    const shed = this.image(
-      offset(feature, DOCK_OFFSET.boathouse),
-      HARBOR_TEXTURES.boathouse,
-      0.5,
-      1,
-      2,
-    );
     this.image(offset(feature, DOCK_OFFSET.goods), HARBOR_TEXTURES.goods, 0.5, 1, 2);
     this.forSale = this.image(
       offset(feature, { u: 1, v: 0.4 }),
@@ -203,41 +192,8 @@ export class Landmarks {
       ease: 'Sine.easeInOut',
     });
     const tap: LandmarkTap = { kind: 'harbor' };
-    for (const image of [dock, shed, this.boat, this.forSale]) {
+    for (const image of [dock, this.boat, this.forSale]) {
       this.hotspots.push({ feature, image, tap });
-    }
-  }
-
-  private placeLighthouse(feature: WorldFeature): void {
-    const { height } = LIGHTHOUSE_SIZE;
-    const tower = this.image(
-      feature,
-      HARBOR_TEXTURES.lighthouse,
-      0.5,
-      LIGHTHOUSE_GROUND / height,
-      2,
-    );
-    const glow = addArt(
-      this.scene,
-      tower.x,
-      tower.y - (LIGHTHOUSE_GROUND - LANTERN_Y) * PIXEL_SCALE,
-      HARBOR_TEXTURES.lighthouseGlow,
-      0.5,
-      0.5,
-    )
-      .setDepth(tower.depth + 1)
-      .setAlpha(0.3);
-    this.scene.tweens.add({ targets: glow, alpha: 1, duration: GLOW_MS, yoyo: true, repeat: -1 });
-    if (feature.discovery) {
-      this.hotspots.push({
-        feature,
-        image: tower,
-        tap: {
-          kind: 'discovery',
-          id: feature.discovery,
-          name: this.session.content.discoveries.get(feature.discovery).name,
-        },
-      });
     }
   }
 

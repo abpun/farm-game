@@ -185,6 +185,7 @@ function tuber(p: Pixels, t: number, { leaf, produce }: PlantLook): void {
     }
   }
   if (t < 1) return;
+  p.ball(GX, GY, 2, 1.5, SOIL);
   p.ball(GX - 4, GY, 2.5, 1.8, produce);
   p.ball(GX + 4, GY - 0.5, 2, 1.6, produce);
 }

@@ -6,11 +6,10 @@ import type { IsoGrid } from '../iso/IsoGrid';
 import { textStyle, TEXT } from '../theme';
 import { formatMoney } from '../ui/format';
 
-// Above the island, below anything placed on it.
 const OVERLAY_DEPTH = -1400;
 const SIGN_DEPTH = 9500;
+const BORDER = 4;
 
-// Dims the tiles the player has not bought yet and labels the next plot of land for sale.
 export class LandView {
   private readonly tiles: Phaser.GameObjects.Image[] = [];
   private readonly sign: Phaser.GameObjects.Text;
@@ -32,10 +31,23 @@ export class LandView {
   private refresh(): void {
     this.tiles.splice(0).forEach((tile) => tile.destroy());
     const { world, farm } = this.session;
-    // Only the next plot for sale is marked; land beyond it is plain meadow.
-    const limit = farm.nextExpansion()?.size ?? 0;
-    for (let row = 0; row < Math.min(limit, world.size.rows); row++) {
-      for (let col = 0; col < Math.min(limit, world.size.columns); col++) {
+    const blocks = this.session.state.ownedBlocks;
+    let minCol = world.size.columns;
+    let minRow = world.size.rows;
+    let maxCol = 0;
+    let maxRow = 0;
+    for (const b of blocks) {
+      minCol = Math.min(minCol, b.col);
+      minRow = Math.min(minRow, b.row);
+      maxCol = Math.max(maxCol, b.col + b.cols);
+      maxRow = Math.max(maxRow, b.row + b.rows);
+    }
+    const r0 = Math.max(0, minRow - BORDER);
+    const r1 = Math.min(world.size.rows, maxRow + BORDER);
+    const c0 = Math.max(0, minCol - BORDER);
+    const c1 = Math.min(world.size.columns, maxCol + BORDER);
+    for (let row = r0; row < r1; row++) {
+      for (let col = c0; col < c1; col++) {
         if (world.isOwned(col, row)) continue;
         const top = this.grid.tileTop(col, row);
         this.tiles.push(
@@ -49,12 +61,18 @@ export class LandView {
       }
     }
     const next = farm.nextExpansion();
-    this.sign.setVisible(Boolean(next));
-    if (!next) return;
-    const size = this.session.state.landSize;
-    const at = this.grid.toScreen(size + (next.size - size) / 2, size + (next.size - size) / 2);
-    this.sign
-      .setPosition(at.x, at.y)
-      .setText(`Land for sale · $${formatMoney(next.price)} · Lv ${next.unlockLevel}`);
+    const cheapestBlock = farm.availableBlocks()[0];
+    if (next || cheapestBlock) {
+      const price = cheapestBlock?.price ?? next?.price ?? 0;
+      const cx = (c0 + c1) / 2;
+      const cy = (r0 + r1) / 2;
+      const at = this.grid.toScreen(cx, cy);
+      this.sign
+        .setPosition(at.x, at.y)
+        .setText(`Land for sale · from $${formatMoney(price)}`)
+        .setVisible(true);
+    } else {
+      this.sign.setVisible(false);
+    }
   }
 }

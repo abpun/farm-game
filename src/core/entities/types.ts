@@ -127,11 +127,18 @@ export interface LandExpansion {
   unlockLevel: number;
 }
 
+export interface BlockExpansion {
+  cols: number;
+  rows: number;
+  price: number;
+  unlockLevel: number;
+}
+
 export interface FarmConfig {
   startingMoney: number;
   /** The whole buildable grid; only the owned square (see land) can be used. */
   world: { columns: number; rows: number };
-  land: { startSize: number; expansions: LandExpansion[] };
+  land: { startSize: number; expansions: LandExpansion[]; blockExpansions: BlockExpansion[] };
   paths: PathConfig[];
   starterLayout: LayoutEntry[];
   refundRatio: number;
@@ -292,6 +299,13 @@ export interface ExplorationState {
   found: string[];
 }
 
+export interface LandBlock {
+  col: number;
+  row: number;
+  cols: number;
+  rows: number;
+}
+
 export interface FarmState {
   money: number;
   time: number;
@@ -303,6 +317,7 @@ export interface FarmState {
   xp: number;
   level: number;
   landSize: number;
+  ownedBlocks: LandBlock[];
   storageLevel: number;
   /** Lifetime counters that drive achievements. */
   stats: Record<string, number>;

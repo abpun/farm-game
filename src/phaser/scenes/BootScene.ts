@@ -5,7 +5,7 @@ import { loadTerrainSheets } from '../art/TerrainSheet';
 import { createFarmGrid } from '../iso/createFarmGrid';
 import { getSession } from '../session';
 import { generateItemIcons } from '../ui/itemIcons';
-import { generateUiTextures } from '../ui/uiTextures';
+import { generateUiTextures, loadUiIcons } from '../ui/uiTextures';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -15,6 +15,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     loadTerrainSheets(this);
     loadCropSheets(this, getSession(this).crops.all());
+    loadUiIcons(this);
   }
 
   create(): void {

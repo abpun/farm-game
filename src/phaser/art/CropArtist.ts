@@ -34,7 +34,7 @@ export function generateCropTextures(scene: Phaser.Scene, crops: CropDef[], grid
     makeIcon(scene, crop, spec, source);
     for (let stage = 0; stage < crop.stages; stage++) {
       const frameX = (stage + 1) * spec.frame.w;
-      if (spec.tree) copyFrame(scene, cropTextureKey(crop.id, stage), source, frameX, spec);
+      if (spec.tree) copyFrame(scene, cropTextureKey(crop.id, stage), source, frameX, spec, grid);
       else plantBed(scene, cropTextureKey(crop.id, stage), source, frameX, spec, grid);
     }
   }
@@ -59,11 +59,20 @@ function copyFrame(
   source: Source,
   frameX: number,
   spec: CropSheetSpec,
+  grid: IsoGrid,
 ) {
-  const { w, h } = spec.frame;
-  const texture = scene.textures.createCanvas(key, w, h);
+  const { tileW: w, tileH: h } = grid.art;
+  const headroom = Math.round(h * 1.5);
+  const scale = Math.min(1, headroom / spec.ground.y);
+  const dw = Math.round(spec.frame.w * scale);
+  const dh = Math.round(spec.frame.h * scale);
+  const texture = scene.textures.createCanvas(key, w, h + headroom);
   if (!texture) throw new Error(`Could not create ${key}`);
-  texture.getContext().drawImage(source, frameX, 0, w, h, 0, 0, w, h);
+  const gx = Math.round(spec.ground.x * scale);
+  const gy = Math.round(spec.ground.y * scale);
+  const x = Math.round(w / 2 - gx);
+  const y = headroom - gy;
+  texture.getContext().drawImage(source, frameX, 0, spec.frame.w, spec.frame.h, x, y, dw, dh);
   texture.refresh();
 }
 
@@ -77,22 +86,27 @@ function plantBed(
   grid: IsoGrid,
 ): void {
   const { tileW: w, tileH: h } = grid.art;
-  const headroom = spec.ground.y;
+  const headroom = Math.round(h * 0.7);
+  const scale = Math.min(1, headroom / spec.ground.y);
+  const dw = Math.round(spec.frame.w * scale);
+  const dh = Math.round(spec.frame.h * scale);
+  const gx = Math.round(spec.ground.x * scale);
+  const gy = Math.round(spec.ground.y * scale);
   const texture = scene.textures.createCanvas(key, w, h + headroom);
   if (!texture) throw new Error(`Could not create ${key}`);
   const ctx = texture.getContext();
   for (const spot of BED_SPOTS) {
     const at = diamondPoint(spot.u, spot.v, w, h);
-    const x = Math.round(at.x - spec.ground.x);
-    const y = Math.round(at.y + headroom - spec.ground.y);
+    const x = Math.round(at.x - gx);
+    const y = Math.round(at.y + headroom - gy);
     ctx.save();
     if (spot.mirror) {
-      ctx.translate(x + spec.frame.w, y);
+      ctx.translate(x + dw, y);
       ctx.scale(-1, 1);
     } else {
       ctx.translate(x, y);
     }
-    ctx.drawImage(source, frameX, 0, spec.frame.w, spec.frame.h, 0, 0, spec.frame.w, spec.frame.h);
+    ctx.drawImage(source, frameX, 0, spec.frame.w, spec.frame.h, 0, 0, dw, dh);
     ctx.restore();
   }
   texture.refresh();

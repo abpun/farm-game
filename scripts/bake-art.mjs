@@ -8,6 +8,7 @@ import { createServer } from 'vite';
 
 const TILES_DIR = 'public/assets/tiles';
 const CROPS_DIR = 'public/assets/crops';
+const UI_DIR = 'public/assets/ui';
 const only = process.argv[2];
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
@@ -19,10 +20,14 @@ try {
       write(TILES_DIR, `terrain-${seasonId}.png`, paintSheet(seasonId));
     }
   }
-  if (only !== 'tiles') {
+  if (only !== 'tiles' && only !== 'ui') {
     const { paintCropSheet } = await server.ssrLoadModule('/src/phaser/art/crops/cropSheet.ts');
     const { default: cropData } = await server.ssrLoadModule('/src/data/crops.json');
     for (const crop of cropData.crops) write(CROPS_DIR, `${crop.id}.png`, paintCropSheet(crop));
+  }
+  if (only !== 'tiles' && only !== 'crops') {
+    const { iconNames, paintIcon } = await server.ssrLoadModule('/src/phaser/ui/iconSheet.ts');
+    for (const name of iconNames()) write(UI_DIR, `${name}.png`, paintIcon(name));
   }
 } finally {
   await server.close();

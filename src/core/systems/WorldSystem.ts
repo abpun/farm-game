@@ -65,7 +65,10 @@ export class WorldSystem {
 
   /** True for tiles inside the land the player has bought. */
   isOwned(col: number, row: number): boolean {
-    return this.inBounds(col, row) && col < this.state.landSize && row < this.state.landSize;
+    if (!this.inBounds(col, row)) return false;
+    return this.state.ownedBlocks.some(
+      (b) => col >= b.col && col < b.col + b.cols && row >= b.row && row < b.row + b.rows,
+    );
   }
 
   countOf(itemId: string): number {

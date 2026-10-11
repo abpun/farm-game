@@ -1,3 +1,4 @@
+import { DEBUG_MODE } from '../debug';
 import type { ItemRegistry } from '../config/ItemRegistry';
 import type { Quantities, StorageLevel } from '../entities/content';
 import type { FarmState } from '../entities/types';
@@ -37,7 +38,7 @@ export class InventorySystem {
   }
 
   canFit(amount: number): boolean {
-    return amount <= this.freeSpace();
+    return DEBUG_MODE || amount <= this.freeSpace();
   }
 
   /** The next storage upgrade, or undefined at the top level. */
@@ -50,7 +51,7 @@ export class InventorySystem {
   }
 
   has(quantities: Quantities): boolean {
-    return Object.entries(quantities).every(([id, count]) => this.count(id) >= count);
+    return DEBUG_MODE || Object.entries(quantities).every(([id, count]) => this.count(id) >= count);
   }
 
   /** Adds unless the barn would overflow; `force` is for rewards that must never be lost. */
@@ -71,8 +72,9 @@ export class InventorySystem {
   }
 
   remove(itemId: string, amount: number): boolean {
-    if (amount <= 0 || !Number.isInteger(amount) || this.count(itemId) < amount) return false;
-    this.set(itemId, this.count(itemId) - amount);
+    if (amount <= 0 || !Number.isInteger(amount)) return false;
+    if (!DEBUG_MODE && this.count(itemId) < amount) return false;
+    this.set(itemId, Math.max(0, this.count(itemId) - amount));
     return true;
   }
 
