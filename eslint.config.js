@@ -39,4 +39,18 @@ export default tseslint.config(
     languageOptions: { globals: { console: 'readonly', Buffer: 'readonly', process: 'readonly' } },
     rules: { 'no-console': 'off' },
   },
+  {
+    // The music video tools run in Node and in a browser page.
+    files: ['tools/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        Buffer: 'readonly',
+        process: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+      },
+    },
+    rules: { 'no-console': 'off' },
+  },
 );
